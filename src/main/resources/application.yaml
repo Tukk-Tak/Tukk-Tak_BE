@@ -1,3 +1,37 @@
 spring:
   application:
     name: Tukk_Tak
+
+  # ===== Database (MySQL) =====
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:tukktak}?characterEncoding=UTF-8&useUnicode=true&serverTimezone=Asia/Seoul
+    username: ${MYSQL_USERNAME:tukktak}
+    password: ${MYSQL_PASSWORD:tukktak}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # ===== JPA / Hibernate =====
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+    show-sql: true
+
+  # ===== Flyway =====
+  flyway:
+    enabled: true
+    out-of-order: true
+    locations: classpath:db/migration
+
+  # ===== MongoDB (Spring Data 설정) =====
+  data:
+    mongodb:
+      auto-index-creation: true
+
+  # ===== MongoDB 접속 URI  =====
+app:
+  mongo:
+    uri: mongodb://${MONGO_USERNAME:tukktak}:${MONGO_PASSWORD:tukktak}@${MONGO_HOST:localhost}:${MONGO_PORT:27017}/${MONGO_DATABASE:tukktak}?authSource=${MONGO_DATABASE:tukktak}
+    database: ${MONGO_DATABASE:tukktak}
