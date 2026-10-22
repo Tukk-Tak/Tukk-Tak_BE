@@ -1,0 +1,32 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: tukktak-mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: tukktak
+    volumes:
+      - mongo-data:/data/db
+      - ./docker/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+
+#  mysql:
+#    image: mysql:8.0
+#    container_name: tukktak-mysql
+#    ports:
+#      - "3306:3306"
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root
+#      MYSQL_DATABASE: tukktak
+#      MYSQL_USER: tukktak
+#      MYSQL_PASSWORD: tukktak
+#      TZ: Asia/Seoul
+#    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+#    volumes:
+#      - mysql-data:/var/lib/mysql
+
+volumes:
+  mongo-data:
+#  mysql-data:
