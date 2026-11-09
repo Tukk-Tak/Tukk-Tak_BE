@@ -46,6 +46,10 @@ dependencies {
 
     // 몽고 db
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    // S3
+    implementation platform('software.amazon.awssdk:bom:2.29.0')
+    implementation 'software.amazon.awssdk:s3'
 }
 
 tasks.named('test') {
