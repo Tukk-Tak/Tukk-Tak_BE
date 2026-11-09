@@ -35,3 +35,12 @@ app:
   mongo:
     uri: mongodb://${MONGO_USERNAME:tukktak}:${MONGO_PASSWORD:tukktak}@${MONGO_HOST:localhost}:${MONGO_PORT:27017}/${MONGO_DATABASE:tukktak}?authSource=${MONGO_DATABASE:tukktak}
     database: ${MONGO_DATABASE:tukktak}
+
+  # ===== AWS S3 (이미지) =====
+cloud:
+  aws:
+    region: ap-northeast-2
+    s3:
+      community-bucket: tukktak-bucket
+    cloudfront:
+      domain: https://d2hgd0fvvrj50a.cloudfront.net
