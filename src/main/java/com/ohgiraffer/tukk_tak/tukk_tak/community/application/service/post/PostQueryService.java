@@ -20,7 +20,9 @@ public class PostQueryService implements PostQueryUsecase {
 
     @Override
     public List<PostSearchResult> getPosts(Long memberId, String keyword, Sort sort, int page, int size) {
-        List<PostInfo> posts = postRepository.findPostInfo(keyword, sort, page, size);
+        Sort orderBy = sort != null ? sort : (memberId == null ? Sort.POPULAR : Sort.LATEST);
+
+        List<PostInfo> posts = postRepository.findPostInfo(keyword, orderBy, page, size);
         if (posts.isEmpty()) {
             return List.of();
         }
