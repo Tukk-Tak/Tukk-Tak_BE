@@ -1,10 +1,12 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post;
 
 
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
+
 import java.util.List;
 
 public interface PostQueryUsecase {
-    List<PostSearchResult> getPosts(String keyword, int page, int size);
+    List<PostSearchResult> getPosts(Long memberId, String keyword, Sort sort, int page, int size);
 
     record PostSearchResult(
             Long id, String title, String imageUrl, String nickname,
