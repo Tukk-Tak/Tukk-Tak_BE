@@ -4,4 +4,6 @@ import com.ohgiraffer.tukk_tak.tukk_tak.community.application.command.CreatePost
 
 public interface PostCommandUsecase {
     void createPost(CreatePostCommand createPostCommand);
+
+    void deletePost(Long postId, Long memberId);
 }

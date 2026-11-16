@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SpringDataPostRepository  extends JpaRepository<PostJpaEntity, Long> {
 
@@ -79,6 +80,8 @@ public interface SpringDataPostRepository  extends JpaRepository<PostJpaEntity, 
             """, nativeQuery = true)
     List<Long> findBookmarkedPostIds(@Param("memberId") Long memberId,
                                      @Param("postIds") List<Long> postIds);
+
+    Optional<PostJpaEntity> findByIdAndDeletedFalse(Long postId);
 
     interface PostInfoProjection {
         Long getId();

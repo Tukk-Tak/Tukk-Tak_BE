@@ -3,6 +3,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.community.application.service.post;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.command.CreatePostCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.policy.PostCreatePolicy;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostCommandUsecase;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.exception.PostNotFoundException;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Post;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.post.PostRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.s3.S3FileStorage;
@@ -46,4 +47,15 @@ public class PostCommandService implements PostCommandUsecase {
             throw e;
         }
     }
+
+    @Override
+    public void deletePost(Long postId, Long memberId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없어요."));
+
+        post.delete(memberId);
+        postRepository.save(post);
+
+    }
+
 }

@@ -8,6 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
 @Entity
 @Getter
@@ -84,5 +86,22 @@ public class PostJpaEntity {
                 post.getCreatedAt(),
                 post.getDeletedAt()
         );
+    }
+
+    public Post toDomain() {
+        return Post.builder()
+                .id(id)
+                .memberId(memberId)
+                .category(category)
+                .title(title)
+                .content(content)
+                .imageUrl(imageUrl)
+                .tags(tags == null || tags.isBlank() ? List.of() : Arrays.asList(tags.split(",")))
+                .likeCount(likeCount)
+                .commentCount(commentCount)
+                .deleted(deleted)
+                .createdAt(createdAt)
+                .deletedAt(deletedAt)
+                .build();
     }
 }

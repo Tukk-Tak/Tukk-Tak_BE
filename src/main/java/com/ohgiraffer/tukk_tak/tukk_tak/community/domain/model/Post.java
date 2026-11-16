@@ -1,5 +1,6 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.exception.PostForbiddenException;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,11 +16,11 @@ public class Post {
     private final String content;
     private final String imageUrl;
     private final List<String> tags;
-    private final int likeCount;
-    private final int commentCount;
-    private final boolean deleted;
+    private int likeCount;
+    private int commentCount;
+    private boolean deleted;
     private final LocalDateTime createdAt;
-    private final LocalDateTime deletedAt;
+    private LocalDateTime deletedAt;
 
     @Builder
     private Post(Long id, Long memberId, Category category, String title, String content,
@@ -49,5 +50,14 @@ public class Post {
                 .tags(tags)
                 .createdAt(LocalDateTime.now())
                 .build();
+    }
+
+    public void delete(Long requesterId) {
+        // 본인이 쓴 글만 삭제 가능
+        if (!memberId.equals(requesterId))
+            throw new PostForbiddenException("본인이 쓴 글만 삭제할 수 있어요.");
+
+        this.deleted = true;
+        this.deletedAt = LocalDateTime.now();
     }
 }

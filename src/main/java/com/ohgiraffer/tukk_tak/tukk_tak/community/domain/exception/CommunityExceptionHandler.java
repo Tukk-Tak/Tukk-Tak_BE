@@ -45,6 +45,18 @@ public class CommunityExceptionHandler {
         return build(HttpStatus.PAYLOAD_TOO_LARGE, "INVALID_IMAGE", "사진은 최대 5MB까지 올릴 수 있어요.");
     }
 
+    // 존재하지 않거나 이미 삭제된 게시글
+    @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handlePostNotFound(PostNotFoundException e) {
+        return build(HttpStatus.NOT_FOUND, "POST_NOT_FOUND", e.getMessage());
+    }
+
+    // 본인이 쓰지 않은 게시글 삭제 시도
+    @ExceptionHandler(PostForbiddenException.class)
+    public ResponseEntity<ApiErrorResponse> handlePostForbidden(PostForbiddenException e) {
+        return build(HttpStatus.FORBIDDEN, "POST_FORBIDDEN", e.getMessage());
+    }
+
     private ResponseEntity<ApiErrorResponse> build(HttpStatus status, String code, String message) {
         return ResponseEntity.status(status)
                 .body(ApiErrorResponse.of(status.value(), code, message));

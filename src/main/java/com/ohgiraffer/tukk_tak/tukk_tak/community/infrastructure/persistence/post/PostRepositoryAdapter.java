@@ -7,10 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -62,6 +59,12 @@ public class PostRepositoryAdapter implements PostRepository {
     @Override
     public void save(Post post) {
         springDataPostRepository.save(PostJpaEntity.fromDomain(post));
+    }
+
+    @Override
+    public Optional<Post> findById(Long postId) {
+        return springDataPostRepository.findByIdAndDeletedFalse(postId)
+                .map(PostJpaEntity::toDomain);
     }
 
     // CloudFront 도메인을 붙여 URL로

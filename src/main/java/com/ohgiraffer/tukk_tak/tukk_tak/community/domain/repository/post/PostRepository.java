@@ -4,6 +4,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Post;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface PostRepository {
@@ -17,6 +18,8 @@ public interface PostRepository {
     Set<Long> findBookmarkedPostIds(Long memberId, List<Long> postIds);
 
     void save(Post post);
+
+    Optional<Post> findById(Long postId);
 
     record PostInfo(
             Long id, String title, String imageUrl, String nickname,

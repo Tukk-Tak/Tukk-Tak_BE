@@ -19,7 +19,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Validated
@@ -68,9 +67,27 @@ public class PostController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.created(
-                    CommunityResponseCode.POST_CREATED,
-                    CommunityResponseMessage.POST_CREATED,
+                    CommunityResponseCode.CREATE_SUCCESS,
+                    CommunityResponseMessage.CREATE_SUCCESS,
                     null
+                ));
+    }
+
+
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<ApiResponse<Void>> deletePost(
+            @PathVariable Long postId
+//        , @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        postCommandUsecase.deletePost(postId,
+//            userDetails.getUserId()
+                1001L
+        );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        CommunityResponseCode.DELETE_SUCCESS,
+                        CommunityResponseMessage.DELETE_SUCCESS
                 ));
     }
 }
