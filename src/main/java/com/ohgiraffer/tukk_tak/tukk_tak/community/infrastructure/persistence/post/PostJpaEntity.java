@@ -1,6 +1,7 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.community.infrastructure.persistence.post;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Category;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Post;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -51,4 +52,37 @@ public class PostJpaEntity {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
+
+
+    public PostJpaEntity(Long id, Long memberId, Category category, String title, String content, String imageUrl, String tags, int likeCount, int commentCount, boolean deleted, LocalDateTime createdAt, LocalDateTime deletedAt) {
+        this.id = id;
+        this.memberId = memberId;
+        this.category = category;
+        this.title = title;
+        this.content = content;
+        this.imageUrl = imageUrl;
+        this.tags = tags;
+        this.likeCount = likeCount;
+        this.commentCount = commentCount;
+        this.deleted = deleted;
+        this.createdAt = createdAt;
+        this.deletedAt = deletedAt;
+    }
+
+    public static PostJpaEntity fromDomain(Post post) {
+        return new PostJpaEntity(
+                post.getId(),
+                post.getMemberId(),
+                post.getCategory(),
+                post.getTitle(),
+                post.getContent(),
+                post.getImageUrl(),
+                post.getTags().isEmpty() ? null : String.join(",", post.getTags()),
+                post.getLikeCount(),
+                post.getCommentCount(),
+                post.isDeleted(),
+                post.getCreatedAt(),
+                post.getDeletedAt()
+        );
+    }
 }

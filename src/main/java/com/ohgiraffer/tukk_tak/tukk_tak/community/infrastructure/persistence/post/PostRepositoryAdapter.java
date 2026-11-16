@@ -1,8 +1,10 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.community.infrastructure.persistence.post;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Post;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.post.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
@@ -15,6 +17,9 @@ import java.util.Set;
 public class PostRepositoryAdapter implements PostRepository {
 
     private final SpringDataPostRepository springDataPostRepository;
+
+    @Value("${cloud.aws.cloudfront.domain}")
+    private String cloudFrontDomain;
 
     @Override
     public List<PostInfo> findPostInfo(String keyword, Sort sort, int page, int size) {
@@ -38,7 +43,7 @@ public class PostRepositoryAdapter implements PostRepository {
 
         return rows.stream()
                 .map(p -> new PostInfo(
-                        p.getId(), p.getTitle(), p.getImageUrl(), p.getNickname(),
+                        p.getId(), p.getTitle(), toImageUrl(p.getImageUrl()), p.getNickname(),
                         splitTags(p.getTags()),
                         p.getLikeCount(), p.getCommentCount()))
                 .toList();
@@ -52,6 +57,16 @@ public class PostRepositoryAdapter implements PostRepository {
     @Override
     public Set<Long> findBookmarkedPostIds(Long memberId, List<Long> postIds) {
         return new HashSet<>(springDataPostRepository.findBookmarkedPostIds(memberId, postIds));
+    }
+
+    @Override
+    public void save(Post post) {
+        springDataPostRepository.save(PostJpaEntity.fromDomain(post));
+    }
+
+    // CloudFront 도메인을 붙여 URL로
+    private String toImageUrl(String key) {
+        return (key == null || key.isBlank()) ? null : cloudFrontDomain + "/" + key;
     }
 
     // tags는 콤마로 구분되어 있어서 콤마 기준으로 쪼개고 목록으로 변환

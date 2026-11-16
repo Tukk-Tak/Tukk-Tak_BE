@@ -38,4 +38,16 @@ public class Post {
         this.createdAt = createdAt;
         this.deletedAt = deletedAt;
     }
+
+    public static Post create(Long memberId, String title, String content, String imageKey, List<String> tags) {
+        return Post.builder()
+                .memberId(memberId)
+                .category(Category.STORE_INTRO)
+                .title(title)
+                .content(content)
+                .imageUrl(imageKey)
+                .tags(tags)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
 }
