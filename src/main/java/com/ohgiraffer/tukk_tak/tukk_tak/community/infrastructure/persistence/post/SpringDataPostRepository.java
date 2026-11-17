@@ -1,0 +1,95 @@
+package com.ohgiraffer.tukk_tak.tukk_tak.community.infrastructure.persistence.post;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface SpringDataPostRepository  extends JpaRepository<PostJpaEntity, Long> {
+
+    // 최신순 정렬
+    @Query(value = """
+    SELECT p.id            AS id,
+           p.title         AS title,
+           p.image_url     AS imageUrl,
+           m.nickname      AS nickname,
+           p.tags          AS tags,
+           p.like_count    AS likeCount,
+           p.comment_count AS commentCount
+    FROM post p
+    JOIN member m ON m.id = p.member_id
+    WHERE p.is_deleted = FALSE
+      AND (
+            :keyword IS NULL
+            OR (:tagOnly = TRUE AND p.tags LIKE CONCAT('%', :keyword, '%'))
+            OR (:tagOnly = FALSE AND (
+                   m.nickname LIKE CONCAT('%', :keyword, '%')
+                OR p.title    LIKE CONCAT('%', :keyword, '%')
+                OR p.tags     LIKE CONCAT('%', :keyword, '%')))
+          )
+    ORDER BY p.id DESC
+    LIMIT :size OFFSET :offset
+    """, nativeQuery = true)
+    List<PostInfoProjection> findPostInfosLatest(@Param("keyword") String keyword,
+                                                 @Param("tagOnly") boolean tagOnly,
+                                                 @Param("size") int size,
+                                                 @Param("offset") int offset);
+
+    // 인기순 정렬
+    @Query(value = """
+    SELECT p.id            AS id,
+           p.title         AS title,
+           p.image_url     AS imageUrl,
+           m.nickname      AS nickname,
+           p.tags          AS tags,
+           p.like_count    AS likeCount,
+           p.comment_count AS commentCount
+    FROM post p
+    JOIN member m ON m.id = p.member_id
+    WHERE p.is_deleted = FALSE
+      AND (
+            :keyword IS NULL
+            OR (:tagOnly = TRUE AND p.tags LIKE CONCAT('%', :keyword, '%'))
+            OR (:tagOnly = FALSE AND (
+                   m.nickname LIKE CONCAT('%', :keyword, '%')
+                OR p.title    LIKE CONCAT('%', :keyword, '%')
+                OR p.tags     LIKE CONCAT('%', :keyword, '%')))
+          )
+    ORDER BY p.like_count DESC, p.id DESC
+    LIMIT :size OFFSET :offset
+    """, nativeQuery = true)
+    List<PostInfoProjection> findPostInfosPopular(@Param("keyword") String keyword,
+                                                  @Param("tagOnly") boolean tagOnly,
+                                                  @Param("size") int size,
+                                                  @Param("offset") int offset);
+
+    // 좋아요 누른 게시글 조회
+    @Query(value = """
+            SELECT post_id FROM post_like
+            WHERE member_id = :memberId AND post_id IN (:postIds)
+            """, nativeQuery = true)
+    List<Long> findLikedPostIds(@Param("memberId") Long memberId,
+                                @Param("postIds") List<Long> postIds);
+
+    // 북마크 누른 게시글 조회
+    @Query(value = """
+            SELECT post_id FROM bookmark
+            WHERE member_id = :memberId AND post_id IN (:postIds)
+            """, nativeQuery = true)
+    List<Long> findBookmarkedPostIds(@Param("memberId") Long memberId,
+                                     @Param("postIds") List<Long> postIds);
+
+    Optional<PostJpaEntity> findByIdAndDeletedFalse(Long postId);
+
+    interface PostInfoProjection {
+        Long getId();
+        String getTitle();
+        String getImageUrl();
+        String getNickname();
+        String getTags();
+        int getLikeCount();
+        int getCommentCount();
+    }
+}
