@@ -1,6 +1,7 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.community.presentation;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.command.CreatePostCommand;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.like.LikeCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostQueryUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
@@ -25,10 +26,11 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/post")
-public class PostController {
+public class CommunityController {
 
     private final PostQueryUsecase postQueryUsecase;
     private final PostCommandUsecase postCommandUsecase;
+    private final LikeCommandUsecase likeCommandUsecase;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<GetPostList>>> getPostList(
@@ -88,6 +90,24 @@ public class PostController {
                 .body(ApiResponse.success(
                         CommunityResponseCode.DELETE_SUCCESS,
                         CommunityResponseMessage.DELETE_SUCCESS
+                ));
+    }
+
+    // 나중에 사업자 role만 글 쓸 수 있게 수정
+    @PostMapping("/like/{postId}")
+    public ResponseEntity<ApiResponse<Boolean>> likePlus(
+            @PathVariable Long postId
+//        , @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        boolean liked= likeCommandUsecase.like(postId,
+//            userDetails.getUserId()
+        1001L);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        CommunityResponseCode.LIKE_SUCCESS,
+                        CommunityResponseMessage.LIKE_SUCCESS,
+                        liked
                 ));
     }
 }

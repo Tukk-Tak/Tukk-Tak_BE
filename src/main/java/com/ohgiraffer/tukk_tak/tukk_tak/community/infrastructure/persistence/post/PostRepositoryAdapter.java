@@ -2,7 +2,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.community.infrastructure.persistence.po
 
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Post;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
-import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.post.PostRepository;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -65,6 +65,16 @@ public class PostRepositoryAdapter implements PostRepository {
     public Optional<Post> findById(Long postId) {
         return springDataPostRepository.findByIdAndDeletedFalse(postId)
                 .map(PostJpaEntity::toDomain);
+    }
+
+    @Override
+    public void minusLikeCount(Long postId) {
+        springDataPostRepository.minusLikeCount(postId);
+    }
+
+    @Override
+    public void plusLikeCount(Long postId) {
+        springDataPostRepository.plusLikeCount(postId);
     }
 
     // CloudFront 도메인을 붙여 URL로

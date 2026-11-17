@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.post;
+package com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Post;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
@@ -20,6 +20,10 @@ public interface PostRepository {
     Long save(Post post);
 
     Optional<Post> findById(Long postId);
+
+    void minusLikeCount(Long postId);
+
+    void plusLikeCount(Long postId);
 
     record PostInfo(
             Long id, String title, String imageUrl, String nickname,
