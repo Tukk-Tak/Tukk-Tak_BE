@@ -17,7 +17,7 @@ public interface PostRepository {
     // 로그인 한 사용자가 게시글 목록 조회할 때 자신이 북마크 누른 게시글 표시용
     Set<Long> findBookmarkedPostIds(Long memberId, List<Long> postIds);
 
-    void save(Post post);
+    Long save(Post post);
 
     Optional<Post> findById(Long postId);
 

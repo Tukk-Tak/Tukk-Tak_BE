@@ -55,12 +55,12 @@ public class PostController {
 
     // 나중에 사업자 role만 글 쓸 수 있게 수정
     @PostMapping
-    public ResponseEntity<ApiResponse<Void>> createPost(
+    public ResponseEntity<ApiResponse<Long>> createPost(
             @Valid @ModelAttribute CreatePostRequest request
 //            @AuthenticationPrincipal CustomUserDetails userDetails
     ){
 
-        postCommandUsecase.createPost(new CreatePostCommand(
+        Long postId = postCommandUsecase.createPost(new CreatePostCommand(
 //                userDetails.getUserId(),
                 1001L,request.title(),request.content(),request.tags(),request.image()
         ));
@@ -69,7 +69,7 @@ public class PostController {
                 .body(ApiResponse.created(
                     CommunityResponseCode.CREATE_SUCCESS,
                     CommunityResponseMessage.CREATE_SUCCESS,
-                    null
+                        postId
                 ));
     }
 

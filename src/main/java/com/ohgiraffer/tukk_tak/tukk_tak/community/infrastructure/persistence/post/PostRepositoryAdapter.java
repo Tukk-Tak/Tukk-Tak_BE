@@ -57,8 +57,8 @@ public class PostRepositoryAdapter implements PostRepository {
     }
 
     @Override
-    public void save(Post post) {
-        springDataPostRepository.save(PostJpaEntity.fromDomain(post));
+    public Long save(Post post) {
+        return springDataPostRepository.save(PostJpaEntity.fromDomain(post)).getId();
     }
 
     @Override

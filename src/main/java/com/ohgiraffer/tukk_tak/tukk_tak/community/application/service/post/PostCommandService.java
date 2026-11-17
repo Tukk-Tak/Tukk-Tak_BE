@@ -21,7 +21,7 @@ public class PostCommandService implements PostCommandUsecase {
     private final S3FileStorage s3FileStorage;
 
     @Override
-    public void createPost(CreatePostCommand createPostCommand) {
+    public Long createPost(CreatePostCommand createPostCommand) {
 
         // policy로 검증
         postCreatePolicy.validate(
@@ -34,8 +34,9 @@ public class PostCommandService implements PostCommandUsecase {
         // s3에 올리고
         String imageKey = s3FileStorage.upload(createPostCommand.image(), "community");
 
+        Long postId;
         try {
-            postRepository.save(Post.create(
+            postId = postRepository.save(Post.create(
                     createPostCommand.memberId(),
                     createPostCommand.title(),
                     createPostCommand.content(),
@@ -46,6 +47,8 @@ public class PostCommandService implements PostCommandUsecase {
             s3FileStorage.delete(imageKey);   // 저장이 실패하면 올린 이미지를 지움
             throw e;
         }
+
+        return postId;
     }
 
     @Override
