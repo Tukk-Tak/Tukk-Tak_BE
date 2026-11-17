@@ -30,6 +30,12 @@ spring:
     mongodb:
       auto-index-creation: true
 
+  # ===== 파일 업로드 (용량 제한) =====
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+
   # ===== MongoDB 접속 URI  =====
 app:
   mongo:
@@ -44,3 +50,4 @@ cloud:
       community-bucket: tukktak-bucket
     cloudfront:
       domain: https://d2hgd0fvvrj50a.cloudfront.net
+
