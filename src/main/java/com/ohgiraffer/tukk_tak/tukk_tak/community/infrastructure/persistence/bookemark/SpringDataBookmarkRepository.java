@@ -13,7 +13,7 @@ public interface SpringDataBookmarkRepository extends JpaRepository<BookmarkJpaE
 
     @Modifying
     @Query("DELETE FROM BookmarkJpaEntity b WHERE b.postId = :postId AND b.memberId = :memberId")
-    void deleteByPostIdAndMemberId(@Param("postId") Long postId, @Param("memberId") Long memberId);
+    int deleteByPostIdAndMemberId(@Param("postId") Long postId, @Param("memberId") Long memberId);
 
     @Query(value = """
         SELECT p.id            AS id,

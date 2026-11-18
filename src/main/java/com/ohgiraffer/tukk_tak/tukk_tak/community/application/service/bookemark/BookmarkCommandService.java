@@ -23,12 +23,13 @@ public class BookmarkCommandService implements BookmarkCommandUsecase {
         postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없어요."));
 
-        if(bookmarkRepository.exists(postId, memberId)){
-            bookmarkRepository.delete(postId, memberId);
-            return false;
-        }else{
-            bookmarkRepository.save(Bookmark.create(postId, memberId));
-            return true;
+        if (bookmarkRepository.exists(postId, memberId)) {
+            if (bookmarkRepository.delete(postId, memberId) == 1) {
+                return false;
+            }
         }
+
+        bookmarkRepository.save(Bookmark.create(postId, memberId));
+        return true;
     }
 }

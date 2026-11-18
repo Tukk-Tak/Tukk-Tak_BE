@@ -26,12 +26,12 @@ public class LikeCommandService implements LikeCommandUsecase{
         if (likeRepository.exists(postId, memberId)) {
             if (likeRepository.delete(postId, memberId) == 1) {
                 postRepository.minusLikeCount(postId);
-            }
             return false;
+            }
         }
 
-        likeRepository.save(Like.create(postId, memberId));
         postRepository.plusLikeCount(postId);
+        likeRepository.save(Like.create(postId, memberId));
         return true;
     }
 }

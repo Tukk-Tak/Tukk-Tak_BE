@@ -8,7 +8,7 @@ import java.util.List;
 public interface BookmarkRepository {
     boolean exists(Long postId, Long memberId);
 
-    void delete(Long postId, Long memberId);
+    int delete(Long postId, Long memberId);
 
     void save(Bookmark bookmark);
 
