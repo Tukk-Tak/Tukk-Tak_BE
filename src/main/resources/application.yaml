@@ -1,6 +1,21 @@
 spring:
   application:
     name: Tukk_Tak
+<<<<<<< HEAD
+  datasource:
+    url: ${MYSQL_URL}
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+  mongodb:
+    uri: ${MONGODB_URI}
+    database: tukktak
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      ssl:
+        enabled: true
+=======
 
   # ===== Database (MySQL) =====
   datasource:
@@ -51,3 +66,4 @@ cloud:
     cloudfront:
       domain: https://d2hgd0fvvrj50a.cloudfront.net
 
+>>>>>>> eeb419bbd594db3b2b3280ed837ae1756b88bfd6
