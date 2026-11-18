@@ -2,8 +2,8 @@ package com.ohgiraffer.tukk_tak.tukk_tak.community.application.service.post;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostQueryUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
-import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.post.PostRepository;
-import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.post.PostRepository.PostInfo;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.PostRepository;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.PostRepository.PostInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

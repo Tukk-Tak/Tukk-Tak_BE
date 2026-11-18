@@ -1,6 +1,7 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.community.infrastructure.persistence.post;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -82,6 +83,14 @@ public interface SpringDataPostRepository  extends JpaRepository<PostJpaEntity, 
                                      @Param("postIds") List<Long> postIds);
 
     Optional<PostJpaEntity> findByIdAndDeletedFalse(Long postId);
+
+    @Modifying
+    @Query("UPDATE PostJpaEntity p SET p.likeCount = p.likeCount - 1 WHERE p.id = :postId AND p.likeCount > 0")
+    void minusLikeCount(@Param("postId") Long postId);
+
+    @Modifying
+    @Query("UPDATE PostJpaEntity p SET p.likeCount = p.likeCount + 1 WHERE p.id = :postId")
+    void plusLikeCount(@Param("postId") Long postId);
 
     interface PostInfoProjection {
         Long getId();
