@@ -6,6 +6,7 @@ public final class CommunityResponseMessage {
     public static final String CREATE_SUCCESS = "업로드 성공";
     public static final String DELETE_SUCCESS = "삭제 성공";
     public static final String LIKE_SUCCESS = "좋아요 처리 성공";
+    public static final String BOOKMARK_SUCCESS = "북마크 처리 성공";
 
 
 }

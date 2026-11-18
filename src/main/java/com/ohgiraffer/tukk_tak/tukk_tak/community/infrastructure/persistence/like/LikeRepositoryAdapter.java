@@ -30,7 +30,7 @@ public class LikeRepositoryAdapter implements LikeRepository {
         } catch (DataIntegrityViolationException e) {
             // 데이터 정합성 관련 에러를 잡아서 전부 동일 에러 메시지로 던지니까
             // 유니크 제약 위반이 아닌 다른 정합성 문제여도 동일 메시지로 나감 유의
-            throw new LikeAlreadyExistsException("이미 좋아요를 누른 게시글이에요.");
+            throw new LikeAlreadyExistsException("좋아요 요청이 겹쳤어요. 잠시 후 다시 시도해주세요.");
         }
     }
 }

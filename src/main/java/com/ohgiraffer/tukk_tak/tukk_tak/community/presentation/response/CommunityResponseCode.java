@@ -6,5 +6,6 @@ public final class CommunityResponseCode {
     public static final String CREATE_SUCCESS = "CREATE_SUCCESS";
     public static final String DELETE_SUCCESS = "DELETE_SUCCESS";
     public static final String LIKE_SUCCESS = "LIKE_SUCCESS";
+    public static final String BOOKMARK_SUCCESS = "BOOKMARK_SUCCESS";
 
 }

@@ -1,6 +1,7 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.community.presentation;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.command.CreatePostCommand;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.bookemark.BookmarkCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.like.LikeCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostQueryUsecase;
@@ -31,6 +32,7 @@ public class CommunityController {
     private final PostQueryUsecase postQueryUsecase;
     private final PostCommandUsecase postCommandUsecase;
     private final LikeCommandUsecase likeCommandUsecase;
+    private final BookmarkCommandUsecase bookmarkCommandUsecase;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<GetPostList>>> getPostList(
@@ -95,7 +97,7 @@ public class CommunityController {
 
     // 나중에 사업자 role만 글 쓸 수 있게 수정
     @PostMapping("/like/{postId}")
-    public ResponseEntity<ApiResponse<Boolean>> likePlus(
+    public ResponseEntity<ApiResponse<Boolean>> like(
             @PathVariable Long postId
 //        , @AuthenticationPrincipal CustomUserDetails userDetails
     ){
@@ -108,6 +110,24 @@ public class CommunityController {
                         CommunityResponseCode.LIKE_SUCCESS,
                         CommunityResponseMessage.LIKE_SUCCESS,
                         liked
+                ));
+    }
+
+    // 나중에 사업자 role만 글 쓸 수 있게 수정
+    @PostMapping("/bookmark/{postId}")
+    public ResponseEntity<ApiResponse<Boolean>> bookmark(
+            @PathVariable Long postId
+//        , @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        boolean bookmarked = bookmarkCommandUsecase.bookmark(postId,
+                //            userDetails.getUserId()
+                1001L);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        CommunityResponseCode.BOOKMARK_SUCCESS,
+                        CommunityResponseMessage.BOOKMARK_SUCCESS,
+                        bookmarked
                 ));
     }
 }

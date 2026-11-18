@@ -63,6 +63,12 @@ public class CommunityExceptionHandler {
         return build(HttpStatus.CONFLICT, "LIKE_ALREADY_EXISTS", e.getMessage());
     }
 
+    // 동시 요청으로 이미 북마크가 등록된 경우 (유니크 제약)
+    @ExceptionHandler(BookmarkAlreadyExistsException.class)
+    public ResponseEntity<ApiErrorResponse> handleBookmarkAlreadyExists(BookmarkAlreadyExistsException e) {
+        return build(HttpStatus.CONFLICT, "BOOKMARK_ALREADY_EXISTS", e.getMessage());
+    }
+
     private ResponseEntity<ApiErrorResponse> build(HttpStatus status, String code, String message) {
         return ResponseEntity.status(status)
                 .body(ApiErrorResponse.of(status.value(), code, message));
