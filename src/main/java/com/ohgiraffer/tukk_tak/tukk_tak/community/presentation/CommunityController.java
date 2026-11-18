@@ -2,6 +2,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.community.presentation;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.command.CreatePostCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.bookemark.BookmarkCommandUsecase;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.bookemark.BookmarkQueryUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.like.LikeCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostQueryUsecase;
@@ -9,6 +10,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.request.CreatePostRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.response.CommunityResponseCode;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.response.CommunityResponseMessage;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.response.GetBookmarkList;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.response.GetPostList;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
 import jakarta.validation.Valid;
@@ -33,6 +35,7 @@ public class CommunityController {
     private final PostCommandUsecase postCommandUsecase;
     private final LikeCommandUsecase likeCommandUsecase;
     private final BookmarkCommandUsecase bookmarkCommandUsecase;
+    private final BookmarkQueryUsecase bookmarkQueryUsecase;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<GetPostList>>> getPostList(
@@ -128,6 +131,27 @@ public class CommunityController {
                         CommunityResponseCode.BOOKMARK_SUCCESS,
                         CommunityResponseMessage.BOOKMARK_SUCCESS,
                         bookmarked
+                ));
+    }
+
+
+    @GetMapping("/bookmarklist")
+    public ResponseEntity<ApiResponse<List<GetBookmarkList>>> getBookmarkList(
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "6") @Min(1) @Max(30)int size
+//        , @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+
+//        List<GetBookmarkList> result = bookmarkQueryUsecase.getBookmarkedPosts(userDetails.getId(), page, size).stream()
+        List<GetBookmarkList> result = bookmarkQueryUsecase.getBookmarkedPosts(1002L, page, size).stream()
+                .map(GetBookmarkList::from)
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        CommunityResponseCode.ANSWER_FOUND,
+                        CommunityResponseMessage.ANSWER_FOUND,
+                        result
                 ));
     }
 }
