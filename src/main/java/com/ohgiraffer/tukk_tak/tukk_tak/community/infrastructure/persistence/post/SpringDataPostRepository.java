@@ -66,6 +66,25 @@ public interface SpringDataPostRepository  extends JpaRepository<PostJpaEntity, 
                                                   @Param("size") int size,
                                                   @Param("offset") int offset);
 
+
+    // 검색 조건에 맞는 게시글 총 개수
+    @Query(value = """
+    SELECT COUNT(*)
+    FROM post p
+    JOIN member m ON m.id = p.member_id
+    WHERE p.is_deleted = FALSE
+      AND (
+            :keyword IS NULL
+            OR (:tagOnly = TRUE AND p.tags LIKE CONCAT('%', :keyword, '%'))
+            OR (:tagOnly = FALSE AND (
+                   m.nickname LIKE CONCAT('%', :keyword, '%')
+                OR p.title    LIKE CONCAT('%', :keyword, '%')
+                OR p.tags     LIKE CONCAT('%', :keyword, '%')))
+          )
+    """, nativeQuery = true)
+    long countPosts(@Param("keyword") String keyword,
+                        @Param("tagOnly") boolean tagOnly);
+
     // 좋아요 누른 게시글 조회
     @Query(value = """
             SELECT post_id FROM post_like

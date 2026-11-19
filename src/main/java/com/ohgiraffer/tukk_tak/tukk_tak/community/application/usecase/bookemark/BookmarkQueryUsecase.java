@@ -4,7 +4,12 @@ import java.util.List;
 
 public interface BookmarkQueryUsecase {
 
-    List<BookmarkedPostSearchResult> getBookmarkedPosts(Long memberId, int page, int size);
+    BookmarkListResult getBookmarkedPosts(Long memberId, int page, int size);
+
+    record BookmarkListResult(
+            List<BookmarkedPostSearchResult> bookmarks, int page, int size,
+            long totalElements, int totalPages
+    ) {}
 
     record BookmarkedPostSearchResult(
             Long id, String title, String imageUrl, String nickname,

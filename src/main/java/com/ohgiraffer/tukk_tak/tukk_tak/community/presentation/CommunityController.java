@@ -38,7 +38,7 @@ public class CommunityController {
     private final CommentQueryUsecase commentQueryUsecase;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<GetPostList>>> getPostList(
+    public ResponseEntity<ApiResponse<GetPostList>> getPostList(
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) Sort sort,
             @RequestParam(defaultValue = "1") @Min(1) int page,
@@ -47,9 +47,8 @@ public class CommunityController {
     ){
         Long userId = (customUserPrincipal == null) ? null : customUserPrincipal.getId();
 
-        List<GetPostList> result = postQueryUsecase.getPosts(userId, keyword, sort, page, size).stream()
-                .map(GetPostList::from)
-                .toList();
+        GetPostList result = GetPostList.from(
+                postQueryUsecase.getPosts(userId, keyword, sort, page, size));
 
         return ResponseEntity.ok(ApiResponse.success(
                 CommunityResponseCode.ANSWER_FOUND,
@@ -127,15 +126,14 @@ public class CommunityController {
 
     // 나중에 사업자 role만 글 쓸 수 있게 수정
     @GetMapping("/bookmarklist")
-    public ResponseEntity<ApiResponse<List<GetBookmarkList>>> getBookmarkList(
+    public ResponseEntity<ApiResponse<GetBookmarkList>> getBookmarkList(
             @RequestParam(defaultValue = "1") @Min(1) int page,
             @RequestParam(defaultValue = "6") @Min(1) @Max(30)int size
             , @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
     ){
 
-        List<GetBookmarkList> result = bookmarkQueryUsecase.getBookmarkedPosts(customUserPrincipal.getId(), page, size).stream()
-                .map(GetBookmarkList::from)
-                .toList();
+        GetBookmarkList result = GetBookmarkList.from(
+                bookmarkQueryUsecase.getBookmarkedPosts(customUserPrincipal.getId(), page, size));
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(

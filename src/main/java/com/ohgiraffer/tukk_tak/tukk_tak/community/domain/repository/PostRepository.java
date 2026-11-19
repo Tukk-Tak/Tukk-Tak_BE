@@ -12,6 +12,8 @@ public interface PostRepository {
 
     List<PostInfo> findPostInfo(String keyword, Sort sort, int page, int size);
 
+    long countPosts(String keyword);
+
     // 로그인 한 사용자가 게시글 목록 조회할 때 자신이 좋아요 누른 게시글 표시용
     Set<Long> findLikedPostIds(Long memberId, List<Long> postIds);
 

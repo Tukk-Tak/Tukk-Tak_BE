@@ -29,12 +29,15 @@ public class PostQueryService implements PostQueryUsecase {
     private final GetNicknamePort getNicknamePort;
 
     @Override
-    public List<PostSearchResult> getPosts(Long memberId, String keyword, Sort sort, int page, int size) {
+    public PostListResult getPosts(Long memberId, String keyword, Sort sort, int page, int size) {
         Sort orderBy = sort != null ? sort : (memberId == null ? Sort.POPULAR : Sort.LATEST);
+
+        long totalCount = postRepository.countPosts(keyword);
+        int totalPages = (int) ((totalCount + size - 1) / size);
 
         List<PostInfo> posts = postRepository.findPostInfo(keyword, orderBy, page, size);
         if (posts.isEmpty()) {
-            return List.of();
+            return new PostListResult(List.of(), page, size, totalCount, totalPages);
         }
 
         List<Long> postIds = posts.stream().map(PostInfo::id).toList();
@@ -48,12 +51,14 @@ public class PostQueryService implements PostQueryUsecase {
         Map<Long, String> nicknames = getNicknamePort.getNicknames(
                 posts.stream().map(PostInfo::memberId).collect(Collectors.toSet()));
 
-        return posts.stream()
+        List<PostSearchResult> results = posts.stream()
                 .map(p -> new PostSearchResult(
                         p.id(), p.title(), p.imageUrl(), nicknames.get(p.memberId()), p.tags(),
                         p.likeCount(), p.commentCount(),
                         likedIds.contains(p.id()), bookmarkedIds.contains(p.id())))
                 .toList();
+
+        return new PostListResult(results, page, size, totalCount, totalPages);
     }
 
     @Override
