@@ -3,6 +3,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.community.presentation;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.command.CreatePostCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.bookemark.BookmarkCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.bookemark.BookmarkQueryUsecase;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.comment.CommentQueryUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.like.LikeCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostQueryUsecase;
@@ -34,6 +35,7 @@ public class CommunityController {
     private final LikeCommandUsecase likeCommandUsecase;
     private final BookmarkCommandUsecase bookmarkCommandUsecase;
     private final BookmarkQueryUsecase bookmarkQueryUsecase;
+    private final CommentQueryUsecase commentQueryUsecase;
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<GetPostList>>> getPostList(
@@ -152,6 +154,27 @@ public class CommunityController {
                 Long userId = (customUserPrincipal == null) ? null : customUserPrincipal.getId();
 
         GetPostDetail result = GetPostDetail.from(postQueryUsecase.getPostDetail(userId, postId));
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        CommunityResponseCode.ANSWER_FOUND,
+                        CommunityResponseMessage.ANSWER_FOUND,
+                        result
+                ));
+    }
+
+    @GetMapping("/detail/comment/{postId}")
+    public ResponseEntity<ApiResponse<GetComments>> getComments(
+            @PathVariable Long postId,
+            @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal,
+            @RequestParam(defaultValue = "1") @Min(1) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(30)int size
+    ){
+
+        Long userId = (customUserPrincipal == null) ? null : customUserPrincipal.getId();
+
+        GetComments result = GetComments.from(
+                commentQueryUsecase.getComments(postId, userId, page, size));
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(
