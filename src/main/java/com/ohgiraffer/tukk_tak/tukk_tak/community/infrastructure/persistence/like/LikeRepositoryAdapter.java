@@ -34,4 +34,9 @@ public class LikeRepositoryAdapter implements LikeRepository {
             throw e;
         }
     }
+
+    @Override
+    public boolean findLiked(Long memberId, Long postId) {
+        return springDataLikeRepository.existsByPostIdAndMemberId(postId, memberId);
+    }
 }

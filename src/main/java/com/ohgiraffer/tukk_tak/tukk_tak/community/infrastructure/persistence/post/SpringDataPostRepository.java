@@ -13,9 +13,9 @@ public interface SpringDataPostRepository  extends JpaRepository<PostJpaEntity, 
     // 최신순 정렬
     @Query(value = """
     SELECT p.id            AS id,
+           p.member_id     AS memberId,
            p.title         AS title,
            p.image_url     AS imageUrl,
-           m.nickname      AS nickname,
            p.tags          AS tags,
            p.like_count    AS likeCount,
            p.comment_count AS commentCount
@@ -41,9 +41,9 @@ public interface SpringDataPostRepository  extends JpaRepository<PostJpaEntity, 
     // 인기순 정렬
     @Query(value = """
     SELECT p.id            AS id,
+           p.member_id     AS memberId,
            p.title         AS title,
            p.image_url     AS imageUrl,
-           m.nickname      AS nickname,
            p.tags          AS tags,
            p.like_count    AS likeCount,
            p.comment_count AS commentCount
@@ -94,9 +94,9 @@ public interface SpringDataPostRepository  extends JpaRepository<PostJpaEntity, 
 
     interface PostInfoProjection {
         Long getId();
+        Long getMemberId();
         String getTitle();
         String getImageUrl();
-        String getNickname();
         String getTags();
         int getLikeCount();
         int getCommentCount();

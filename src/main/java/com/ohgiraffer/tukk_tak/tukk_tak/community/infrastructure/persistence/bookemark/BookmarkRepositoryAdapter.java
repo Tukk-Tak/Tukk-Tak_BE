@@ -47,9 +47,14 @@ public class BookmarkRepositoryAdapter implements BookmarkRepository {
 
         return springDataBookmarkRepository.findBookmarkedPostInfos(memberId, size, offset).stream()
                 .map(p -> new BookmarkedPostInfo(
-                        p.getId(), p.getTitle(), toImageUrl(p.getImageUrl()), p.getNickname(),
+                        p.getId(), p.getMemberId(), p.getTitle(), toImageUrl(p.getImageUrl()),
                         p.getLikeCount(), p.getCommentCount(), p.getLiked() == 1))
                 .toList();
+    }
+
+    @Override
+    public boolean findBookmarked(Long memberId, Long postId) {
+        return springDataBookmarkRepository.existsByPostIdAndMemberId(postId, memberId);
     }
 
     // CloudFront 도메인 붙여서 URL로

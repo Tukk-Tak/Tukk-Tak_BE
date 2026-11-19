@@ -3,6 +3,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Post;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -25,8 +26,15 @@ public interface PostRepository {
 
     void plusLikeCount(Long postId);
 
+    Optional<PostDetail> getPostDetail(Long postId);
+
     record PostInfo(
-            Long id, String title, String imageUrl, String nickname,
+            Long id,  Long memberId, String title, String imageUrl,
             List<String> tags, int likeCount, int commentCount
     ) {}
+    
+    record PostDetail(
+            Long id, Long memberId, String title, String imageUrl, String content,
+            List<String> tags, LocalDateTime createAt, int likeCount, int commentCount
+    ){}
 }

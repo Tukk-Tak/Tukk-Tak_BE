@@ -17,15 +17,14 @@ public interface SpringDataBookmarkRepository extends JpaRepository<BookmarkJpaE
 
     @Query(value = """
         SELECT p.id            AS id,
+               p.member_id     AS memberId,
                p.title         AS title,
                p.image_url     AS imageUrl,
-               m.nickname      AS nickname,
                p.like_count    AS likeCount,
                p.comment_count AS commentCount,
                CASE WHEN l.id IS NULL THEN 0 ELSE 1 END AS liked
         FROM bookmark b
         JOIN post p ON p.id = b.post_id AND p.is_deleted = FALSE
-        JOIN member m ON m.id = p.member_id
         LEFT JOIN post_like l ON l.post_id = p.id AND l.member_id = b.member_id
         WHERE b.member_id = :memberId
         ORDER BY b.created_at DESC, b.id DESC
@@ -37,9 +36,9 @@ public interface SpringDataBookmarkRepository extends JpaRepository<BookmarkJpaE
 
     interface BookmarkedPostInfoProjection {
         Long getId();
+        Long getMemberId();
         String getTitle();
         String getImageUrl();
-        String getNickname();
         int getLikeCount();
         int getCommentCount();
         int getLiked();

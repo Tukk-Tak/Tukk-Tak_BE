@@ -40,7 +40,7 @@ public class PostRepositoryAdapter implements PostRepository {
 
         return rows.stream()
                 .map(p -> new PostInfo(
-                        p.getId(), p.getTitle(), toImageUrl(p.getImageUrl()), p.getNickname(),
+                        p.getId(), p.getMemberId(), p.getTitle(), toImageUrl(p.getImageUrl()),
                         splitTags(p.getTags()),
                         p.getLikeCount(), p.getCommentCount()))
                 .toList();
@@ -75,6 +75,15 @@ public class PostRepositoryAdapter implements PostRepository {
     @Override
     public void plusLikeCount(Long postId) {
         springDataPostRepository.plusLikeCount(postId);
+    }
+
+    @Override
+    public Optional<PostDetail> getPostDetail(Long postId) {
+        return springDataPostRepository.findByIdAndDeletedFalse(postId)
+                .map(post -> new PostDetail(
+                        post.getId(), post.getMemberId(), post.getTitle(), toImageUrl(post.getImageUrl()),
+                        post.getContent(), splitTags(post.getTags()), post.getCreatedAt(),
+                        post.getLikeCount(), post.getCommentCount()));
     }
 
     // CloudFront 도메인을 붙여 URL로

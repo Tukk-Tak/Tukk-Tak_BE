@@ -8,4 +8,6 @@ public interface LikeRepository {
     int delete(Long postId, Long memberId);
 
     void save(Like like);
+
+    boolean findLiked(Long memberId, Long postId);
 }

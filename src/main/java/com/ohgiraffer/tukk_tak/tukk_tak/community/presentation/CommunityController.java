@@ -8,10 +8,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostC
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostQueryUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.request.CreatePostRequest;
-import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.response.CommunityResponseCode;
-import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.response.CommunityResponseMessage;
-import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.response.GetBookmarkList;
-import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.response.GetPostList;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.response.*;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -146,6 +143,25 @@ public class CommunityController {
         List<GetBookmarkList> result = bookmarkQueryUsecase.getBookmarkedPosts(1002L, page, size).stream()
                 .map(GetBookmarkList::from)
                 .toList();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        CommunityResponseCode.ANSWER_FOUND,
+                        CommunityResponseMessage.ANSWER_FOUND,
+                        result
+                ));
+    }
+
+
+    @GetMapping("/detail/{postId}")
+    public ResponseEntity<ApiResponse<GetPostDetail>> getPostDetail(
+            @PathVariable Long postId
+//        , @AuthenticationPrincipal CustomUserDetails userDetails
+    ){
+        //        Long userId = (// == null) ? null : //.id();
+
+//            GetPostDetail result = GetPostDetail.from(postQueryUsecase.getPostDetail(null, postId));
+        GetPostDetail result = GetPostDetail.from(postQueryUsecase.getPostDetail(null, postId));
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(
