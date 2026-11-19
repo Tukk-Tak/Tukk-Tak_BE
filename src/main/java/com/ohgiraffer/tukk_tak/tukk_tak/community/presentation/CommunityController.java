@@ -10,13 +10,14 @@ import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.request.CreatePostRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.response.*;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
+import com.ohgiraffer.tukk_tak.tukk_tak.global.security.user.CustomUserPrincipal;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-//import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,13 +41,11 @@ public class CommunityController {
             @RequestParam(required = false) Sort sort,
             @RequestParam(defaultValue = "1") @Min(1) int page,
             @RequestParam(defaultValue = "6") @Min(1) @Max(30)int size
-//            @AuthenticationPrincipal    // 인증인가 구현 후 사용
+            , @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
     ){
+        Long userId = (customUserPrincipal == null) ? null : customUserPrincipal.getId();
 
-//        Long userId = (// == null) ? null : //.id();
-
-//        List<GetPostList> result = postQueryUsecase.getPosts(userId, keyword, page, size).stream()
-        List<GetPostList> result = postQueryUsecase.getPosts(null, keyword, sort, page, size).stream()
+        List<GetPostList> result = postQueryUsecase.getPosts(userId, keyword, sort, page, size).stream()
                 .map(GetPostList::from)
                 .toList();
 
@@ -57,16 +56,15 @@ public class CommunityController {
         ));
     }
 
-    // 나중에 사업자 role만 글 쓸 수 있게 수정
+
     @PostMapping
     public ResponseEntity<ApiResponse<Long>> createPost(
             @Valid @ModelAttribute CreatePostRequest request
-//            @AuthenticationPrincipal CustomUserDetails userDetails
+            , @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
     ){
 
         Long postId = postCommandUsecase.createPost(new CreatePostCommand(
-//                userDetails.getUserId(),
-                1001L,request.title(),request.content(),request.tags(),request.image()
+                customUserPrincipal.getId(), request.title(),request.content(),request.tags(),request.image()
         ));
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -81,12 +79,9 @@ public class CommunityController {
     @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse<Void>> deletePost(
             @PathVariable Long postId
-//        , @AuthenticationPrincipal CustomUserDetails userDetails
+            , @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
     ){
-        postCommandUsecase.deletePost(postId,
-//            userDetails.getUserId()
-                1001L
-        );
+        postCommandUsecase.deletePost(postId,customUserPrincipal.getId());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(
@@ -99,11 +94,9 @@ public class CommunityController {
     @PostMapping("/like/{postId}")
     public ResponseEntity<ApiResponse<Boolean>> like(
             @PathVariable Long postId
-//        , @AuthenticationPrincipal CustomUserDetails userDetails
+            , @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
     ){
-        boolean liked= likeCommandUsecase.like(postId,
-//            userDetails.getUserId()
-        1001L);
+        boolean liked= likeCommandUsecase.like(postId,customUserPrincipal.getId());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(
@@ -117,11 +110,9 @@ public class CommunityController {
     @PostMapping("/bookmark/{postId}")
     public ResponseEntity<ApiResponse<Boolean>> bookmark(
             @PathVariable Long postId
-//        , @AuthenticationPrincipal CustomUserDetails userDetails
+            , @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
     ){
-        boolean bookmarked = bookmarkCommandUsecase.bookmark(postId,
-                //            userDetails.getUserId()
-                1001L);
+        boolean bookmarked = bookmarkCommandUsecase.bookmark(postId,customUserPrincipal.getId());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(
@@ -132,15 +123,15 @@ public class CommunityController {
     }
 
 
+    // 나중에 사업자 role만 글 쓸 수 있게 수정
     @GetMapping("/bookmarklist")
     public ResponseEntity<ApiResponse<List<GetBookmarkList>>> getBookmarkList(
             @RequestParam(defaultValue = "1") @Min(1) int page,
             @RequestParam(defaultValue = "6") @Min(1) @Max(30)int size
-//        , @AuthenticationPrincipal CustomUserDetails userDetails
+            , @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
     ){
 
-//        List<GetBookmarkList> result = bookmarkQueryUsecase.getBookmarkedPosts(userDetails.getId(), page, size).stream()
-        List<GetBookmarkList> result = bookmarkQueryUsecase.getBookmarkedPosts(1002L, page, size).stream()
+        List<GetBookmarkList> result = bookmarkQueryUsecase.getBookmarkedPosts(customUserPrincipal.getId(), page, size).stream()
                 .map(GetBookmarkList::from)
                 .toList();
 
@@ -156,12 +147,11 @@ public class CommunityController {
     @GetMapping("/detail/{postId}")
     public ResponseEntity<ApiResponse<GetPostDetail>> getPostDetail(
             @PathVariable Long postId
-//        , @AuthenticationPrincipal CustomUserDetails userDetails
+        , @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
     ){
-        //        Long userId = (// == null) ? null : //.id();
+                Long userId = (customUserPrincipal == null) ? null : customUserPrincipal.getId();
 
-//            GetPostDetail result = GetPostDetail.from(postQueryUsecase.getPostDetail(null, postId));
-        GetPostDetail result = GetPostDetail.from(postQueryUsecase.getPostDetail(null, postId));
+        GetPostDetail result = GetPostDetail.from(postQueryUsecase.getPostDetail(userId, postId));
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(
