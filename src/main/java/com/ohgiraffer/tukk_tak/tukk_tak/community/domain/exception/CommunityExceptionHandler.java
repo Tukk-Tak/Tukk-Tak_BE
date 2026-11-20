@@ -69,6 +69,12 @@ public class CommunityExceptionHandler {
         return build(HttpStatus.CONFLICT, "BOOKMARK_ALREADY_EXISTS", e.getMessage());
     }
 
+    // 존재하지 않는 댓글
+    @ExceptionHandler(CommentNotFoundException.class)
+    public ResponseEntity<ApiErrorResponse> handleCommentNotFound(CommentNotFoundException e) {
+        return build(HttpStatus.NOT_FOUND, "COMMENT_NOT_FOUND", e.getMessage());
+    }
+
     private ResponseEntity<ApiErrorResponse> build(HttpStatus status, String code, String message) {
         return ResponseEntity.status(status)
                 .body(ApiErrorResponse.of(status.value(), code, message));

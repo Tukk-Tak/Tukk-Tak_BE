@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,5 +39,22 @@ public class CommentRepositoryAdapter implements CommentRepository {
     @Override
     public long countComments(Long postId) {
         return springDataCommentRepository.countComments(postId);
+    }
+
+    @Override
+    public Optional<CommentInfo> findParentComment(Long postId, Long parentCommentId) {
+        return springDataCommentRepository.findByIdAndPostIdAndParentIdIsNull(parentCommentId, postId)
+                .map(p -> new CommentInfo(
+                        p.getId(), p.getMemberId(), p.getContent(), p.getCreatedAt(),
+                        p.getIsPrivate(), p.getIsDeleted()));
+    }
+
+    @Override
+    public List<CommentInfo> findReplies(Long parentId) {
+        return springDataCommentRepository.findByParentIdOrderByCreatedAtAscIdAsc(parentId).stream()
+                .map(p -> new CommentInfo(
+                        p.getId(), p.getMemberId(), p.getContent(), p.getCreatedAt(),
+                        p.getIsPrivate(), p.getIsDeleted()))
+                .toList();
     }
 }

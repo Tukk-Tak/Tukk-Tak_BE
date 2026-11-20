@@ -161,7 +161,7 @@ public class CommunityController {
                 ));
     }
 
-    @GetMapping("/detail/comment/{postId}")
+    @GetMapping("/comment/{postId}")
     public ResponseEntity<ApiResponse<GetComments>> getComments(
             @PathVariable Long postId,
             @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal,
@@ -173,6 +173,27 @@ public class CommunityController {
 
         GetComments result = GetComments.from(
                 commentQueryUsecase.getComments(postId, userId, page, size));
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        CommunityResponseCode.ANSWER_FOUND,
+                        CommunityResponseMessage.ANSWER_FOUND,
+                        result
+                ));
+    }
+
+
+    @GetMapping("/comment/{postId}/{parentCommentId}")
+    public ResponseEntity<ApiResponse<List<GetReplyComments>>> getReplyComments(
+            @PathVariable Long postId,
+            @PathVariable Long parentCommentId,
+            @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
+    ){
+        Long userId = (customUserPrincipal == null) ? null : customUserPrincipal.getId();
+
+        List<GetReplyComments> result = commentQueryUsecase.getReplyComments(postId,parentCommentId,userId).stream()
+                .map(GetReplyComments::from)
+                .toList();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(

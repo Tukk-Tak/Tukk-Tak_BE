@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface SpringDataCommentRepository extends JpaRepository<CommentJpaEntity,Long> {
 
@@ -34,6 +35,15 @@ public interface SpringDataCommentRepository extends JpaRepository<CommentJpaEnt
             """)
     List<ReplyCountProjection> countRepliesByParentIds(@Param("parentIds") List<Long> parentIds);
 
+    // 부모 댓글별 답글 수 - 삭제된 답글 포함 (대댓글 목록과 동일 기준)
+//    @Query("""
+//            SELECT c.parentId AS parentId, COUNT(c) AS replyCount
+//            FROM CommentJpaEntity c
+//            WHERE c.parentId IN :parentIds
+//            GROUP BY c.parentId
+//            """)
+//    List<ReplyCountProjection> countRepliesByParentIds(@Param("parentIds") List<Long> parentIds);
+
 
     @Query("""
         SELECT COUNT(c)
@@ -45,6 +55,12 @@ public interface SpringDataCommentRepository extends JpaRepository<CommentJpaEnt
                           WHERE r.parentId = c.id AND r.isDeleted = false))
         """)
     long countComments(@Param("postId") Long postId);
+
+    // 부모 댓글 단건: 이 게시글 소속이고 대댓글이 아닌 것만 (삭제된 부모도 조회됨)
+    Optional<CommentInfoProjection> findByIdAndPostIdAndParentIdIsNull(Long id, Long postId);
+
+    // 대댓글 목록: 삭제되지 않은 것만, 오래된 순
+    List<CommentInfoProjection> findByParentIdOrderByCreatedAtAscIdAsc(Long parentId);
 
     interface CommentInfoProjection {
         Long getId();

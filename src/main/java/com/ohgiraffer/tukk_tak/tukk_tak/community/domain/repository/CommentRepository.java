@@ -3,6 +3,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface CommentRepository {
     List<CommentInfo> findComments(Long postId, int page, int size);
@@ -10,6 +11,10 @@ public interface CommentRepository {
     Map<Long, Long> countRepliesByParentIds(List<Long> list);
 
     long countComments(Long postId);
+
+    Optional<CommentInfo> findParentComment(Long postId, Long parentCommentId);
+
+    List<CommentInfo> findReplies(Long parentCommentId);
 
     record CommentInfo(
             Long id, Long memberId, String content, LocalDateTime createdAt,
