@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 public class Comment {
@@ -29,5 +30,16 @@ public class Comment {
         this.isDeleted = isDeleted;
         this.createdAt = createdAt;
         this.deletedAt = deletedAt;
+    }
+
+    public static Comment create(Long memberId, Long postId, Long parentId, String content, boolean isPrivate) {
+        return Comment.builder()
+                .memberId(memberId)
+                .postId(postId)
+                .parentId(parentId)
+                .content(content)
+                .isPrivate(isPrivate)
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 }

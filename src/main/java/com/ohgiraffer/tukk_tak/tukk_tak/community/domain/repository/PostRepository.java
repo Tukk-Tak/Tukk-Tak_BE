@@ -30,6 +30,8 @@ public interface PostRepository {
 
     Optional<PostDetail> getPostDetail(Long postId);
 
+    void plusCommentCount(Long postId);
+
     record PostInfo(
             Long id,  Long memberId, String title, String imageUrl,
             List<String> tags, int likeCount, int commentCount

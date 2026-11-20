@@ -1,6 +1,8 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.community.infrastructure.persistence.comment;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Comment;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.CommentRepository;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.infrastructure.persistence.post.PostJpaEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -56,5 +58,10 @@ public class CommentRepositoryAdapter implements CommentRepository {
                         p.getId(), p.getMemberId(), p.getContent(), p.getCreatedAt(),
                         p.getIsPrivate(), p.getIsDeleted()))
                 .toList();
+    }
+
+    @Override
+    public void save(Comment comment) {
+         springDataCommentRepository.save(CommentJpaEntity.fromDomain(comment));
     }
 }

@@ -1,5 +1,7 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Comment;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,8 @@ public interface CommentRepository {
     Optional<CommentInfo> findParentComment(Long postId, Long parentCommentId);
 
     List<CommentInfo> findReplies(Long parentCommentId);
+
+    void save(Comment comment);
 
     record CommentInfo(
             Long id, Long memberId, String content, LocalDateTime createdAt,

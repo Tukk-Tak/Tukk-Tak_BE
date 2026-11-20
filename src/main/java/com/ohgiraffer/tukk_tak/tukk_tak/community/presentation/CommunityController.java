@@ -1,13 +1,16 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.community.presentation;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.community.application.command.CreateCommentCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.command.CreatePostCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.bookemark.BookmarkCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.bookemark.BookmarkQueryUsecase;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.comment.CommentCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.comment.CommentQueryUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.like.LikeCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostQueryUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.request.CreateCommentRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.request.CreatePostRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.response.*;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
@@ -36,6 +39,7 @@ public class CommunityController {
     private final BookmarkCommandUsecase bookmarkCommandUsecase;
     private final BookmarkQueryUsecase bookmarkQueryUsecase;
     private final CommentQueryUsecase commentQueryUsecase;
+    private final CommentCommandUsecase commentCommandUsecase;
 
     @GetMapping
     public ResponseEntity<ApiResponse<GetPostList>> getPostList(
@@ -200,6 +204,24 @@ public class CommunityController {
                         CommunityResponseCode.ANSWER_FOUND,
                         CommunityResponseMessage.ANSWER_FOUND,
                         result
+                ));
+    }
+
+
+    @PostMapping("/comment/{postId}")
+    public ResponseEntity<ApiResponse<Void>> createComment(
+            @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal,
+            @PathVariable Long postId,
+            @RequestBody @Valid CreateCommentRequest request
+    ){
+        commentCommandUsecase.createComment(new CreateCommentCommand(
+                customUserPrincipal.getId(),postId,request.parentCommentId(),request.content(),request.isPrivate()));
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.created(
+                        CommunityResponseCode.CREATE_SUCCESS,
+                        CommunityResponseMessage.CREATE_SUCCESS,
+                        null
                 ));
     }
 }
