@@ -2,6 +2,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.community.infrastructure.persistence.co
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -61,6 +62,10 @@ public interface SpringDataCommentRepository extends JpaRepository<CommentJpaEnt
 
     // 대댓글 목록: 삭제되지 않은 것만, 오래된 순
     List<CommentInfoProjection> findByParentIdOrderByCreatedAtAscIdAsc(Long parentId);
+
+    @Modifying
+    @Query("UPDATE CommentJpaEntity c SET c.isDeleted = true, c.deletedAt = :deletedAt WHERE c.id = :commentId AND c.isDeleted = false")
+    int isDeleted(@Param("commentId") Long commentId, @Param("deletedAt") LocalDateTime deletedAt);
 
     interface CommentInfoProjection {
         Long getId();

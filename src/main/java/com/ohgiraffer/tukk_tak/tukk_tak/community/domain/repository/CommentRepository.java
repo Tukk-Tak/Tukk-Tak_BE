@@ -22,6 +22,8 @@ public interface CommentRepository {
 
     Optional<Comment> findById(Long commentId);
 
+    boolean isDeleted(Long commentId, LocalDateTime deletedAt);
+
     record CommentInfo(
             Long id, Long memberId, String content, LocalDateTime createdAt,
             boolean isPrivate, boolean isDeleted

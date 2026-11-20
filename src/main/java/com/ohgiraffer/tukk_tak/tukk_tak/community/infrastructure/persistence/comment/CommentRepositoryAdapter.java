@@ -2,11 +2,11 @@ package com.ohgiraffer.tukk_tak.tukk_tak.community.infrastructure.persistence.co
 
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Comment;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.CommentRepository;
-import com.ohgiraffer.tukk_tak.tukk_tak.community.infrastructure.persistence.post.PostJpaEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -68,5 +68,10 @@ public class CommentRepositoryAdapter implements CommentRepository {
     @Override
     public Optional<Comment> findById(Long commentId) {
         return springDataCommentRepository.findById(commentId).map(CommentJpaEntity::toDomain);
+    }
+
+    @Override
+    public boolean isDeleted(Long commentId, LocalDateTime deletedAt) {
+        return springDataCommentRepository.isDeleted(commentId, deletedAt) == 1;
     }
 }
