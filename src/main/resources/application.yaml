@@ -83,6 +83,13 @@ app:
     email: ${ADMIN_EMAIL:}
     password: ${ADMIN_PASSWORD:}        # 64자 이하
 
+  # ==== 국세청 사업자등록정보 진위확인 API (공공데이터포털) ====
+  nts:
+    service-key: ${NTS_SERVICE_KEY:}
+    base-url: https://api.odcloud.kr/api/nts-businessman/v1
+    connect-timeout: 3s    # 연결 제한 시간
+    read-timeout: 5s       # 응답 제한 시간
+
   # ===== AWS S3 (이미지) =====
 cloud:
   aws:

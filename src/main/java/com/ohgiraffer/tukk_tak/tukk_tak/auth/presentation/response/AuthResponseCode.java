@@ -36,5 +36,11 @@ public final class AuthResponseCode {
     public static final String EMAIL_VERIFY_LOCKED = "AUTH-EMAIL-VERIFY-LOCKED";
     public static final String NICKNAME_INVALID                = "AUTH-NICKNAME-INVALID";
     public static final String NICKNAME_CHECK_LIMIT_EXCEEDED   = "AUTH-NICKNAME-CHECK-LIMIT-EXCEEDED";
+    public static final String BUSINESS_VERIFIED              = "AUTH-BUSINESS-VERIFIED";
+    public static final String BUSINESS_MISMATCH              = "AUTH-BUSINESS-MISMATCH";
+    public static final String BUSINESS_CLOSED                = "AUTH-BUSINESS-CLOSED";
+    public static final String BUSINESS_ALREADY_USED          = "AUTH-BUSINESS-ALREADY-USED";
+    public static final String BUSINESS_VERIFY_LIMIT_EXCEEDED = "AUTH-BUSINESS-VERIFY-LIMIT-EXCEEDED";
+    public static final String BUSINESS_VERIFY_UNAVAILABLE    = "AUTH-BUSINESS-VERIFY-UNAVAILABLE";
 
 }

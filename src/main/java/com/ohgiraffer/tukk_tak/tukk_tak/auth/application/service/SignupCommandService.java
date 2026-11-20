@@ -1,17 +1,21 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.application.service;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.BusinessVerifyCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.EmailSendCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.EmailVerifyCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.NicknameCheckCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.policy.NicknamePolicy;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessTokenPort;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessVerifier;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.EmailCodePort;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.EmailSender;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.EmailSendResult;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.EmailVerifyResult;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.NicknameCheckResult;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.*;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase.SignupCommandUsecase;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessTokenInfo;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.repository.BusinessVerificationRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.exception.AuthException;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.FailureCountGuard;
+import com.ohgiraffer.tukk_tak.tukk_tak.global.util.BusinessNumberNormalizer;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.EmailNormalizer;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -68,10 +72,19 @@ public class SignupCommandService implements SignupCommandUsecase {
     private static final Duration NICKNAME_IP_WINDOW = Duration.ofMinutes(1);
     private static final Duration NICKNAME_IP_LOCK = Duration.ofMinutes(1);
 
+    // IP당 사업자 인증 요청 제한: 10분 안에 10번을 넘으면 10분간 차단
+    private static final String BUSINESS_IP_SCOPE = "business-verify-ip";
+    private static final int BUSINESS_IP_MAX = 10;
+    private static final Duration BUSINESS_IP_WINDOW = Duration.ofMinutes(10);
+    private static final Duration BUSINESS_IP_LOCK = Duration.ofMinutes(10);
+
     private final MemberRepository memberRepository;
     private final EmailCodePort emailCodePort;
     private final EmailSender emailSender;
     private final FailureCountGuard failureCountGuard;
+    private final BusinessVerifier businessVerifier;
+    private final BusinessTokenPort businessTokenPort;
+    private final BusinessVerificationRepository businessVerificationRepository;
 
     @Override
     public EmailSendResult sendEmailCode(EmailSendCommand command) {
@@ -166,6 +179,51 @@ public class SignupCommandService implements SignupCommandUsecase {
         // 3. 중복 확인: UNIQUE 인덱스를 타는 조회 한 번이라 가볍다 (결과는 캐시하지 않는다)
         boolean exists = memberRepository.existsByNickname(command.nickname());
         return new NicknameCheckResult(!exists);
+    }
+
+    @Override
+    public BusinessVerifyResult verifyBusiness(BusinessVerifyCommand command) {
+
+        // 1. IP 제한: 차단 중이면 바로 거절하고, 아니면 이번 요청을 1회로 센다
+        //    중복 확인이나 국세청 호출보다 먼저 세어서, 번호를 바꿔가며 훑는 행위도 함께 막는다
+        if (failureCountGuard.isLocked(BUSINESS_IP_SCOPE, command.clientIp())) {
+            throw AuthException.businessVerifyLimitExceeded();
+        }
+        failureCountGuard.recordFailure(BUSINESS_IP_SCOPE, command.clientIp(),
+                BUSINESS_IP_MAX, BUSINESS_IP_WINDOW, BUSINESS_IP_LOCK);
+
+        // 2. 형식 검사는 요청 DTO에서 끝났으므로, 여기서는 숫자 10자리로 정규화만 한다
+        String businessNumber = BusinessNumberNormalizer.normalize(command.businessNumber());
+
+        // 3. 이미 다른 회원이 인증한 사업자번호면 거절 (국세청 호출 횟수도 아낀다)
+        if (businessVerificationRepository.existsByBusinessNumber(businessNumber)) {
+            throw AuthException.businessAlreadyUsed();
+        }
+
+        // 4. 국세청 진위확인 (호출 실패나 타임아웃은 verifier가 503으로 던진다)
+        BusinessCheckResult check = businessVerifier.verify(
+                businessNumber, command.openDate(), command.ceoName());
+
+        // 불일치: 신규 개업 직후에는 실제로 맞아도 불일치로 나올 수 있다 (안내 문구는 응답 메시지에 있음)
+        if (!check.matched()) {
+            throw AuthException.businessMismatch();
+        }
+        // 일치해도 폐업이면 거절 (휴업은 허용)
+        if (check.closed()) {
+            throw AuthException.businessClosed();
+        }
+
+        // 5. 통과: 예측 불가능한 토큰을 만들어 사업자 정보와 함께 30분 저장
+        //    5번 가입에서 이 값으로 "가입 이름 = 대표자명"을 다시 비교한다
+        //    (generateToken과 TOKEN_TTL은 이메일 인증에서 쓰던 것을 그대로 재사용)
+        String token = generateToken();
+        businessTokenPort.saveToken(token,
+                new BusinessTokenInfo(businessNumber, command.openDate(), command.ceoName()),
+                TOKEN_TTL);
+
+        // 사업자번호는 로그에 남기지 않는다
+        log.info("[business] 인증 완료 | ip={}", command.clientIp());
+        return new BusinessVerifyResult(token);
     }
 
     // 두 번호를 비교할 때 일치하는 자릿수에 따라 걸리는 시간이 달라지지 않도록 MessageDigest.isEqual을 쓴다
