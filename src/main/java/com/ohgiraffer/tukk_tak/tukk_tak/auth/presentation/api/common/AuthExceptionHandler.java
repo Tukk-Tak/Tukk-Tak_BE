@@ -57,6 +57,24 @@ public class AuthExceptionHandler {
                     AuthResponseCode.MISSING_REFRESH_TOKEN, AuthResponseMessage.MISSING_REFRESH_TOKEN);
             case INVALID_REFRESH_TOKEN -> new Spec(HttpStatus.UNAUTHORIZED,
                     AuthResponseCode.INVALID_REFRESH_TOKEN, AuthResponseMessage.INVALID_REFRESH_TOKEN);
+            case EMAIL_ALREADY_REGISTERED -> new Spec(HttpStatus.CONFLICT,
+                    AuthResponseCode.EMAIL_ALREADY_REGISTERED, AuthResponseMessage.EMAIL_ALREADY_REGISTERED);
+            case EMAIL_SEND_TOO_FAST -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
+                    AuthResponseCode.EMAIL_SEND_TOO_FAST, AuthResponseMessage.EMAIL_SEND_TOO_FAST);
+            case EMAIL_SEND_LIMIT_EXCEEDED -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
+                    AuthResponseCode.EMAIL_SEND_LIMIT_EXCEEDED, AuthResponseMessage.EMAIL_SEND_LIMIT_EXCEEDED);
+            case EMAIL_SEND_FAILED -> new Spec(HttpStatus.SERVICE_UNAVAILABLE,   // 메일 서버 장애 (503)
+                    AuthResponseCode.EMAIL_SEND_FAILED, AuthResponseMessage.EMAIL_SEND_FAILED);
+            case EMAIL_CODE_EXPIRED -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.EMAIL_CODE_EXPIRED, AuthResponseMessage.EMAIL_CODE_EXPIRED);
+            case EMAIL_CODE_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.EMAIL_CODE_MISMATCH, AuthResponseMessage.EMAIL_CODE_MISMATCH);
+            case EMAIL_VERIFY_LOCKED -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
+                    AuthResponseCode.EMAIL_VERIFY_LOCKED, AuthResponseMessage.EMAIL_VERIFY_LOCKED);
+            case NICKNAME_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.NICKNAME_INVALID, AuthResponseMessage.NICKNAME_INVALID);
+            case NICKNAME_CHECK_LIMIT_EXCEEDED -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
+                    AuthResponseCode.NICKNAME_CHECK_LIMIT_EXCEEDED, AuthResponseMessage.NICKNAME_CHECK_LIMIT_EXCEEDED);
         };
     }
 
