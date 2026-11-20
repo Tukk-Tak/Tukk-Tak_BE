@@ -51,7 +51,7 @@ public class CommunityExceptionHandler {
         return build(HttpStatus.NOT_FOUND, "POST_NOT_FOUND", e.getMessage());
     }
 
-    // 본인이 쓰지 않은 게시글 삭제 시도
+    // 게시글 삭제 권한 없음
     @ExceptionHandler(PostForbiddenException.class)
     public ResponseEntity<ApiErrorResponse> handlePostForbidden(PostForbiddenException e) {
         return build(HttpStatus.FORBIDDEN, "POST_FORBIDDEN", e.getMessage());
@@ -73,6 +73,12 @@ public class CommunityExceptionHandler {
     @ExceptionHandler(CommentNotFoundException.class)
     public ResponseEntity<ApiErrorResponse> handleCommentNotFound(CommentNotFoundException e) {
         return build(HttpStatus.NOT_FOUND, "COMMENT_NOT_FOUND", e.getMessage());
+    }
+
+    // 댓글 삭제 권한 없음
+    @ExceptionHandler(CommentForbiddenException.class)
+    public ResponseEntity<ApiErrorResponse> handleCommentForbidden(CommentForbiddenException e) {
+        return build(HttpStatus.FORBIDDEN, "COMMENT_FORBIDDEN", e.getMessage());
     }
 
     private ResponseEntity<ApiErrorResponse> build(HttpStatus status, String code, String message) {

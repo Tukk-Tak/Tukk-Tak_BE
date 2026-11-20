@@ -32,6 +32,8 @@ public interface PostRepository {
 
     void plusCommentCount(Long postId);
 
+    void minusCommentCount(Long postId);
+
     record PostInfo(
             Long id,  Long memberId, String title, String imageUrl,
             List<String> tags, int likeCount, int commentCount

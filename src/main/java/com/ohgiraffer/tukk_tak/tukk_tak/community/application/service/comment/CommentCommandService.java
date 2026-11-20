@@ -46,4 +46,17 @@ public class CommentCommandService implements CommentCommandUsecase {
 
         commentNotificationPublisher.publish(command, post, parent);
     }
+
+    @Override
+    public void deleteComment(Long commentId, Long memberId, boolean isAdmin) {
+
+        Comment comment = commentRepository.findById(commentId)
+                .filter(c -> !c.isDeleted())
+                .orElseThrow(() -> new CommentNotFoundException("댓글을 찾을 수 없어요."));
+
+        comment.delete(memberId, isAdmin);
+
+        postRepository.minusCommentCount(comment.getPostId());
+        commentRepository.save(comment);
+    }
 }

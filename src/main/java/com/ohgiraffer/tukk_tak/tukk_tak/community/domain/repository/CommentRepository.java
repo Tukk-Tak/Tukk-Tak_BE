@@ -20,6 +20,8 @@ public interface CommentRepository {
 
     void save(Comment comment);
 
+    Optional<Comment> findById(Long commentId);
+
     record CommentInfo(
             Long id, Long memberId, String content, LocalDateTime createdAt,
             boolean isPrivate, boolean isDeleted

@@ -226,4 +226,19 @@ public class CommunityController {
                         null
                 ));
     }
+
+    @DeleteMapping("/comment/{commentId}")
+    public ResponseEntity<ApiResponse<Void>> deleteComment(
+            @PathVariable Long commentId,
+            @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
+    ){
+        boolean isAdmin = customUserPrincipal.getRole() == Role.ADMIN;
+        commentCommandUsecase.deleteComment(commentId, customUserPrincipal.getId(), isAdmin);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        CommunityResponseCode.DELETE_SUCCESS,
+                        CommunityResponseMessage.DELETE_SUCCESS
+                ));
+    }
 }

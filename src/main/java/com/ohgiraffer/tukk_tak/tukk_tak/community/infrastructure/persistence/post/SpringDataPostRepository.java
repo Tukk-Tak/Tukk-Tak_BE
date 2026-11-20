@@ -115,6 +115,10 @@ public interface SpringDataPostRepository  extends JpaRepository<PostJpaEntity, 
     @Query("UPDATE PostJpaEntity p SET p.commentCount = p.commentCount + 1 WHERE p.id = :postId")
     void plusCommentCount(@Param("postId") Long postId);
 
+    @Modifying
+    @Query("UPDATE PostJpaEntity p SET p.commentCount = p.commentCount - 1 WHERE p.id = :postId AND p.commentCount > 0")
+    void minusCommentCount(@Param("postId") Long postId);
+
     interface PostInfoProjection {
         Long getId();
         Long getMemberId();

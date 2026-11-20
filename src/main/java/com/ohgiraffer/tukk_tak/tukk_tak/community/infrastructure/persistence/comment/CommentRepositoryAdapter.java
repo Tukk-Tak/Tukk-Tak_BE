@@ -64,4 +64,9 @@ public class CommentRepositoryAdapter implements CommentRepository {
     public void save(Comment comment) {
          springDataCommentRepository.save(CommentJpaEntity.fromDomain(comment));
     }
+
+    @Override
+    public Optional<Comment> findById(Long commentId) {
+        return springDataCommentRepository.findById(commentId).map(CommentJpaEntity::toDomain);
+    }
 }

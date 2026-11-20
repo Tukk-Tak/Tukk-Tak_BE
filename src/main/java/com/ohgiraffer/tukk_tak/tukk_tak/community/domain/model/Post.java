@@ -55,7 +55,7 @@ public class Post {
     public void delete(Long requesterId,boolean isAdmin) {
         // 본인인 경우+관리자인 경우만 삭제 가능
         if (!isAdmin && !memberId.equals(requesterId)) {
-            throw new PostForbiddenException("삭제 권한이 없어요.");
+            throw new PostForbiddenException("게시글 삭제 권한이 없어요.");
         }
 
         this.deleted = true;

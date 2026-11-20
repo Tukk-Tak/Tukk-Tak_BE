@@ -1,5 +1,6 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.exception.CommentForbiddenException;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,9 +16,9 @@ public class Comment {
     private final Long parentId;
     private final String content;
     private final boolean isPrivate;
-    private final boolean isDeleted;
+    private boolean isDeleted;
     private final LocalDateTime createdAt;
-    private final LocalDateTime deletedAt;
+    private LocalDateTime deletedAt;
 
     @Builder
     public Comment(Long id, Long postId, Long memberId, Long parentId, String content, boolean isPrivate, boolean isDeleted, LocalDateTime createdAt, LocalDateTime deletedAt) {
@@ -41,5 +42,13 @@ public class Comment {
                 .isPrivate(isPrivate)
                 .createdAt(LocalDateTime.now())
                 .build();
+    }
+
+    public void delete(Long requesterId, boolean admin) {
+        if (!admin && !memberId.equals(requesterId)) {
+            throw new CommentForbiddenException("댓글 삭제 권한이 없어요.");
+        }
+        this.isDeleted = true;
+        this.deletedAt = LocalDateTime.now();
     }
 }

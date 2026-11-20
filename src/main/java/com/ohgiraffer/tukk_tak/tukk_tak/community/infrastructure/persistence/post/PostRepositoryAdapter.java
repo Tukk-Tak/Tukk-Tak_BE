@@ -102,6 +102,11 @@ public class PostRepositoryAdapter implements PostRepository {
         springDataPostRepository.plusCommentCount(postId);
     }
 
+    @Override
+    public void minusCommentCount(Long postId) {
+        springDataPostRepository.minusCommentCount(postId);
+    }
+
     // CloudFront 도메인을 붙여 URL로
     private String toImageUrl(String key) {
         return (key == null || key.isBlank()) ? null : cloudFrontDomain + "/" + key;

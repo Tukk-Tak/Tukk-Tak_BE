@@ -69,4 +69,18 @@ public class CommentJpaEntity {
                 comment.getDeletedAt()
         );
     }
+
+    public Comment toDomain() {
+        return Comment.builder()
+                .id(id)
+                .postId(postId)
+                .memberId(memberId)
+                .parentId(parentId)
+                .content(content)
+                .isPrivate(isPrivate)
+                .isDeleted(isDeleted)
+                .createdAt(createdAt)
+                .deletedAt(deletedAt)
+                .build();
+    }
 }
