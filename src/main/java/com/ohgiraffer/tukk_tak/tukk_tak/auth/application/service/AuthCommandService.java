@@ -148,18 +148,20 @@ public class AuthCommandService implements AuthCommandUsecase {
         // Authorization 헤더에서 access token 추출 (형식이 틀리면 예외)
         String accessToken = LogoutPolicy.resolveAccessToken(bearerToken);
 
-        // 1) access token 블랙리스트 등록을 먼저 수행 (refresh 쿠키 상태와 무관하게 반드시 무효화)
+        // 1) refresh token을 먼저 삭제 (쿠키가 있고 Redis 값과 일치할 때만)
+        //    access token을 먼저 블랙리스트에 올리면, 이 단계가 실패했을 때 재시도 요청이 인증에서 막혀
+        //    refresh token이 남아버린다. 삭제를 먼저 해야 실패해도 같은 요청으로 다시 시도할 수 있다.
+        //    (null 체크가 없으면 isValid()에서 NPE, 일치 검사가 없으면 다른 기기의 세션을 지울 수 있음)
+        if (refreshToken != null && refreshTokenService.isValid(memberId, refreshToken)) {
+            refreshTokenService.delete(memberId);
+        }
+
+        // 2) access token 블랙리스트 등록 (refresh 쿠키 상태와 무관하게 반드시 수행)
         Claims claims = jwtTokenProvider.resolveAccessClaims(accessToken);
         if (claims != null) {
             tokenBlacklistService.blacklist(
                     jwtTokenProvider.extractJti(claims),
                     jwtTokenProvider.getRemainingValidityMs(claims));   // 남은 시간만큼만 저장
-        }
-
-        // 2) refresh token은 쿠키가 있고 Redis 값과 일치할 때만 삭제
-        //    (null 체크가 없으면 isValid()에서 NPE, 일치 검사가 없으면 다른 기기의 세션을 지울 수 있음)
-        if (refreshToken != null && refreshTokenService.isValid(memberId, refreshToken)) {
-            refreshTokenService.delete(memberId);
         }
         log.info("[logout] memberId={}", memberId);
     }
