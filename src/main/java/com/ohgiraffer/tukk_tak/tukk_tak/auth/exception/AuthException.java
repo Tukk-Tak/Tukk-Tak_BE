@@ -44,4 +44,31 @@ public class AuthException extends RuntimeException {
     // refresh token이 위조/만료됐거나 Redis 저장값과 다른 경우
     public static AuthException invalidRefreshToken() { return new AuthException(AuthFailure.INVALID_REFRESH_TOKEN); }
 
+    // 이미 가입된 이메일로 인증번호를 요청한 경우
+    public static AuthException emailAlreadyRegistered() { return new AuthException(AuthFailure.EMAIL_ALREADY_REGISTERED); }
+
+    // 같은 이메일로 재전송 대기시간(60초) 안에 다시 요청한 경우
+    public static AuthException emailSendTooFast() { return new AuthException(AuthFailure.EMAIL_SEND_TOO_FAST); }
+
+    // 같은 IP의 요청 횟수가 제한을 넘은 경우
+    public static AuthException emailSendLimitExceeded() { return new AuthException(AuthFailure.EMAIL_SEND_LIMIT_EXCEEDED); }
+
+    // 메일 서버 오류로 발송하지 못한 경우
+    public static AuthException emailSendFailed() { return new AuthException(AuthFailure.EMAIL_SEND_FAILED); }
+
+    // 인증번호가 만료됐거나 요청한 적이 없는 경우
+    public static AuthException emailCodeExpired() { return new AuthException(AuthFailure.EMAIL_CODE_EXPIRED); }
+
+    // 인증번호가 틀린 경우
+    public static AuthException emailCodeMismatch() { return new AuthException(AuthFailure.EMAIL_CODE_MISMATCH); }
+
+    // 인증번호를 여러 번 틀려서 잠긴 경우
+    public static AuthException emailVerifyLocked() { return new AuthException(AuthFailure.EMAIL_VERIFY_LOCKED); }
+
+    // 닉네임 규칙에 맞지 않는 경우
+    public static AuthException nicknameInvalid() { return new AuthException(AuthFailure.NICKNAME_INVALID); }
+
+    // 같은 IP의 닉네임 확인 요청이 제한을 넘은 경우
+    public static AuthException nicknameCheckLimitExceeded() { return new AuthException(AuthFailure.NICKNAME_CHECK_LIMIT_EXCEEDED); }
+
 }

@@ -47,4 +47,7 @@ public class MemberRepositoryAdapter implements MemberRepository {
         return entity.toDomain();
     }
 
+    @Override
+    public boolean existsByNickname(String nickname) { return jpaRepository.existsByNickname(nickname); }
+
 }

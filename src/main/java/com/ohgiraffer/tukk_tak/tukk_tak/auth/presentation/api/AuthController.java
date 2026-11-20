@@ -100,7 +100,7 @@ public class AuthController {
         ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(REFRESH_COOKIE, value)
                 .httpOnly(true)       // 자바스크립트에서 못 읽게 해서 XSS로 탈취되는 것을 막음
                 .secure(cookieSecure) // https에서만 전송
-                .sameSite("None")     // 프론트와 도메인이 다른 환경에서도 쿠키 전송 (secure 필수)
+                .sameSite(cookieSecure ? "None" : "Lax")    // 프론트와 도메인이 다른 환경에서도 쿠키 전송 (secure 필수)
                 .path("/auth");       // /auth 요청에만 쿠키가 따라가도록 범위 제한
         if (maxAge != null) {
             builder.maxAge(maxAge);

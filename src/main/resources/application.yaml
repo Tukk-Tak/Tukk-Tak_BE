@@ -37,6 +37,19 @@ spring:
     mongodb:
       auto-index-creation: true
 
+  # ===== 메일 발송 (이메일 인증번호) =====
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}          # Gmail 앱 비밀번호 (공백 없이 16자)
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.connectiontimeout: 5000  # 서버 연결 5초
+      mail.smtp.timeout: 5000            # 응답 대기 5초
+      mail.smtp.writetimeout: 5000       # 전송 5초
+
   # ===== 파일 업로드 (용량 제한) =====
   servlet:
     multipart:

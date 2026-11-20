@@ -97,19 +97,21 @@ public class AuthCommandService implements AuthCommandUsecase {
             throw loginFailed(email, clientIp, "NOT_FOUND", AuthException.loginFailed());
         }
 
-        // 3. 탈퇴한 계정은 실패 횟수에 넣지 않고 바로 거절
-        if (member.getStatus() == MemberStatus.WITHDRAWN) {
-            throw AuthException.withdrawnMember();
-        }
-
-        // 4. 구글로만 가입해서 비밀번호가 없는 계정: 구글 로그인을 안내하는 전용 에러
+        // 3. 구글 가입 계정(비밀번호 없음): 안내 문구는 제품 정책으로 유지하되,
+        //    응답 시간으로 구분되지 않게 가짜 해시와 비교해 BCrypt 시간을 맞춘다
         if (!member.hasPassword()) {
+            passwordEncoder.matches(command.password(), dummyHash);
             throw loginFailed(email, clientIp, "NO_PASSWORD", AuthException.socialAccountNoPassword());
         }
 
-        // 5. 비밀번호 불일치
+        // 4. 비밀번호 불일치 (탈퇴 계정도 틀리면 일반 실패와 같은 응답이라 탈퇴 여부가 노출되지 않음)
         if (!passwordEncoder.matches(command.password(), member.getPassword())) {
             throw loginFailed(email, clientIp, "BAD_PASSWORD", AuthException.loginFailed());
+        }
+
+        // 5. 비밀번호가 맞은 뒤에만 탈퇴 여부를 알려준다 (본인임이 확인된 사용자에게만 노출)
+        if (member.getStatus() == MemberStatus.WITHDRAWN) {
+            throw AuthException.withdrawnMember();
         }
 
         // 6. 로그인 성공: 실패 카운터 초기화
@@ -145,24 +147,22 @@ public class AuthCommandService implements AuthCommandUsecase {
     public void logout(Long memberId, String bearerToken, String refreshToken) {
         // Authorization 헤더에서 access token 추출 (형식이 틀리면 예외)
         String accessToken = LogoutPolicy.resolveAccessToken(bearerToken);
-        // refresh token 쿠키가 있는지 확인
-        logoutPolicy.validateRefreshToken(refreshToken);
 
-        // 쿠키의 refresh token이 Redis에 저장된 것과 같은지 확인 (남의 토큰으로 로그아웃 방지)
-        if (!refreshTokenService.isValid(memberId, refreshToken)) {
-            throw AuthException.invalidRefreshToken();
+        // 1) refresh token을 먼저 삭제 (쿠키가 있고 Redis 값과 일치할 때만)
+        //    access token을 먼저 블랙리스트에 올리면, 이 단계가 실패했을 때 재시도 요청이 인증에서 막혀
+        //    refresh token이 남아버린다. 삭제를 먼저 해야 실패해도 같은 요청으로 다시 시도할 수 있다.
+        //    (null 체크가 없으면 isValid()에서 NPE, 일치 검사가 없으면 다른 기기의 세션을 지울 수 있음)
+        if (refreshToken != null && refreshTokenService.isValid(memberId, refreshToken)) {
+            refreshTokenService.delete(memberId);
         }
 
-        // access token을 블랙리스트에 등록. 파싱에 실패하면(이미 만료 등) 등록할 필요가 없어 건너뜀
+        // 2) access token 블랙리스트 등록 (refresh 쿠키 상태와 무관하게 반드시 수행)
         Claims claims = jwtTokenProvider.resolveAccessClaims(accessToken);
         if (claims != null) {
             tokenBlacklistService.blacklist(
                     jwtTokenProvider.extractJti(claims),
                     jwtTokenProvider.getRemainingValidityMs(claims));   // 남은 시간만큼만 저장
         }
-
-        // refresh token 삭제: 이후 재발급 불가
-        refreshTokenService.delete(memberId);
         log.info("[logout] memberId={}", memberId);
     }
 

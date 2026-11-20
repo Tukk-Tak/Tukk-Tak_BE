@@ -13,6 +13,9 @@ public final class AuthResponseCode {
     public static final String LOGIN_SUCCESS   = "AUTH-LOGIN-SUCCESS";
     public static final String LOGOUT_SUCCESS  = "AUTH-LOGOUT-SUCCESS";
     public static final String TOKEN_REFRESHED = "AUTH-TOKEN-REFRESHED";
+    public static final String EMAIL_SENT = "AUTH-EMAIL-SENT";
+    public static final String EMAIL_VERIFIED = "AUTH-EMAIL-VERIFIED";
+    public static final String NICKNAME_CHECKED = "AUTH-NICKNAME-CHECKED";
 
     // 실패
     public static final String LOGIN_FAILED               = "AUTH-LOGIN-FAILED";
@@ -24,5 +27,14 @@ public final class AuthResponseCode {
     public static final String MISSING_REFRESH_TOKEN      = "AUTH-MISSING-REFRESH-TOKEN";
     public static final String INVALID_REFRESH_TOKEN      = "AUTH-INVALID-REFRESH-TOKEN";
     public static final String ALREADY_LOGGED_OUT         = "AUTH-ALREADY-LOGGED-OUT";
+    public static final String EMAIL_ALREADY_REGISTERED  = "AUTH-EMAIL-ALREADY-REGISTERED";
+    public static final String EMAIL_SEND_TOO_FAST       = "AUTH-EMAIL-SEND-TOO-FAST";
+    public static final String EMAIL_SEND_LIMIT_EXCEEDED = "AUTH-EMAIL-SEND-LIMIT-EXCEEDED";
+    public static final String EMAIL_SEND_FAILED         = "AUTH-EMAIL-SEND-FAILED";
+    public static final String EMAIL_CODE_EXPIRED  = "AUTH-EMAIL-CODE-EXPIRED";
+    public static final String EMAIL_CODE_MISMATCH = "AUTH-EMAIL-CODE-MISMATCH";
+    public static final String EMAIL_VERIFY_LOCKED = "AUTH-EMAIL-VERIFY-LOCKED";
+    public static final String NICKNAME_INVALID                = "AUTH-NICKNAME-INVALID";
+    public static final String NICKNAME_CHECK_LIMIT_EXCEEDED   = "AUTH-NICKNAME-CHECK-LIMIT-EXCEEDED";
 
 }

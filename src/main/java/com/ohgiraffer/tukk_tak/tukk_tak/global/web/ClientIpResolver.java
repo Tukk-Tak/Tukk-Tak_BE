@@ -33,7 +33,7 @@ public final class ClientIpResolver {
 
         String forwardedFor = request.getHeader("X-Forwarded-For");
         if (forwardedFor != null && !forwardedFor.isBlank()) {
-            String ip = forwardedFor.split(",")[0].trim();
+            String ip = forwardedFor.split(",", -1)[0].trim();
             if (isValidIp(ip)) {
                 return ip;
             }
