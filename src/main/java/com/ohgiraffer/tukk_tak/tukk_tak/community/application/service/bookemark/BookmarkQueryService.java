@@ -20,16 +20,23 @@ public class BookmarkQueryService implements BookmarkQueryUsecase {
     private final GetNicknamePort getNicknamePort;
 
     @Override
-    public List<BookmarkedPostSearchResult> getBookmarkedPosts(Long memberId, int page, int size) {
+    public BookmarkListResult getBookmarkedPosts(Long memberId, int page, int size) {
+
+        // 북마크한 글 총 개수로 총 페이지 수
+        long totalCount = bookmarkRepository.countBookmarkedPosts(memberId);
+        int totalPages = (int) ((totalCount + size - 1) / size);
+
         List<BookmarkRepository.BookmarkedPostInfo> posts = bookmarkRepository.findBookmarkedPosts(memberId, page, size);
 
         Map<Long, String> nicknames = getNicknamePort.getNicknames(
                 posts.stream().map(BookmarkRepository.BookmarkedPostInfo::memberId).collect(Collectors.toSet()));
 
-        return posts.stream()
+        List<BookmarkedPostSearchResult> results = posts.stream()
                 .map(p -> new BookmarkedPostSearchResult(
                         p.id(), p.title(), p.imageUrl(), nicknames.get(p.memberId()),
                         p.likeCount(), p.commentCount(), p.liked()))
                 .toList();
+
+        return new BookmarkListResult(results, page, size, totalCount, totalPages);
     }
 }

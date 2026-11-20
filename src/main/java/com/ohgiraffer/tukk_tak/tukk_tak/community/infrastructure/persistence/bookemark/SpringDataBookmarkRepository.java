@@ -34,6 +34,15 @@ public interface SpringDataBookmarkRepository extends JpaRepository<BookmarkJpaE
                                                                @Param("size") int size,
                                                                @Param("offset") int offset);
 
+    // 북마크한 글 총 개수
+    @Query(value = """
+        SELECT COUNT(*)
+        FROM bookmark b
+        JOIN post p ON p.id = b.post_id AND p.is_deleted = FALSE
+        WHERE b.member_id = :memberId
+        """, nativeQuery = true)
+    long countBookmarkedPosts(@Param("memberId") Long memberId);
+
     interface BookmarkedPostInfoProjection {
         Long getId();
         Long getMemberId();

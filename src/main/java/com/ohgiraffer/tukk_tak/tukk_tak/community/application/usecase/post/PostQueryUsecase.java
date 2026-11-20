@@ -8,9 +8,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public interface PostQueryUsecase {
-    List<PostSearchResult> getPosts(Long memberId, String keyword, Sort sort, int page, int size);
+    PostListResult getPosts(Long memberId, String keyword, Sort sort, int page, int size);
 
     PostDetailSearchResult getPostDetail(Long memberId, Long postId);
+
+    record PostListResult(
+            List<PostSearchResult> posts,
+            int page,
+            int size,
+            long totalElements,
+            int totalPages
+    ) {}
 
     record PostSearchResult(
             Long id, String title, String imageUrl, String nickname,

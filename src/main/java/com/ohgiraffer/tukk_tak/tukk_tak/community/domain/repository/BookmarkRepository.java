@@ -16,6 +16,8 @@ public interface BookmarkRepository {
 
     boolean findBookmarked(Long memberId, Long postId);
 
+    long countBookmarkedPosts(Long memberId);
+
     record BookmarkedPostInfo(
             Long id, Long memberId,String title, String imageUrl,
             int likeCount, int commentCount, boolean liked

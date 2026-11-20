@@ -57,6 +57,11 @@ public class BookmarkRepositoryAdapter implements BookmarkRepository {
         return springDataBookmarkRepository.existsByPostIdAndMemberId(postId, memberId);
     }
 
+    @Override
+    public long countBookmarkedPosts(Long memberId) {
+        return springDataBookmarkRepository.countBookmarkedPosts(memberId);
+    }
+
     // CloudFront 도메인 붙여서 URL로
     private String toImageUrl(String key) {
         return (key == null || key.isBlank()) ? null : cloudFrontDomain + "/" + key;

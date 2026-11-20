@@ -52,11 +52,11 @@ public class PostCommandService implements PostCommandUsecase {
     }
 
     @Override
-    public void deletePost(Long postId, Long memberId) {
+    public void deletePost(Long postId, Long memberId, boolean isAdmin) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없어요."));
 
-        post.delete(memberId);
+        post.delete(memberId,isAdmin);
         postRepository.save(post);
 
     }
