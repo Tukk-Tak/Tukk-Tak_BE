@@ -15,6 +15,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.request.CreatePos
 import com.ohgiraffer.tukk_tak.tukk_tak.community.presentation.response.*;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.user.CustomUserPrincipal;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.Role;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -86,7 +87,8 @@ public class CommunityController {
             @PathVariable Long postId
             , @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
     ){
-        postCommandUsecase.deletePost(postId,customUserPrincipal.getId());
+        boolean isAdmin = customUserPrincipal.getRole() == Role.ADMIN;
+        postCommandUsecase.deletePost(postId, customUserPrincipal.getId(), isAdmin);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(
