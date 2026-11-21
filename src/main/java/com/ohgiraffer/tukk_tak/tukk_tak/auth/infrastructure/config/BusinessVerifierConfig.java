@@ -1,6 +1,8 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.business;
+package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.config;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessVerifier;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter.FakeBusinessVerifier;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter.NtsBusinessVerifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

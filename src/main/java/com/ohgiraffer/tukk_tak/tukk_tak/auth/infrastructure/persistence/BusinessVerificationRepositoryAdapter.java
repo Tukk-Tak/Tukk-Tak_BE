@@ -24,6 +24,16 @@ public class BusinessVerificationRepositoryAdapter implements BusinessVerificati
     }
 
     @Override
+    public boolean existsByMemberIdAndBusinessNumber(Long memberId, String businessNumber) {
+        return jpaRepository.existsByMemberIdAndBusinessNumber(memberId, businessNumber);
+    }
+
+    @Override
+    public boolean existsByMemberId(Long memberId) {
+        return jpaRepository.existsByMemberId(memberId);
+    }
+
+    @Override
     public BusinessVerification save(BusinessVerification businessVerification) {
         return jpaRepository.save(BusinessVerificationJpaEntity.fromDomain(businessVerification)).toDomain();
     }

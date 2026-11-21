@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.google;
+package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.GoogleSignupTicketPort;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.GoogleIdentity;

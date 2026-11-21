@@ -5,7 +5,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.policy.LogoutPolicy;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.LoginResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.TokenResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase.AuthCommandUsecase;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.exception.AuthException;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.FailureCountGuard;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.jwt.JwtTokenProvider;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.token.RefreshTokenService;
@@ -45,6 +45,14 @@ public class AuthCommandService implements AuthCommandUsecase {
     // 잠금 유지 시간
     private static final Duration LOGIN_LOCK_DURATION = Duration.ofMinutes(15);
 
+    // IP 단위 실패 횟수를 세는 Redis 키의 구분자 (이메일을 바꿔 가며 대입하는 공격 방지)
+    private static final String LOGIN_IP_SCOPE = "login-ip";
+    // 한 IP에서 이 횟수만큼 실패하면 잠금 (사무실처럼 같은 공인 IP를 쓰는 사용자를 고려해 넉넉히 둠)
+    private static final int LOGIN_IP_MAX_FAILURE_COUNT = 30;
+    // IP 실패 횟수를 세는 기간과 잠금 유지 시간
+    private static final Duration LOGIN_IP_FAILURE_WINDOW = Duration.ofMinutes(10);
+    private static final Duration LOGIN_IP_LOCK_DURATION = Duration.ofMinutes(15);
+
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -82,8 +90,9 @@ public class AuthCommandService implements AuthCommandUsecase {
         String email = normalizeEmail(command.email());
         String clientIp = command.clientIp();
 
-        // 1. 잠긴 계정이면 비밀번호 검증 없이 바로 차단 (잠금 중에는 BCrypt 비용도 쓰지 않음)
-        if (failureCountGuard.isLocked(LOGIN_FAILURE_SCOPE, email)) {
+        // 1. 잠긴 계정이거나 잠긴 IP면 비밀번호 검증 없이 바로 차단 (잠금 중에는 BCrypt 비용도 쓰지 않음)
+        if (failureCountGuard.isLocked(LOGIN_FAILURE_SCOPE, email)
+                || failureCountGuard.isLocked(LOGIN_IP_SCOPE, clientIp)) {
             throw AuthException.accountLocked();
         }
 
@@ -194,6 +203,9 @@ public class AuthCommandService implements AuthCommandUsecase {
         log.warn("[login] 실패 | email={} | ip={} | reason={}", maskEmail(email), maskIp(clientIp), reason);
         failureCountGuard.recordFailure(LOGIN_FAILURE_SCOPE, email,
                 LOGIN_MAX_FAILURE_COUNT, LOGIN_FAILURE_WINDOW, LOGIN_LOCK_DURATION);
+        // 같은 IP의 실패도 함께 센다 (계정 단위 제한만으로는 이메일을 바꿔 가는 대입을 막지 못함)
+        failureCountGuard.recordFailure(LOGIN_IP_SCOPE, clientIp,
+                LOGIN_IP_MAX_FAILURE_COUNT, LOGIN_IP_FAILURE_WINDOW, LOGIN_IP_LOCK_DURATION);
         return exception;
     }
 

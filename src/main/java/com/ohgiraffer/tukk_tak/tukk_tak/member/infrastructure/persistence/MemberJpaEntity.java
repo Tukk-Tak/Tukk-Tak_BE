@@ -99,13 +99,16 @@ public class MemberJpaEntity extends BaseTimeEntity {
                 aiUsageAgreed, status, withdrawnAt);
     }
 
-    /** 수정 가능한 필드만 반영 (email, name, loginType, role 등은 불변) */
+    /** 수정 가능한 필드만 반영 (email, loginType, role 등은 불변. name과 동의 값은 복구 가입 때만 바뀜) */
     public void updateFrom(Member m) {
         this.password = m.getPassword();
         this.nickname = m.getNickname();
+        this.name = m.getName();
         this.phone = m.getPhone();
         this.businessPhone = m.getBusinessPhone();
         this.address = m.getAddress();
+        this.privacyAgreed = m.isPrivacyAgreed();
+        this.aiUsageAgreed = m.isAiUsageAgreed();
         this.status = m.getStatus();
         this.withdrawnAt = m.getWithdrawnAt();
     }

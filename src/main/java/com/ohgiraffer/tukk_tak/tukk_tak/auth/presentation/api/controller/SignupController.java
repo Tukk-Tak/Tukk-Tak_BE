@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api;
+package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.controller;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.NicknameCheckCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.BusinessVerifyResult;
@@ -14,8 +14,8 @@ import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.BusinessV
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.EmailSendResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.EmailVerifyResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.NicknameCheckResponse;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.response.AuthResponseCode;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.response.AuthResponseMessage;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.common.AuthResponseCode;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.common.AuthResponseMessage;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.web.ClientIpResolver;
 import jakarta.servlet.http.HttpServletRequest;

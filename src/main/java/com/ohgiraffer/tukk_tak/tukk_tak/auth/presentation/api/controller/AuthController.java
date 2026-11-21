@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api;
+package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.controller;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.GoogleLoginResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.LoginResult;
@@ -10,8 +10,8 @@ import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request.LoginReque
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.GoogleLoginResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.LoginResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.TokenResponse;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.response.AuthResponseCode;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.response.AuthResponseMessage;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.common.AuthResponseCode;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.common.AuthResponseMessage;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.user.CustomUserPrincipal;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.web.ClientIpResolver;

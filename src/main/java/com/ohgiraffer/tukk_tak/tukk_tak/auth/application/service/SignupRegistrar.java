@@ -53,5 +53,22 @@ public class SignupRegistrar {
         return saved;
     }
 
+    // 탈퇴한 회원 복구: 같은 행을 덮어써서 예전 사이트와 구독을 잇고, FREE 구독은 이미 있으니 만들지 않는다
+    // business가 null이면 사업자 기록은 건드리지 않는다 (인증을 안 했거나, 본인 기록에 이미 있는 번호)
+    @Transactional
+    public Member restore(Member member, BusinessTokenInfo business) {
+
+        // 1. 회원 저장 (member id가 있어서 INSERT가 아니라 UPDATE로 처리됨)
+        Member saved = memberRepository.save(member);
+
+        // 2. 새 사업자번호로 인증했다면 인증 기록만 추가 (예전 기록은 그대로 둔다)
+        if (business != null) {
+            businessVerificationRepository.save(BusinessVerification.approvedByApi(
+                    saved.getId(), business.businessNumber(), business.openDate(),
+                    business.ceoName(), LocalDateTime.now(SEOUL)));
+        }
+
+        return saved;
+    }
 
 }

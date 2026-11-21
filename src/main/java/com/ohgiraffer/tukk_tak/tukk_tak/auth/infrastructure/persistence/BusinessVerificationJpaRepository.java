@@ -10,5 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface BusinessVerificationJpaRepository extends JpaRepository<BusinessVerificationJpaEntity, Long> {
 
     boolean existsByBusinessNumber(String businessNumber);
+    boolean existsByMemberIdAndBusinessNumber(Long memberId, String businessNumber);
+    boolean existsByMemberId(Long memberId);
 
 }

@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.infrastructure.seed;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.Member;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.repository.MemberRepository;

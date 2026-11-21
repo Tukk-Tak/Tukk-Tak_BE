@@ -1,8 +1,8 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.google;
+package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.GoogleTokenVerifier;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.GoogleIdentity;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.exception.AuthException;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
 import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.JwtException;
 

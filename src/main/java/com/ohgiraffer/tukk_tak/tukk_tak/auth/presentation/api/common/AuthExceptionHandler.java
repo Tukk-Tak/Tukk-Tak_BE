@@ -1,9 +1,7 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.common;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.exception.AuthException;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.exception.AuthFailure;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.response.AuthResponseCode;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.response.AuthResponseMessage;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthFailure;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiErrorResponse;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -104,7 +102,6 @@ public class AuthExceptionHandler {
             case GOOGLE_TICKET_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
                     AuthResponseCode.GOOGLE_TICKET_INVALID, AuthResponseMessage.GOOGLE_TICKET_INVALID);
         };
-
 
     }
 

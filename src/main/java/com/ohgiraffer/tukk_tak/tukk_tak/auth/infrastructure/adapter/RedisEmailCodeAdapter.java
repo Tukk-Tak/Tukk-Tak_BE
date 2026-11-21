@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.email;
+package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.EmailCodePort;
 import lombok.RequiredArgsConstructor;

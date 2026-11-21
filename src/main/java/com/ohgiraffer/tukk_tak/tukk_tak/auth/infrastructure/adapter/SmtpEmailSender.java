@@ -1,7 +1,7 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.email;
+package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.EmailSender;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.exception.AuthException;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

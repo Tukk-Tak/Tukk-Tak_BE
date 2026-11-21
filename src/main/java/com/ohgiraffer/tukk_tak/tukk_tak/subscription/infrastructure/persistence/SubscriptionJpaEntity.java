@@ -36,6 +36,9 @@ public class SubscriptionJpaEntity {
     @Column(name = "ai_usage_count", nullable = false)
     private int aiUsageCount;
 
+    @Column(name = "usage_cycle_start")
+    private LocalDate usageCycleStart;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private SubscriptionStatus status;
@@ -54,6 +57,7 @@ public class SubscriptionJpaEntity {
         this.memberId = s.getMemberId();
         this.planName = s.getPlanName();
         this.aiUsageCount = s.getAiUsageCount();
+        this.usageCycleStart = s.getUsageCycleStart();
         this.status = s.getStatus();
         this.startDate = s.getStartDate();
         this.endDate = s.getEndDate();
@@ -63,7 +67,7 @@ public class SubscriptionJpaEntity {
     public static SubscriptionJpaEntity fromDomain(Subscription s) { return new SubscriptionJpaEntity(s); }
 
     public Subscription toDomain() {
-        return new Subscription(id, memberId, planName, aiUsageCount, status,
+        return new Subscription(id, memberId, planName, aiUsageCount, usageCycleStart, status,
                 startDate, endDate, canceledAt);
     }
 

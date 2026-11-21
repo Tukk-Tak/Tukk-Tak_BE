@@ -1,8 +1,8 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.global.security.handler;
 
 import tools.jackson.databind.ObjectMapper;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.response.AuthResponseCode;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.response.AuthResponseMessage;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.common.AuthResponseCode;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.common.AuthResponseMessage;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiErrorResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponseCode;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponseMessage;

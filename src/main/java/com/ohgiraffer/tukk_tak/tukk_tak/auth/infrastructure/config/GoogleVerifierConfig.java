@@ -1,6 +1,8 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.google;
+package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.config;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.GoogleTokenVerifier;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter.FakeGoogleTokenVerifier;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter.GoogleIdTokenVerifierAdapter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

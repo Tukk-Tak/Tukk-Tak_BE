@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.response;
+package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.common;
 
 /*
  * comment.

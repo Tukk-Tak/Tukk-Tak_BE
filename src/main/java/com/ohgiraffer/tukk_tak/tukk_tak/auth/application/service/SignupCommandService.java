@@ -10,11 +10,12 @@ import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.*;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase.SignupCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessTokenInfo;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.repository.BusinessVerificationRepository;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.exception.AuthException;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.FailureCountGuard;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.BusinessNumberNormalizer;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.EmailNormalizer;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.PhoneNumberNormalizer;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.LoginType;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.Member;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -101,9 +102,10 @@ public class SignupCommandService implements SignupCommandUsecase {
         failureCountGuard.recordFailure(SEND_IP_SCOPE, command.clientIp(),
                 SEND_IP_MAX, SEND_IP_WINDOW, SEND_IP_LOCK);
 
-        // 2. 이메일 정규화 후 이미 가입된 이메일이면 거절 (화면의 "이미 가입된 이메일이에요 · 로그인하기")
+        // 2. 이메일 정규화 후 가입 불가한 이메일이면 거절 (화면의 "이미 가입된 이메일이에요 · 로그인하기")
+        //    탈퇴한 자체 가입 회원은 같은 이메일로 복구 가입을 할 수 있으니 통과시킨다
         String email = EmailNormalizer.normalize(command.email());
-        if (memberRepository.existsByEmail(email)) {
+        if (isUnavailableEmail(email)) {
             throw AuthException.emailAlreadyRegistered();
         }
 
@@ -250,34 +252,52 @@ public class SignupCommandService implements SignupCommandUsecase {
             }
         }
 
-        // 3. 중복 확인 (안내용이고, 동시에 가입하는 경우는 5번의 UNIQUE 위반 변환이 마지막 방어선)
-        if (memberRepository.existsByEmail(email)) {
+        // 3. 같은 이메일의 회원 확인: 탈퇴한 자체 가입 회원이면 새로 만들지 않고 되살린다
+        //    (member id가 같아야 예전에 만든 사이트와 구독이 그대로 이어진다)
+        Member existing = memberRepository.findByEmail(email).orElse(null);
+        boolean restoring = existing != null && existing.isWithdrawn()
+                && existing.getLoginType() == LoginType.LOCAL;
+        if (existing != null && !restoring) {
             throw AuthException.emailAlreadyRegistered();
         }
-        if (memberRepository.existsByNickname(command.nickname())) {
+
+        // 4. 닉네임, 사업자번호 중복 확인 (안내용이고, 동시에 가입하는 경우는 6번의 UNIQUE 위반 변환이 마지막 방어선)
+        //    복구라면 본인이 쓰던 닉네임과 사업자번호는 중복으로 보지 않는다
+        boolean ownNickname = restoring && command.nickname().equals(existing.getNickname());
+        if (!ownNickname && memberRepository.existsByNickname(command.nickname())) {
             throw AuthException.nicknameAlreadyUsed();
         }
-        if (business != null && businessVerificationRepository.existsByBusinessNumber(business.businessNumber())) {
+        boolean ownBusiness = restoring && business != null && businessVerificationRepository
+                .existsByMemberIdAndBusinessNumber(existing.getId(), business.businessNumber());
+        if (business != null && !ownBusiness
+                && businessVerificationRepository.existsByBusinessNumber(business.businessNumber())) {
             throw AuthException.businessAlreadyUsed();
         }
 
-        // 4. 회원 만들기: 비밀번호는 암호화하고 전화번호는 숫자만 남긴다
-        Member member = Member.local(email, passwordEncoder.encode(command.password()),
-                command.nickname(), command.name(),
-                PhoneNumberNormalizer.normalize(command.phone()),
-                PhoneNumberNormalizer.normalize(command.businessPhone()),
-                StringUtils.hasText(command.address()) ? command.address().trim() : null,
-                command.agreed(), command.agreed());
+        // 5. 저장할 값 준비: 비밀번호는 암호화하고 전화번호는 숫자만 남긴다
+        String encodedPassword = passwordEncoder.encode(command.password());
+        String phone = PhoneNumberNormalizer.normalize(command.phone());
+        String businessPhone = PhoneNumberNormalizer.normalize(command.businessPhone());
+        String address = StringUtils.hasText(command.address()) ? command.address().trim() : null;
 
-        // 5. 저장 (회원 + 사업자 인증 기록 + FREE 구독이 한 트랜잭션)
+        // 6. 저장: 복구면 기존 행을 덮어쓰고, 아니면 회원 + 사업자 인증 기록 + FREE 구독을 새로 만든다
         //    같은 값으로 동시에 가입해서 UNIQUE를 위반하면, 트랜잭션이 끝난 여기서 잡아 중복 에러로 바꾼다
         try {
-            signupRegistrar.register(member, business);
+            if (restoring) {
+                existing.restore(encodedPassword, command.nickname(), command.name(), phone,
+                        businessPhone, address, command.agreed(), command.agreed());
+                signupRegistrar.restore(existing, ownBusiness ? null : business);
+            } else {
+                Member member = Member.local(email, encodedPassword, command.nickname(), command.name(),
+                        phone, businessPhone, address, command.agreed(), command.agreed());
+                signupRegistrar.register(member, business);
+            }
         } catch (DataIntegrityViolationException e) {
-            throw translateDuplicate(email, command.nickname(), business, e);
+            throw translateDuplicate(restoring ? null : email, ownNickname ? null : command.nickname(),
+                    ownBusiness ? null : business, e);
         }
 
-        // 6. 저장이 끝났으니 토큰을 지워서 1회용으로 만든다
+        // 7. 저장이 끝났으니 토큰을 지워서 1회용으로 만든다
         //    (저장 전에 지우면 DB 오류 때 인증을 처음부터 다시 해야 한다. 삭제가 실패해도 가입은 성공으로 응답)
         try {
             emailCodePort.deleteToken(command.emailToken());
@@ -288,17 +308,26 @@ public class SignupCommandService implements SignupCommandUsecase {
             log.warn("[signup] 토큰 삭제 실패 | type={}", e.getClass().getSimpleName());
         }
 
-        log.info("[signup] 가입 완료");
+        log.info(restoring ? "[signup] 복구 가입 완료" : "[signup] 가입 완료");
     }
 
+    // 가입 불가한 이메일인지 확인: 활성 회원이거나, 구글로 가입했다 탈퇴한 회원이면 true (구글은 구글 로그인으로 복구)
+    private boolean isUnavailableEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .map(member -> member.isActive() || member.getLoginType() != LoginType.LOCAL)
+                .orElse(false);
+    }
+
+
     // UNIQUE 위반이 어떤 값 때문인지 다시 조회해서 중복 에러로 바꾼다 (DB마다 제약 이름 메시지가 달라서 메시지는 분석하지 않는다)
-    // 셋 다 아니면 중복이 아닌 다른 무결성 오류이므로 원래 예외를 그대로 돌려준다
+    // 복구 가입에서는 본인 행이 이미 있으므로, 확인할 필요 없는 값은 null로 받아서 건너뛴다
+    // 모두 아니면 중복이 아닌 다른 무결성 오류이므로 원래 예외를 그대로 돌려준다
     private RuntimeException translateDuplicate(String email, String nickname,
                                                 BusinessTokenInfo business, DataIntegrityViolationException e) {
-        if (memberRepository.existsByEmail(email)) {
+        if (email != null && memberRepository.existsByEmail(email)) {
             return AuthException.emailAlreadyRegistered();
         }
-        if (memberRepository.existsByNickname(nickname)) {
+        if (nickname != null && memberRepository.existsByNickname(nickname)) {
             return AuthException.nicknameAlreadyUsed();
         }
         if (business != null && businessVerificationRepository.existsByBusinessNumber(business.businessNumber())) {

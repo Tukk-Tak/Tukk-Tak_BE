@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.exception;
+package com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception;
 
 /*
  * comment.

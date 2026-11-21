@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.business;
+package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter;
 
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessTokenPort;

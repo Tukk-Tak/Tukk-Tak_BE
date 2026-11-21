@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.response;
+package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.common;
 
 /*
  * comment.
@@ -21,7 +21,7 @@ public final class AuthResponseMessage {
 
     public static final String LOGIN_FAILED               = "이메일 또는 비밀번호가 올바르지 않습니다.";
     public static final String SOCIAL_ACCOUNT_NO_PASSWORD = "구글 로그인으로 가입된 계정입니다. 구글 로그인을 이용해주세요.";
-    public static final String WITHDRAWN_MEMBER           = "탈퇴한 계정입니다.";
+    public static final String WITHDRAWN_MEMBER           = "탈퇴한 회원입니다. 탈퇴 후 1년 이내에는 같은 이메일로 다시 가입하면 이전 정보가 복구됩니다.";
     public static final String ACCOUNT_LOCKED             = "로그인 실패 횟수 초과로 일시적으로 잠긴 계정입니다. 15분 후 다시 시도해주세요.";
     public static final String MISSING_ACCESS_TOKEN       = "AccessToken이 필요합니다.";
     public static final String INVALID_TOKEN              = "유효하지 않은 토큰입니다.";
