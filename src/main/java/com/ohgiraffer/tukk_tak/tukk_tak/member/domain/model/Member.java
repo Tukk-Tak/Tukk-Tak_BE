@@ -58,6 +58,24 @@ public class Member {
                 Role.ADMIN, true, true, true, MemberStatus.ACTIVE, null);
     }
 
+    /** 자체 가입 회원. 가입 경로 LOCAL, 권한 BUSINESS, 이메일은 인증을 마친 상태. password는 암호화된 값 */
+    public static Member local(String email, String encodedPassword, String nickname, String name,
+                               String phone, String businessPhone, String address,
+                               boolean privacyAgreed, boolean aiUsageAgreed) {
+        return new Member(null, email, encodedPassword, LoginType.LOCAL, nickname, name, phone,
+                businessPhone, address, Role.BUSINESS, true, privacyAgreed, aiUsageAgreed,
+                MemberStatus.ACTIVE, null);
+    }
+
+    /** 구글 가입 회원. 가입 경로 GOOGLE, 권한 BUSINESS, 비밀번호 없음, 이메일은 구글이 인증한 상태 */
+    public static Member google(String email, String nickname, String name, String phone,
+                                String businessPhone, String address,
+                                boolean privacyAgreed, boolean aiUsageAgreed) {
+        return new Member(null, email, null, LoginType.GOOGLE, nickname, name, phone,
+                businessPhone, address, Role.BUSINESS, true, privacyAgreed, aiUsageAgreed,
+                MemberStatus.ACTIVE, null);
+    }
+
     public boolean hasPassword() { return password != null && !password.isBlank(); }
     public boolean isActive() { return status == MemberStatus.ACTIVE; }
 

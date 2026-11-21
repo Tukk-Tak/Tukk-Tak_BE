@@ -9,6 +9,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase.SignupCommandUs
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request.BusinessVerifyRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request.EmailSendRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request.EmailVerifyRequest;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request.SignupRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.BusinessVerifyResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.EmailSendResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.EmailVerifyResponse;
@@ -20,6 +21,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.global.web.ClientIpResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -94,6 +96,18 @@ public class SignupController {
 
         return ResponseEntity.ok(ApiResponse.success(AuthResponseCode.BUSINESS_VERIFIED,
                 AuthResponseMessage.BUSINESS_VERIFIED, BusinessVerifyResponse.from(result)));
+    }
+
+    /*
+     * comment.
+     *  자체 회원가입
+     *  성공하면 본문 없이 201만 내려준다. (프론트가 로그인 화면으로 이동하고, 토큰은 발급하지 않는다)
+     * */
+    @PostMapping("/signup")
+    public ResponseEntity<Void> signup(@RequestBody @Valid SignupRequest request) {
+        signupCommandUsecase.signup(request.toCommand());
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }

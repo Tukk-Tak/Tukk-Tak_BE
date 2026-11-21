@@ -86,4 +86,31 @@ public class AuthException extends RuntimeException {
     // 국세청 호출 실패, 타임아웃, 5xx, 비정상 응답
     public static AuthException businessVerifyUnavailable() {return new AuthException(AuthFailure.BUSINESS_VERIFY_UNAVAILABLE);}
 
+    // 이메일 인증 토큰이 없거나 만료됨 (인증을 다시 해야 함)
+    public static AuthException emailTokenInvalid() {return new AuthException(AuthFailure.EMAIL_TOKEN_INVALID);}
+
+    // 사업자 확인 토큰이 없거나 만료됨 (사업자 인증을 다시 해야 함)
+    public static AuthException businessTokenInvalid() {return new AuthException(AuthFailure.BUSINESS_TOKEN_INVALID);}
+
+    // 사업자 인증 후 이름을 바꿈 (이름은 대표자명과 같아야 함)
+    public static AuthException businessNameMismatch() {return new AuthException(AuthFailure.BUSINESS_NAME_MISMATCH);}
+
+    // 이미 사용 중인 닉네임 (중복 확인 뒤 다른 사람이 먼저 가입한 경우 포함)
+    public static AuthException nicknameAlreadyUsed() {return new AuthException(AuthFailure.NICKNAME_ALREADY_USED);}
+
+    // 구글 ID 토큰이 올바르지 않거나 만료됨
+    public static AuthException googleTokenInvalid() {return new AuthException(AuthFailure.GOOGLE_TOKEN_INVALID);}
+
+    // 구글이 이메일을 인증하지 않은 계정
+    public static AuthException googleEmailUnverified() {return new AuthException(AuthFailure.GOOGLE_EMAIL_UNVERIFIED);}
+
+    // 같은 이메일이 자체 가입 계정으로 이미 있음 (이메일로 로그인해야 함)
+    public static AuthException localAccountExists() {return new AuthException(AuthFailure.LOCAL_ACCOUNT_EXISTS);}
+
+    // 구글 검증 실패가 반복되어 잠시 잠금
+    public static AuthException googleTooManyAttempts() {return new AuthException(AuthFailure.GOOGLE_TOO_MANY_ATTEMPTS);}
+
+    // 구글 가입 티켓이 없거나 만료됨 (구글 로그인을 다시 해야 함)
+    public static AuthException googleTicketInvalid() {return new AuthException(AuthFailure.GOOGLE_TICKET_INVALID);}
+
 }

@@ -1,8 +1,13 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.GoogleLoginResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.LoginResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase.AuthCommandUsecase;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase.GoogleAuthUsecase;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request.GoogleLoginRequest;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request.GoogleSignupRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request.LoginRequest;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.GoogleLoginResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.LoginResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.TokenResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.response.AuthResponseCode;
@@ -13,12 +18,13 @@ import com.ohgiraffer.tukk_tak.tukk_tak.global.web.ClientIpResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -38,6 +44,7 @@ public class AuthController {
     private static final String REFRESH_COOKIE = "refreshToken";
 
     private final AuthCommandUsecase authCommandUsecase;
+    private final GoogleAuthUsecase googleAuthUsecase;
 
     // 로컬(http) 테스트 때만 false, 배포(https)에서는 true
     @Value("${app.cookie.secure:true}") private boolean cookieSecure;
@@ -95,6 +102,48 @@ public class AuthController {
                 TokenResponse.from(authCommandUsecase.reissueAccessToken(refreshToken))));
     }
 
+    /*
+     * comment.
+     *  구글 로그인 (구글 계정으로 계속하기)
+     *  이미 가입한 구글 회원이면 로그인하고 refresh 쿠키를 내려주고,
+     *  처음 온 계정이면 쿠키 없이 가입 티켓과 구글 정보를 내려준다. (둘 다 200, registered 값으로 구분)
+     * */
+    @PostMapping("/google")
+    public ResponseEntity<ApiResponse<GoogleLoginResponse>> googleLogin(
+            @RequestBody @Valid GoogleLoginRequest request, HttpServletRequest httpRequest) {
+        GoogleLoginResult result = googleAuthUsecase.googleLogin(
+                request.toCommand(ClientIpResolver.resolve(httpRequest)));
+
+        // 처음 온 계정: 아직 로그인한 것이 아니므로 쿠키 없이 가입 티켓만 내려준다
+        if (!result.registered()) {
+            return ResponseEntity.ok(ApiResponse.success(AuthResponseCode.GOOGLE_SIGNUP_REQUIRED,
+                    AuthResponseMessage.GOOGLE_SIGNUP_REQUIRED, GoogleLoginResponse.from(result)));
+        }
+
+        // 이미 가입한 회원: 로그인과 같은 방식으로 refresh 쿠키를 내려준다
+        LoginResult login = result.login();
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, refreshCookie(login.refreshToken(), cookieMaxAge(login)).toString())
+                .body(ApiResponse.success(AuthResponseCode.GOOGLE_LOGIN_SUCCESS,
+                        AuthResponseMessage.GOOGLE_LOGIN_SUCCESS, GoogleLoginResponse.from(result)));
+    }
+
+    /*
+     * comment.
+     *  구글 회원가입 완료 (구글 로그인에서 받은 가입 티켓과 추가 정보로 가입)
+     *  비밀번호가 없어서 로그인 화면으로 보낼 수 없으므로, 가입 직후 바로 로그인 처리해서 토큰과 쿠키를 내려준다.
+     * */
+    @PostMapping("/google/signup")
+    public ResponseEntity<ApiResponse<LoginResponse>> googleSignup(
+            @RequestBody @Valid GoogleSignupRequest request) {
+        LoginResult result = googleAuthUsecase.googleSignup(request.toCommand());
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.SET_COOKIE, refreshCookie(result.refreshToken(), cookieMaxAge(result)).toString())
+                .body(ApiResponse.success(AuthResponseCode.GOOGLE_SIGNUP_SUCCESS,
+                        AuthResponseMessage.GOOGLE_SIGNUP_SUCCESS, LoginResponse.from(result)));
+    }
+
     // refresh 쿠키 생성: maxAge가 null이면 세션 쿠키가 된다
     private ResponseCookie refreshCookie(String value, Duration maxAge) {
         ResponseCookie.ResponseCookieBuilder builder = ResponseCookie.from(REFRESH_COOKIE, value)
@@ -109,6 +158,11 @@ public class AuthController {
             builder.domain(cookieDomain);
         }
         return builder.build();
+    }
+
+    // 유지 체크면 쿠키 수명을 지정하고, 아니면 null(세션 쿠키)
+    private Duration cookieMaxAge(LoginResult result) {
+        return result.rememberMe() ? result.refreshTtl() : null;
     }
 
 }

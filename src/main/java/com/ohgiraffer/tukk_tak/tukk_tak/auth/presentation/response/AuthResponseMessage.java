@@ -16,6 +16,8 @@ public final class AuthResponseMessage {
     public static final String EMAIL_SENT = "인증번호를 보냈어요.";
     public static final String EMAIL_VERIFIED = "이메일 인증이 완료되었어요.";
     public static final String NICKNAME_CHECKED = "닉네임 확인이 완료되었어요.";
+    public static final String GOOGLE_LOGIN_SUCCESS    = "구글 로그인에 성공했습니다.";
+    public static final String GOOGLE_SIGNUP_SUCCESS   = "가입이 완료되었습니다.";
 
     public static final String LOGIN_FAILED               = "이메일 또는 비밀번호가 올바르지 않습니다.";
     public static final String SOCIAL_ACCOUNT_NO_PASSWORD = "구글 로그인으로 가입된 계정입니다. 구글 로그인을 이용해주세요.";
@@ -41,5 +43,15 @@ public final class AuthResponseMessage {
     public static final String BUSINESS_ALREADY_USED          = "이미 인증된 사업자등록번호입니다.";
     public static final String BUSINESS_VERIFY_LIMIT_EXCEEDED = "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.";
     public static final String BUSINESS_VERIFY_UNAVAILABLE    = "사업자 인증 서비스가 일시적으로 불안정합니다. 잠시 후 다시 시도해주세요.";
+    public static final String EMAIL_TOKEN_INVALID    = "이메일 인증이 만료되었습니다. 다시 인증해주세요.";
+    public static final String BUSINESS_TOKEN_INVALID = "사업자 인증이 만료되었습니다. 다시 인증해주세요.";
+    public static final String BUSINESS_NAME_MISMATCH = "이름이 사업자 대표자명과 다릅니다. 사업자 인증을 다시 진행해주세요.";
+    public static final String NICKNAME_ALREADY_USED  = "이미 사용 중인 닉네임입니다.";
+    public static final String GOOGLE_TOKEN_INVALID     = "구글 로그인에 실패했습니다. 다시 시도해주세요.";
+    public static final String GOOGLE_EMAIL_UNVERIFIED  = "이메일이 인증되지 않은 구글 계정입니다.";
+    public static final String LOCAL_ACCOUNT_EXISTS     = "이메일로 가입된 계정이에요. 이메일로 로그인해주세요.";
+    public static final String GOOGLE_TOO_MANY_ATTEMPTS = "시도 횟수가 너무 많습니다. 잠시 후 다시 시도해주세요.";
+    public static final String GOOGLE_TICKET_INVALID = "구글 인증이 만료되었습니다. 다시 로그인해주세요.";
+    public static final String GOOGLE_SIGNUP_REQUIRED  = "추가 정보 입력이 필요합니다.";
 
 }

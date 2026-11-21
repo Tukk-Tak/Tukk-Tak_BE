@@ -57,4 +57,14 @@ public class RedisEmailCodeAdapter implements EmailCodePort {
         redisTemplate.opsForValue().set(TOKEN_KEY + token, email, ttl);
     }
 
+    @Override
+    public String findEmailByToken(String token) {
+        return redisTemplate.opsForValue().get(TOKEN_KEY + token);
+    }
+
+    @Override
+    public void deleteToken(String token) {
+        redisTemplate.delete(TOKEN_KEY + token);
+    }
+
 }

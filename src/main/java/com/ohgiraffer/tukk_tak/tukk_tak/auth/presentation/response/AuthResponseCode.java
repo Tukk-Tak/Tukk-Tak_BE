@@ -42,5 +42,16 @@ public final class AuthResponseCode {
     public static final String BUSINESS_ALREADY_USED          = "AUTH-BUSINESS-ALREADY-USED";
     public static final String BUSINESS_VERIFY_LIMIT_EXCEEDED = "AUTH-BUSINESS-VERIFY-LIMIT-EXCEEDED";
     public static final String BUSINESS_VERIFY_UNAVAILABLE    = "AUTH-BUSINESS-VERIFY-UNAVAILABLE";
-
+    public static final String EMAIL_TOKEN_INVALID    = "AUTH-EMAIL-TOKEN-INVALID";
+    public static final String BUSINESS_TOKEN_INVALID = "AUTH-BUSINESS-TOKEN-INVALID";
+    public static final String BUSINESS_NAME_MISMATCH = "AUTH-BUSINESS-NAME-MISMATCH";
+    public static final String NICKNAME_ALREADY_USED  = "AUTH-NICKNAME-ALREADY-USED";
+    public static final String GOOGLE_TOKEN_INVALID     = "AUTH-GOOGLE-TOKEN-INVALID";
+    public static final String GOOGLE_EMAIL_UNVERIFIED  = "AUTH-GOOGLE-EMAIL-UNVERIFIED";
+    public static final String LOCAL_ACCOUNT_EXISTS     = "AUTH-LOCAL-ACCOUNT-EXISTS";
+    public static final String GOOGLE_TOO_MANY_ATTEMPTS = "AUTH-GOOGLE-TOO-MANY-ATTEMPTS";
+    public static final String GOOGLE_TICKET_INVALID = "AUTH-GOOGLE-TICKET-INVALID";
+    public static final String GOOGLE_LOGIN_SUCCESS    = "AUTH-GOOGLE-LOGIN-SUCCESS";
+    public static final String GOOGLE_SIGNUP_REQUIRED  = "AUTH-GOOGLE-SIGNUP-REQUIRED";
+    public static final String GOOGLE_SIGNUP_SUCCESS   = "AUTH-GOOGLE-SIGNUP-SUCCESS";
 }

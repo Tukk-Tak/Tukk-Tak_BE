@@ -1,9 +1,6 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.application.service;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.BusinessVerifyCommand;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.EmailSendCommand;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.EmailVerifyCommand;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.NicknameCheckCommand;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.*;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.policy.NicknamePolicy;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessTokenPort;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessVerifier;
@@ -17,10 +14,15 @@ import com.ohgiraffer.tukk_tak.tukk_tak.auth.exception.AuthException;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.FailureCountGuard;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.BusinessNumberNormalizer;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.EmailNormalizer;
+import com.ohgiraffer.tukk_tak.tukk_tak.global.util.PhoneNumberNormalizer;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.Member;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -85,6 +87,8 @@ public class SignupCommandService implements SignupCommandUsecase {
     private final BusinessVerifier businessVerifier;
     private final BusinessTokenPort businessTokenPort;
     private final BusinessVerificationRepository businessVerificationRepository;
+    private final SignupRegistrar signupRegistrar;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public EmailSendResult sendEmailCode(EmailSendCommand command) {
@@ -224,6 +228,83 @@ public class SignupCommandService implements SignupCommandUsecase {
         // 사업자번호는 로그에 남기지 않는다
         log.info("[business] 인증 완료 | ip={}", command.clientIp());
         return new BusinessVerifyResult(token);
+    }
+
+    @Override
+    public void signup(SignupCommand command) {
+
+        // 1. 이메일 인증 토큰으로 인증된 이메일을 꺼낸다 (없거나 만료됐으면 다시 인증)
+        String email = emailCodePort.findEmailByToken(command.emailToken());
+        if (email == null) {
+            throw AuthException.emailTokenInvalid();
+        }
+
+        // 2. 사업자 확인 토큰이 있으면 꺼내서, 가입 이름이 대표자명과 같은지 다시 비교
+        //    (프론트가 이름을 바꾸고도 "인증 완료"를 풀지 않은 경우를 서버에서 막는다)
+        BusinessTokenInfo business = null;
+        if (StringUtils.hasText(command.businessToken())) {
+            business = businessTokenPort.findToken(command.businessToken())
+                    .orElseThrow(AuthException::businessTokenInvalid);
+            if (!business.ceoName().equals(command.name())) {
+                throw AuthException.businessNameMismatch();
+            }
+        }
+
+        // 3. 중복 확인 (안내용이고, 동시에 가입하는 경우는 5번의 UNIQUE 위반 변환이 마지막 방어선)
+        if (memberRepository.existsByEmail(email)) {
+            throw AuthException.emailAlreadyRegistered();
+        }
+        if (memberRepository.existsByNickname(command.nickname())) {
+            throw AuthException.nicknameAlreadyUsed();
+        }
+        if (business != null && businessVerificationRepository.existsByBusinessNumber(business.businessNumber())) {
+            throw AuthException.businessAlreadyUsed();
+        }
+
+        // 4. 회원 만들기: 비밀번호는 암호화하고 전화번호는 숫자만 남긴다
+        Member member = Member.local(email, passwordEncoder.encode(command.password()),
+                command.nickname(), command.name(),
+                PhoneNumberNormalizer.normalize(command.phone()),
+                PhoneNumberNormalizer.normalize(command.businessPhone()),
+                StringUtils.hasText(command.address()) ? command.address().trim() : null,
+                command.agreed(), command.agreed());
+
+        // 5. 저장 (회원 + 사업자 인증 기록 + FREE 구독이 한 트랜잭션)
+        //    같은 값으로 동시에 가입해서 UNIQUE를 위반하면, 트랜잭션이 끝난 여기서 잡아 중복 에러로 바꾼다
+        try {
+            signupRegistrar.register(member, business);
+        } catch (DataIntegrityViolationException e) {
+            throw translateDuplicate(email, command.nickname(), business, e);
+        }
+
+        // 6. 저장이 끝났으니 토큰을 지워서 1회용으로 만든다
+        //    (저장 전에 지우면 DB 오류 때 인증을 처음부터 다시 해야 한다. 삭제가 실패해도 가입은 성공으로 응답)
+        try {
+            emailCodePort.deleteToken(command.emailToken());
+            if (business != null) {
+                businessTokenPort.deleteToken(command.businessToken());
+            }
+        } catch (RuntimeException e) {
+            log.warn("[signup] 토큰 삭제 실패 | type={}", e.getClass().getSimpleName());
+        }
+
+        log.info("[signup] 가입 완료");
+    }
+
+    // UNIQUE 위반이 어떤 값 때문인지 다시 조회해서 중복 에러로 바꾼다 (DB마다 제약 이름 메시지가 달라서 메시지는 분석하지 않는다)
+    // 셋 다 아니면 중복이 아닌 다른 무결성 오류이므로 원래 예외를 그대로 돌려준다
+    private RuntimeException translateDuplicate(String email, String nickname,
+                                                BusinessTokenInfo business, DataIntegrityViolationException e) {
+        if (memberRepository.existsByEmail(email)) {
+            return AuthException.emailAlreadyRegistered();
+        }
+        if (memberRepository.existsByNickname(nickname)) {
+            return AuthException.nicknameAlreadyUsed();
+        }
+        if (business != null && businessVerificationRepository.existsByBusinessNumber(business.businessNumber())) {
+            return AuthException.businessAlreadyUsed();
+        }
+        return e;
     }
 
     // 두 번호를 비교할 때 일치하는 자릿수에 따라 걸리는 시간이 달라지지 않도록 MessageDigest.isEqual을 쓴다

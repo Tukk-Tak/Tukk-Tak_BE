@@ -56,6 +56,10 @@ spring:
       max-file-size: 5MB
       max-request-size: 10MB
 
+  # ==== 구글 로그인 ====
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+
   # ===== JWT (로그인 인증) =====
 jwt:
   secret: ${JWT_SECRET}                 # 32바이트 이상, 기본값 없음 (환경변수 필수)

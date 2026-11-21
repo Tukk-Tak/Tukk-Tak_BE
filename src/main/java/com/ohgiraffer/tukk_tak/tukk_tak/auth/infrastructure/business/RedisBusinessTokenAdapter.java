@@ -1,14 +1,16 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.business;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessTokenPort;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessTokenInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
+import java.util.Optional;
 
 /*
  * comment.
@@ -32,10 +34,29 @@ public class RedisBusinessTokenAdapter implements BusinessTokenPort {
         try {
             // 사업자 정보를 JSON 문자열로 바꿔서 TTL과 함께 저장
             redisTemplate.opsForValue().set(TOKEN_KEY + token, objectMapper.writeValueAsString(info), ttl);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             // 단순한 record라 사실상 일어나지 않는다. 일어나면 코드 문제이므로 그대로 올려 보낸다
             throw new IllegalStateException("사업자 토큰 직렬화 실패", e);
         }
+    }
+
+    @Override
+    public Optional<BusinessTokenInfo> findToken(String token) {
+        String json = redisTemplate.opsForValue().get(TOKEN_KEY + token);
+        if (json == null) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(objectMapper.readValue(json, BusinessTokenInfo.class));
+        } catch (JacksonException e) {
+            // 우리가 저장한 값이라 사실상 일어나지 않는다 (깨진 값은 무효 토큰으로 본다)
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public void deleteToken(String token) {
+        redisTemplate.delete(TOKEN_KEY + token);
     }
 
 }

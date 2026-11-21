@@ -85,7 +85,27 @@ public class AuthExceptionHandler {
                     AuthResponseCode.BUSINESS_VERIFY_LIMIT_EXCEEDED, AuthResponseMessage.BUSINESS_VERIFY_LIMIT_EXCEEDED);
             case BUSINESS_VERIFY_UNAVAILABLE -> new Spec(HttpStatus.SERVICE_UNAVAILABLE,
                     AuthResponseCode.BUSINESS_VERIFY_UNAVAILABLE, AuthResponseMessage.BUSINESS_VERIFY_UNAVAILABLE);
+            case EMAIL_TOKEN_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.EMAIL_TOKEN_INVALID, AuthResponseMessage.EMAIL_TOKEN_INVALID);
+            case BUSINESS_TOKEN_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.BUSINESS_TOKEN_INVALID, AuthResponseMessage.BUSINESS_TOKEN_INVALID);
+            case BUSINESS_NAME_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.BUSINESS_NAME_MISMATCH, AuthResponseMessage.BUSINESS_NAME_MISMATCH);
+            case NICKNAME_ALREADY_USED -> new Spec(HttpStatus.CONFLICT,
+                    AuthResponseCode.NICKNAME_ALREADY_USED, AuthResponseMessage.NICKNAME_ALREADY_USED);
+            case GOOGLE_TOKEN_INVALID -> new Spec(HttpStatus.UNAUTHORIZED,
+                    AuthResponseCode.GOOGLE_TOKEN_INVALID, AuthResponseMessage.GOOGLE_TOKEN_INVALID);
+            case GOOGLE_EMAIL_UNVERIFIED -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.GOOGLE_EMAIL_UNVERIFIED, AuthResponseMessage.GOOGLE_EMAIL_UNVERIFIED);
+            case LOCAL_ACCOUNT_EXISTS -> new Spec(HttpStatus.CONFLICT,
+                    AuthResponseCode.LOCAL_ACCOUNT_EXISTS, AuthResponseMessage.LOCAL_ACCOUNT_EXISTS);
+            case GOOGLE_TOO_MANY_ATTEMPTS -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
+                    AuthResponseCode.GOOGLE_TOO_MANY_ATTEMPTS, AuthResponseMessage.GOOGLE_TOO_MANY_ATTEMPTS);
+            case GOOGLE_TICKET_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.GOOGLE_TICKET_INVALID, AuthResponseMessage.GOOGLE_TICKET_INVALID);
         };
+
+
     }
 
 }
