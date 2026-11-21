@@ -16,6 +16,7 @@ public final class AuthResponseCode {
     public static final String EMAIL_SENT = "AUTH-EMAIL-SENT";
     public static final String EMAIL_VERIFIED = "AUTH-EMAIL-VERIFIED";
     public static final String NICKNAME_CHECKED = "AUTH-NICKNAME-CHECKED";
+    public static final String PASSWORD_RESET = "AUTH-PASSWORD-RESET";
 
     // 실패
     public static final String LOGIN_FAILED               = "AUTH-LOGIN-FAILED";
@@ -54,4 +55,10 @@ public final class AuthResponseCode {
     public static final String GOOGLE_LOGIN_SUCCESS    = "AUTH-GOOGLE-LOGIN-SUCCESS";
     public static final String GOOGLE_SIGNUP_REQUIRED  = "AUTH-GOOGLE-SIGNUP-REQUIRED";
     public static final String GOOGLE_SIGNUP_SUCCESS   = "AUTH-GOOGLE-SIGNUP-SUCCESS";
+    public static final String EMAIL_NOT_REGISTERED          = "AUTH-EMAIL-NOT-REGISTERED";
+    public static final String PASSWORD_RESET_SOCIAL_ACCOUNT = "AUTH-PASSWORD-RESET-SOCIAL-ACCOUNT";
+    public static final String PASSWORD_RESET_WITHDRAWN      = "AUTH-PASSWORD-RESET-WITHDRAWN";
+    public static final String PASSWORD_RESET_TOKEN_INVALID  = "AUTH-PASSWORD-RESET-TOKEN-INVALID";
+    public static final String PASSWORD_SAME_AS_CURRENT      = "AUTH-PASSWORD-SAME-AS-CURRENT";
+
 }

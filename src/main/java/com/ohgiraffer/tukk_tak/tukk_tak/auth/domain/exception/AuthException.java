@@ -113,4 +113,19 @@ public class AuthException extends RuntimeException {
     // 구글 가입 티켓이 없거나 만료됨 (구글 로그인을 다시 해야 함)
     public static AuthException googleTicketInvalid() {return new AuthException(AuthFailure.GOOGLE_TICKET_INVALID);}
 
+    // 가입되지 않은 이메일로 비밀번호 재설정을 요청한 경우
+    public static AuthException emailNotRegistered() {return new AuthException(AuthFailure.EMAIL_NOT_REGISTERED);}
+
+    // 구글로 가입한 회원이 비밀번호 재설정을 요청한 경우 (구글 로그인을 이용해야 함)
+    public static AuthException passwordResetSocialAccount() {return new AuthException(AuthFailure.PASSWORD_RESET_SOCIAL_ACCOUNT);}
+
+    // 탈퇴한 회원이 비밀번호 재설정을 요청한 경우
+    public static AuthException passwordResetWithdrawn() {return new AuthException(AuthFailure.PASSWORD_RESET_WITHDRAWN);}
+
+    // 재설정 토큰이 없거나 만료됨 (인증번호부터 다시 받아야 함)
+    public static AuthException passwordResetTokenInvalid() {return new AuthException(AuthFailure.PASSWORD_RESET_TOKEN_INVALID);}
+
+    // 새 비밀번호가 현재 비밀번호와 같은 경우
+    public static AuthException passwordSameAsCurrent() {return new AuthException(AuthFailure.PASSWORD_SAME_AS_CURRENT);}
+
 }

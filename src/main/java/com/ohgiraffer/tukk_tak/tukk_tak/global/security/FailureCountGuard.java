@@ -53,6 +53,11 @@ public class FailureCountGuard {
         redisTemplate.delete(failureKey(scope, identifier));
     }
 
+    // 실패 횟수와 잠금을 모두 지운다 (이메일로 본인 확인을 마친 비밀번호 재설정처럼, 잠금을 풀어줘도 되는 경우에 쓴다)
+    public void clear(String scope, String identifier) {
+        redisTemplate.delete(List.of(failureKey(scope, identifier), lockKey(scope, identifier)));
+    }
+
     private String failureKey(String scope, String identifier) {
         return "failure:" + scope + ":" + identifier;
     }

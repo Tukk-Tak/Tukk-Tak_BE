@@ -9,12 +9,14 @@ import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.EmailSender;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.*;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase.SignupCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessTokenInfo;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.EmailPurpose;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.repository.BusinessVerificationRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.FailureCountGuard;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.BusinessNumberNormalizer;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.EmailNormalizer;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.PhoneNumberNormalizer;
+import com.ohgiraffer.tukk_tak.tukk_tak.global.util.SecureCodes;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.LoginType;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.Member;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.repository.MemberRepository;
@@ -25,11 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.Base64;
 
 /*
  * comment.
@@ -44,9 +42,6 @@ import java.util.Base64;
 @Service
 @RequiredArgsConstructor
 public class SignupCommandService implements SignupCommandUsecase {
-
-    // 인증번호는 예측할 수 없어야 하므로 SecureRandom을 쓴다 (Random은 예측 가능성이 있다)
-    private static final SecureRandom RANDOM = new SecureRandom();
 
     // 인증번호 유효시간 5분, 재전송 대기 60초 (화면의 04:32 타이머와 같은 값)
     private static final Duration CODE_TTL = Duration.ofMinutes(5);
@@ -110,13 +105,13 @@ public class SignupCommandService implements SignupCommandUsecase {
         }
 
         // 3. 재전송 대기: 60초 안에 다시 요청하면 거절 (원자적으로 한 번에 처리)
-        if (!emailCodePort.acquireCooldown(email, RESEND_COOLDOWN)) {
+        if (!emailCodePort.acquireCooldown(EmailPurpose.SIGNUP, email, RESEND_COOLDOWN)) {
             throw AuthException.emailSendTooFast();
         }
 
         // 4. 인증번호를 만들어 먼저 저장하고, 새 번호를 받았으니 이전 번호로 틀린 횟수는 0으로 되돌린다
-        String code = generateCode();
-        emailCodePort.saveCode(email, code, CODE_TTL);
+        String code = SecureCodes.sixDigitCode();
+        emailCodePort.saveCode(EmailPurpose.SIGNUP, email, code, CODE_TTL);
         failureCountGuard.resetFailure(VERIFY_FAILURE_SCOPE, email);
 
         // 5. 메일 발송 (동기): 실패하면 방금 저장한 번호와 대기시간을 지워서,
@@ -124,7 +119,7 @@ public class SignupCommandService implements SignupCommandUsecase {
         try {
             emailSender.sendVerificationCode(email, code);
         } catch (RuntimeException e) {
-            emailCodePort.clear(email);
+            emailCodePort.clear(EmailPurpose.SIGNUP, email);
             throw e;
         }
 
@@ -143,13 +138,13 @@ public class SignupCommandService implements SignupCommandUsecase {
         }
 
         // 2. 저장된 번호가 없으면 만료됐거나 요청한 적이 없는 것 (실패 횟수는 올리지 않는다)
-        String savedCode = emailCodePort.findCode(email);
+        String savedCode = emailCodePort.findCode(EmailPurpose.SIGNUP, email);
         if (savedCode == null) {
             throw AuthException.emailCodeExpired();
         }
 
         // 3. 번호 비교: 틀리면 실패 횟수를 올리고, 이번에 한도에 걸려 잠겼다면 바로 잠김 응답
-        if (!isSameCode(savedCode, command.code())) {
+        if (!SecureCodes.matches(savedCode, command.code())) {
             failureCountGuard.recordFailure(VERIFY_FAILURE_SCOPE, email,
                     VERIFY_MAX_FAILURE, VERIFY_FAILURE_WINDOW, VERIFY_LOCK);
             if (failureCountGuard.isLocked(VERIFY_FAILURE_SCOPE, email)) {
@@ -159,11 +154,11 @@ public class SignupCommandService implements SignupCommandUsecase {
         }
 
         // 4. 성공: 쓴 번호는 즉시 지우고(재사용 방지), 실패 횟수를 초기화한 뒤 인증 토큰을 발급
-        emailCodePort.deleteCode(email);
+        emailCodePort.deleteCode(EmailPurpose.SIGNUP, email);
         failureCountGuard.resetFailure(VERIFY_FAILURE_SCOPE, email);
 
-        String token = generateToken();
-        emailCodePort.saveToken(token, email, TOKEN_TTL);
+        String token = SecureCodes.urlSafeToken();
+        emailCodePort.saveToken(EmailPurpose.SIGNUP, token, email, TOKEN_TTL);
 
         log.info("[email] 인증 완료");
         return new EmailVerifyResult(token);
@@ -221,8 +216,8 @@ public class SignupCommandService implements SignupCommandUsecase {
 
         // 5. 통과: 예측 불가능한 토큰을 만들어 사업자 정보와 함께 30분 저장
         //    5번 가입에서 이 값으로 "가입 이름 = 대표자명"을 다시 비교한다
-        //    (generateToken과 TOKEN_TTL은 이메일 인증에서 쓰던 것을 그대로 재사용)
-        String token = generateToken();
+        //    (SecureCodes.urlSafeToken과 TOKEN_TTL은 이메일 인증에서 쓰던 것을 그대로 재사용)
+        String token = SecureCodes.urlSafeToken();
         businessTokenPort.saveToken(token,
                 new BusinessTokenInfo(businessNumber, command.openDate(), command.ceoName()),
                 TOKEN_TTL);
@@ -236,7 +231,7 @@ public class SignupCommandService implements SignupCommandUsecase {
     public void signup(SignupCommand command) {
 
         // 1. 이메일 인증 토큰으로 인증된 이메일을 꺼낸다 (없거나 만료됐으면 다시 인증)
-        String email = emailCodePort.findEmailByToken(command.emailToken());
+        String email = emailCodePort.findEmailByToken(EmailPurpose.SIGNUP, command.emailToken());
         if (email == null) {
             throw AuthException.emailTokenInvalid();
         }
@@ -300,7 +295,7 @@ public class SignupCommandService implements SignupCommandUsecase {
         // 7. 저장이 끝났으니 토큰을 지워서 1회용으로 만든다
         //    (저장 전에 지우면 DB 오류 때 인증을 처음부터 다시 해야 한다. 삭제가 실패해도 가입은 성공으로 응답)
         try {
-            emailCodePort.deleteToken(command.emailToken());
+            emailCodePort.deleteToken(EmailPurpose.SIGNUP, command.emailToken());
             if (business != null) {
                 businessTokenPort.deleteToken(command.businessToken());
             }
@@ -318,7 +313,6 @@ public class SignupCommandService implements SignupCommandUsecase {
                 .orElse(false);
     }
 
-
     // UNIQUE 위반이 어떤 값 때문인지 다시 조회해서 중복 에러로 바꾼다 (DB마다 제약 이름 메시지가 달라서 메시지는 분석하지 않는다)
     // 복구 가입에서는 본인 행이 이미 있으므로, 확인할 필요 없는 값은 null로 받아서 건너뛴다
     // 모두 아니면 중복이 아닌 다른 무결성 오류이므로 원래 예외를 그대로 돌려준다
@@ -334,25 +328,6 @@ public class SignupCommandService implements SignupCommandUsecase {
             return AuthException.businessAlreadyUsed();
         }
         return e;
-    }
-
-    // 두 번호를 비교할 때 일치하는 자릿수에 따라 걸리는 시간이 달라지지 않도록 MessageDigest.isEqual을 쓴다
-    private boolean isSameCode(String saved, String input) {
-        return MessageDigest.isEqual(
-                saved.getBytes(StandardCharsets.UTF_8),
-                input.getBytes(StandardCharsets.UTF_8));
-    }
-
-    // 예측할 수 없는 토큰: SecureRandom 32바이트를 URL에 안전한 문자열로 변환 (43자)
-    private String generateToken() {
-        byte[] bytes = new byte[32];
-        RANDOM.nextBytes(bytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
-    }
-
-    // 6자리 숫자 (앞이 0이어도 6자리를 유지: 000123)
-    private String generateCode() {
-        return String.format("%06d", RANDOM.nextInt(1_000_000));
     }
 
 }

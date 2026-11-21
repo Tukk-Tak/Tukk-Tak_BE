@@ -19,8 +19,7 @@ public record SignupRequest(
 
         // 영문, 숫자, 특수문자를 모두 포함한 8~16자 (공백 불가)
         @NotBlank(message = "비밀번호를 입력해주세요.")
-        @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[^A-Za-z0-9])\\S{8,16}$",
-                message = "비밀번호는 영문, 숫자, 특수문자를 포함한 8~16자로 입력해주세요.")
+        @Pattern(regexp = PasswordRules.REGEX, message = PasswordRules.MESSAGE)
         String password,
 
         @NotBlank(message = "비밀번호 확인을 입력해주세요.")

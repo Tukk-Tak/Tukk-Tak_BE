@@ -99,4 +99,12 @@ public class Member {
         this.withdrawnAt = null;
     }
 
+    // 비밀번호를 바꾼다 (encodedPassword는 암호화된 값, 비밀번호가 없는 구글 회원에게는 쓸 수 없다)
+    public void changePassword(String encodedPassword) {
+        if (!hasPassword()) {
+            throw new IllegalStateException("비밀번호가 없는 회원은 비밀번호를 바꿀 수 없습니다.");
+        }
+        this.password = encodedPassword;
+    }
+
 }

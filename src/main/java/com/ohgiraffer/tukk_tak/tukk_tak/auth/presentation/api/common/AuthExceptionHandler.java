@@ -101,6 +101,16 @@ public class AuthExceptionHandler {
                     AuthResponseCode.GOOGLE_TOO_MANY_ATTEMPTS, AuthResponseMessage.GOOGLE_TOO_MANY_ATTEMPTS);
             case GOOGLE_TICKET_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
                     AuthResponseCode.GOOGLE_TICKET_INVALID, AuthResponseMessage.GOOGLE_TICKET_INVALID);
+            case EMAIL_NOT_REGISTERED -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.EMAIL_NOT_REGISTERED, AuthResponseMessage.EMAIL_NOT_REGISTERED);
+            case PASSWORD_RESET_SOCIAL_ACCOUNT -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.PASSWORD_RESET_SOCIAL_ACCOUNT, AuthResponseMessage.PASSWORD_RESET_SOCIAL_ACCOUNT);
+            case PASSWORD_RESET_WITHDRAWN -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.PASSWORD_RESET_WITHDRAWN, AuthResponseMessage.PASSWORD_RESET_WITHDRAWN);
+            case PASSWORD_RESET_TOKEN_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.PASSWORD_RESET_TOKEN_INVALID, AuthResponseMessage.PASSWORD_RESET_TOKEN_INVALID);
+            case PASSWORD_SAME_AS_CURRENT -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.PASSWORD_SAME_AS_CURRENT, AuthResponseMessage.PASSWORD_SAME_AS_CURRENT);
         };
 
     }

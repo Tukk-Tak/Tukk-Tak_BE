@@ -38,4 +38,9 @@ public enum AuthFailure {
     LOCAL_ACCOUNT_EXISTS,         // 같은 이메일이 자체 가입으로 이미 있음 (409)
     GOOGLE_TOO_MANY_ATTEMPTS,     // 구글 검증 실패가 반복되어 잠금 (429)
     GOOGLE_TICKET_INVALID,        // 구글 가입 티켓이 없거나 만료 (400)
+    EMAIL_NOT_REGISTERED,          // 가입되지 않은 이메일로 비밀번호 재설정을 요청 (400)
+    PASSWORD_RESET_SOCIAL_ACCOUNT, // 구글 회원은 비밀번호가 없어 재설정할 수 없음 (400)
+    PASSWORD_RESET_WITHDRAWN,      // 탈퇴한 회원은 재설정할 수 없음 (400)
+    PASSWORD_RESET_TOKEN_INVALID,  // 재설정 토큰이 없거나 만료됐거나, 그 사이 회원 상태가 바뀜 (400)
+    PASSWORD_SAME_AS_CURRENT,      // 새 비밀번호가 현재 비밀번호와 같음 (400)
 }

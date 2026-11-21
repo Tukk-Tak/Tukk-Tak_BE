@@ -18,6 +18,7 @@ public final class AuthResponseMessage {
     public static final String NICKNAME_CHECKED = "닉네임 확인이 완료되었어요.";
     public static final String GOOGLE_LOGIN_SUCCESS    = "구글 로그인에 성공했습니다.";
     public static final String GOOGLE_SIGNUP_SUCCESS   = "가입이 완료되었습니다.";
+    public static final String PASSWORD_RESET = "비밀번호가 변경되었어요. 새 비밀번호로 로그인해주세요.";
 
     public static final String LOGIN_FAILED               = "이메일 또는 비밀번호가 올바르지 않습니다.";
     public static final String SOCIAL_ACCOUNT_NO_PASSWORD = "구글 로그인으로 가입된 계정입니다. 구글 로그인을 이용해주세요.";
@@ -53,5 +54,10 @@ public final class AuthResponseMessage {
     public static final String GOOGLE_TOO_MANY_ATTEMPTS = "시도 횟수가 너무 많습니다. 잠시 후 다시 시도해주세요.";
     public static final String GOOGLE_TICKET_INVALID = "구글 인증이 만료되었습니다. 다시 로그인해주세요.";
     public static final String GOOGLE_SIGNUP_REQUIRED  = "추가 정보 입력이 필요합니다.";
+    public static final String EMAIL_NOT_REGISTERED          = "가입되지 않은 이메일이에요.";
+    public static final String PASSWORD_RESET_SOCIAL_ACCOUNT = "구글로 가입된 계정이에요. 구글 로그인을 이용해주세요.";
+    public static final String PASSWORD_RESET_WITHDRAWN      = "탈퇴한 회원이에요. 탈퇴 후 1년 이내에는 같은 이메일로 다시 가입하면 이전 정보가 복구돼요.";
+    public static final String PASSWORD_RESET_TOKEN_INVALID  = "비밀번호 재설정 인증이 만료되었어요. 인증번호를 다시 받아주세요.";
+    public static final String PASSWORD_SAME_AS_CURRENT      = "현재 비밀번호와 다른 비밀번호를 입력해주세요.";
 
 }
