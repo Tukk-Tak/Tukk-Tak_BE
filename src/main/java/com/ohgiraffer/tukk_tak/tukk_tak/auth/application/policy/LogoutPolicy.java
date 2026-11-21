@@ -1,6 +1,6 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.application.policy;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.exception.AuthException;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
 import org.springframework.stereotype.Component;
 
 /*
