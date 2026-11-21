@@ -1,9 +1,6 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.BusinessVerifyCommand;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.EmailSendCommand;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.EmailVerifyCommand;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.NicknameCheckCommand;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.*;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.BusinessVerifyResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.EmailSendResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.EmailVerifyResult;
@@ -27,5 +24,8 @@ public interface SignupCommandUsecase {
 
     // 사업자 인증 : IP 제한과 중복 확인을 거쳐 국세청 진위확인을 하고, 통과하면 가입 요청에 쓸 사업자 확인 토큰을 발급한다
     BusinessVerifyResult verifyBusiness(BusinessVerifyCommand command);
+
+    // 자체 회원가입: 토큰을 확인하고 회원, 사업자 인증 기록, FREE 구독을 저장한 뒤 토큰을 소멸시킨다
+    void signup(SignupCommand command);
 
 }

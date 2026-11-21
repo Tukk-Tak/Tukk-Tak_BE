@@ -1,9 +1,6 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.application.service;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.BusinessVerifyCommand;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.EmailSendCommand;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.EmailVerifyCommand;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.NicknameCheckCommand;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.*;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.policy.NicknamePolicy;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessTokenPort;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessVerifier;
@@ -12,21 +9,25 @@ import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.EmailSender;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.*;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase.SignupCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessTokenInfo;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.EmailPurpose;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.repository.BusinessVerificationRepository;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.exception.AuthException;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.FailureCountGuard;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.BusinessNumberNormalizer;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.EmailNormalizer;
+import com.ohgiraffer.tukk_tak.tukk_tak.global.util.PhoneNumberNormalizer;
+import com.ohgiraffer.tukk_tak.tukk_tak.global.util.SecureCodes;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.LoginType;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.Member;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.SecureRandom;
 import java.time.Duration;
-import java.util.Base64;
 
 /*
  * comment.
@@ -41,9 +42,6 @@ import java.util.Base64;
 @Service
 @RequiredArgsConstructor
 public class SignupCommandService implements SignupCommandUsecase {
-
-    // 인증번호는 예측할 수 없어야 하므로 SecureRandom을 쓴다 (Random은 예측 가능성이 있다)
-    private static final SecureRandom RANDOM = new SecureRandom();
 
     // 인증번호 유효시간 5분, 재전송 대기 60초 (화면의 04:32 타이머와 같은 값)
     private static final Duration CODE_TTL = Duration.ofMinutes(5);
@@ -85,6 +83,8 @@ public class SignupCommandService implements SignupCommandUsecase {
     private final BusinessVerifier businessVerifier;
     private final BusinessTokenPort businessTokenPort;
     private final BusinessVerificationRepository businessVerificationRepository;
+    private final SignupRegistrar signupRegistrar;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public EmailSendResult sendEmailCode(EmailSendCommand command) {
@@ -97,20 +97,21 @@ public class SignupCommandService implements SignupCommandUsecase {
         failureCountGuard.recordFailure(SEND_IP_SCOPE, command.clientIp(),
                 SEND_IP_MAX, SEND_IP_WINDOW, SEND_IP_LOCK);
 
-        // 2. 이메일 정규화 후 이미 가입된 이메일이면 거절 (화면의 "이미 가입된 이메일이에요 · 로그인하기")
+        // 2. 이메일 정규화 후 가입 불가한 이메일이면 거절 (화면의 "이미 가입된 이메일이에요 · 로그인하기")
+        //    탈퇴한 자체 가입 회원은 같은 이메일로 복구 가입을 할 수 있으니 통과시킨다
         String email = EmailNormalizer.normalize(command.email());
-        if (memberRepository.existsByEmail(email)) {
+        if (isUnavailableEmail(email)) {
             throw AuthException.emailAlreadyRegistered();
         }
 
         // 3. 재전송 대기: 60초 안에 다시 요청하면 거절 (원자적으로 한 번에 처리)
-        if (!emailCodePort.acquireCooldown(email, RESEND_COOLDOWN)) {
+        if (!emailCodePort.acquireCooldown(EmailPurpose.SIGNUP, email, RESEND_COOLDOWN)) {
             throw AuthException.emailSendTooFast();
         }
 
         // 4. 인증번호를 만들어 먼저 저장하고, 새 번호를 받았으니 이전 번호로 틀린 횟수는 0으로 되돌린다
-        String code = generateCode();
-        emailCodePort.saveCode(email, code, CODE_TTL);
+        String code = SecureCodes.sixDigitCode();
+        emailCodePort.saveCode(EmailPurpose.SIGNUP, email, code, CODE_TTL);
         failureCountGuard.resetFailure(VERIFY_FAILURE_SCOPE, email);
 
         // 5. 메일 발송 (동기): 실패하면 방금 저장한 번호와 대기시간을 지워서,
@@ -118,7 +119,7 @@ public class SignupCommandService implements SignupCommandUsecase {
         try {
             emailSender.sendVerificationCode(email, code);
         } catch (RuntimeException e) {
-            emailCodePort.clear(email);
+            emailCodePort.clear(EmailPurpose.SIGNUP, email);
             throw e;
         }
 
@@ -137,13 +138,13 @@ public class SignupCommandService implements SignupCommandUsecase {
         }
 
         // 2. 저장된 번호가 없으면 만료됐거나 요청한 적이 없는 것 (실패 횟수는 올리지 않는다)
-        String savedCode = emailCodePort.findCode(email);
+        String savedCode = emailCodePort.findCode(EmailPurpose.SIGNUP, email);
         if (savedCode == null) {
             throw AuthException.emailCodeExpired();
         }
 
         // 3. 번호 비교: 틀리면 실패 횟수를 올리고, 이번에 한도에 걸려 잠겼다면 바로 잠김 응답
-        if (!isSameCode(savedCode, command.code())) {
+        if (!SecureCodes.matches(savedCode, command.code())) {
             failureCountGuard.recordFailure(VERIFY_FAILURE_SCOPE, email,
                     VERIFY_MAX_FAILURE, VERIFY_FAILURE_WINDOW, VERIFY_LOCK);
             if (failureCountGuard.isLocked(VERIFY_FAILURE_SCOPE, email)) {
@@ -153,11 +154,11 @@ public class SignupCommandService implements SignupCommandUsecase {
         }
 
         // 4. 성공: 쓴 번호는 즉시 지우고(재사용 방지), 실패 횟수를 초기화한 뒤 인증 토큰을 발급
-        emailCodePort.deleteCode(email);
+        emailCodePort.deleteCode(EmailPurpose.SIGNUP, email);
         failureCountGuard.resetFailure(VERIFY_FAILURE_SCOPE, email);
 
-        String token = generateToken();
-        emailCodePort.saveToken(token, email, TOKEN_TTL);
+        String token = SecureCodes.urlSafeToken();
+        emailCodePort.saveToken(EmailPurpose.SIGNUP, token, email, TOKEN_TTL);
 
         log.info("[email] 인증 완료");
         return new EmailVerifyResult(token);
@@ -215,8 +216,8 @@ public class SignupCommandService implements SignupCommandUsecase {
 
         // 5. 통과: 예측 불가능한 토큰을 만들어 사업자 정보와 함께 30분 저장
         //    5번 가입에서 이 값으로 "가입 이름 = 대표자명"을 다시 비교한다
-        //    (generateToken과 TOKEN_TTL은 이메일 인증에서 쓰던 것을 그대로 재사용)
-        String token = generateToken();
+        //    (SecureCodes.urlSafeToken과 TOKEN_TTL은 이메일 인증에서 쓰던 것을 그대로 재사용)
+        String token = SecureCodes.urlSafeToken();
         businessTokenPort.saveToken(token,
                 new BusinessTokenInfo(businessNumber, command.openDate(), command.ceoName()),
                 TOKEN_TTL);
@@ -226,23 +227,107 @@ public class SignupCommandService implements SignupCommandUsecase {
         return new BusinessVerifyResult(token);
     }
 
-    // 두 번호를 비교할 때 일치하는 자릿수에 따라 걸리는 시간이 달라지지 않도록 MessageDigest.isEqual을 쓴다
-    private boolean isSameCode(String saved, String input) {
-        return MessageDigest.isEqual(
-                saved.getBytes(StandardCharsets.UTF_8),
-                input.getBytes(StandardCharsets.UTF_8));
+    @Override
+    public void signup(SignupCommand command) {
+
+        // 1. 이메일 인증 토큰으로 인증된 이메일을 꺼낸다 (없거나 만료됐으면 다시 인증)
+        String email = emailCodePort.findEmailByToken(EmailPurpose.SIGNUP, command.emailToken());
+        if (email == null) {
+            throw AuthException.emailTokenInvalid();
+        }
+
+        // 2. 사업자 확인 토큰이 있으면 꺼내서, 가입 이름이 대표자명과 같은지 다시 비교
+        //    (프론트가 이름을 바꾸고도 "인증 완료"를 풀지 않은 경우를 서버에서 막는다)
+        BusinessTokenInfo business = null;
+        if (StringUtils.hasText(command.businessToken())) {
+            business = businessTokenPort.findToken(command.businessToken())
+                    .orElseThrow(AuthException::businessTokenInvalid);
+            if (!business.ceoName().equals(command.name())) {
+                throw AuthException.businessNameMismatch();
+            }
+        }
+
+        // 3. 같은 이메일의 회원 확인: 탈퇴한 자체 가입 회원이면 새로 만들지 않고 되살린다
+        //    (member id가 같아야 예전에 만든 사이트와 구독이 그대로 이어진다)
+        Member existing = memberRepository.findByEmail(email).orElse(null);
+        boolean restoring = existing != null && existing.isWithdrawn()
+                && existing.getLoginType() == LoginType.LOCAL;
+        if (existing != null && !restoring) {
+            throw AuthException.emailAlreadyRegistered();
+        }
+
+        // 4. 닉네임, 사업자번호 중복 확인 (안내용이고, 동시에 가입하는 경우는 6번의 UNIQUE 위반 변환이 마지막 방어선)
+        //    복구라면 본인이 쓰던 닉네임과 사업자번호는 중복으로 보지 않는다
+        boolean ownNickname = restoring && command.nickname().equals(existing.getNickname());
+        if (!ownNickname && memberRepository.existsByNickname(command.nickname())) {
+            throw AuthException.nicknameAlreadyUsed();
+        }
+        boolean ownBusiness = restoring && business != null && businessVerificationRepository
+                .existsByMemberIdAndBusinessNumber(existing.getId(), business.businessNumber());
+        if (business != null && !ownBusiness
+                && businessVerificationRepository.existsByBusinessNumber(business.businessNumber())) {
+            throw AuthException.businessAlreadyUsed();
+        }
+
+        // 5. 저장할 값 준비: 비밀번호는 암호화하고 전화번호는 숫자만 남긴다
+        String encodedPassword = passwordEncoder.encode(command.password());
+        String phone = PhoneNumberNormalizer.normalize(command.phone());
+        String businessPhone = PhoneNumberNormalizer.normalize(command.businessPhone());
+        String address = StringUtils.hasText(command.address()) ? command.address().trim() : null;
+
+        // 6. 저장: 복구면 기존 행을 덮어쓰고, 아니면 회원 + 사업자 인증 기록 + FREE 구독을 새로 만든다
+        //    같은 값으로 동시에 가입해서 UNIQUE를 위반하면, 트랜잭션이 끝난 여기서 잡아 중복 에러로 바꾼다
+        try {
+            if (restoring) {
+                existing.restore(encodedPassword, command.nickname(), command.name(), phone,
+                        businessPhone, address, command.agreed(), command.agreed());
+                signupRegistrar.restore(existing, ownBusiness ? null : business);
+            } else {
+                Member member = Member.local(email, encodedPassword, command.nickname(), command.name(),
+                        phone, businessPhone, address, command.agreed(), command.agreed());
+                signupRegistrar.register(member, business);
+            }
+        } catch (DataIntegrityViolationException e) {
+            throw translateDuplicate(restoring ? null : email, ownNickname ? null : command.nickname(),
+                    ownBusiness ? null : business, e);
+        }
+
+        // 7. 저장이 끝났으니 토큰을 지워서 1회용으로 만든다
+        //    (저장 전에 지우면 DB 오류 때 인증을 처음부터 다시 해야 한다. 삭제가 실패해도 가입은 성공으로 응답)
+        try {
+            emailCodePort.deleteToken(EmailPurpose.SIGNUP, command.emailToken());
+            if (business != null) {
+                businessTokenPort.deleteToken(command.businessToken());
+            }
+        } catch (RuntimeException e) {
+            log.warn("[signup] 토큰 삭제 실패 | type={}", e.getClass().getSimpleName());
+        }
+
+        log.info(restoring ? "[signup] 복구 가입 완료" : "[signup] 가입 완료");
     }
 
-    // 예측할 수 없는 토큰: SecureRandom 32바이트를 URL에 안전한 문자열로 변환 (43자)
-    private String generateToken() {
-        byte[] bytes = new byte[32];
-        RANDOM.nextBytes(bytes);
-        return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    // 가입 불가한 이메일인지 확인: 활성 회원이거나, 구글로 가입했다 탈퇴한 회원이면 true (구글은 구글 로그인으로 복구)
+    private boolean isUnavailableEmail(String email) {
+        return memberRepository.findByEmail(email)
+                .map(member -> member.isActive() || member.getLoginType() != LoginType.LOCAL)
+                .orElse(false);
     }
 
-    // 6자리 숫자 (앞이 0이어도 6자리를 유지: 000123)
-    private String generateCode() {
-        return String.format("%06d", RANDOM.nextInt(1_000_000));
+    // UNIQUE 위반이 어떤 값 때문인지 다시 조회해서 중복 에러로 바꾼다 (DB마다 제약 이름 메시지가 달라서 메시지는 분석하지 않는다)
+    // 복구 가입에서는 본인 행이 이미 있으므로, 확인할 필요 없는 값은 null로 받아서 건너뛴다
+    // 모두 아니면 중복이 아닌 다른 무결성 오류이므로 원래 예외를 그대로 돌려준다
+    private RuntimeException translateDuplicate(String email, String nickname,
+                                                BusinessTokenInfo business, DataIntegrityViolationException e) {
+        if (email != null && memberRepository.existsByEmail(email)) {
+            return AuthException.emailAlreadyRegistered();
+        }
+        if (nickname != null && memberRepository.existsByNickname(nickname)) {
+            return AuthException.nicknameAlreadyUsed();
+        }
+        if (business != null && businessVerificationRepository.existsByBusinessNumber(business.businessNumber())) {
+            return AuthException.businessAlreadyUsed();
+        }
+        return e;
     }
 
 }

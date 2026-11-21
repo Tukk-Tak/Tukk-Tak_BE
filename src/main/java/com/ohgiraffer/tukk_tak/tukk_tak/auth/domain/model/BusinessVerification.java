@@ -1,30 +1,48 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /*
  * comment.
- *  business_verification 테이블의 최소 엔티티
- *  지금은 "이미 인증된 사업자번호인가"를 조회하는 데만 쓴다.
- *  나머지 컬럼(member_id, open_date, ceo_name, status 등)과 저장은 5번 가입 API에서 이 엔티티를 확장하면서 넣는다.
- *  (APPROVED만 저장하기로 했으므로 이 테이블에 있다는 것 자체가 인증 완료다)
+ *  사업자 인증 기록 도메인 모델 (DB를 모르는 순수 자바 객체)
+ *  인증에 성공(APPROVED)한 건만 저장한다. 불일치나 국세청 장애는 기록하지 않고 응답으로만 알린다.
  * */
 
 @Getter
-@Entity
-@Table(name = "business_verification")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)   // JPA용 기본 생성자 (외부에서 빈 객체를 만들지 못하게 막는다)
 public class BusinessVerification {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private final Long id;
+    private final Long memberId;
+    private final String businessNumber;        // 숫자 10자리로 정규화된 값
+    private final LocalDate openDate;
+    private final String ceoName;               // 국세청에서 일치를 확인한 대표자명
+    private final VerifyMethod verifyMethod;
+    private final BusinessVerifyStatus status;
+    private final LocalDateTime verifiedAt;
 
-    // 숫자 10자리로 정규화된 사업자번호 (DDL은 VARCHAR(20))
-    @Column(name = "business_number", nullable = false, length = 20)
-    private String businessNumber;
+    public BusinessVerification(Long id, Long memberId, String businessNumber, LocalDate openDate,
+                                String ceoName, VerifyMethod verifyMethod,
+                                BusinessVerifyStatus status, LocalDateTime verifiedAt) {
+        this.id = id;
+        this.memberId = memberId;
+        this.businessNumber = businessNumber;
+        this.openDate = openDate;
+        this.ceoName = ceoName;
+        this.verifyMethod = verifyMethod;
+        this.status = status;
+        this.verifiedAt = verifiedAt;
+    }
+
+    // 국세청 API로 인증이 끝난 기록 (가입 때 사업자 확인 토큰을 가진 회원)
+    public static BusinessVerification approvedByApi(Long memberId, String businessNumber,
+                                                     LocalDate openDate, String ceoName,
+                                                     LocalDateTime verifiedAt) {
+        return new BusinessVerification(null, memberId, businessNumber, openDate, ceoName,
+                VerifyMethod.AUTO, BusinessVerifyStatus.APPROVED, verifiedAt);
+    }
 
 }
