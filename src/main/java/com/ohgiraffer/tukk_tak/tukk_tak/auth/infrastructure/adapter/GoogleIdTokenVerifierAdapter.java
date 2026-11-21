@@ -3,8 +3,14 @@ package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.GoogleTokenVerifier;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.GoogleIdentity;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
-import io.jsonwebtoken.Jwt;
-import io.jsonwebtoken.JwtException;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtException;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 
 import java.util.List;
 
