@@ -35,5 +35,11 @@ public final class AuthResponseMessage {
     public static final String EMAIL_VERIFY_LOCKED = "인증번호를 여러 번 잘못 입력했어요. 5분 후 다시 시도해주세요.";
     public static final String NICKNAME_INVALID              = "닉네임은 한글, 영문, 숫자로 2~15자까지 입력할 수 있어요.";
     public static final String NICKNAME_CHECK_LIMIT_EXCEEDED = "요청이 너무 많아요. 잠시 후 다시 시도해주세요.";
+    public static final String BUSINESS_VERIFIED              = "사업자 인증이 완료되었습니다.";
+    public static final String BUSINESS_MISMATCH              = "국세청 정보와 일치하지 않아요. 개업 직후에는 반영까지 며칠 걸릴 수 있어요.";
+    public static final String BUSINESS_CLOSED                = "폐업한 사업자는 인증할 수 없습니다.";
+    public static final String BUSINESS_ALREADY_USED          = "이미 인증된 사업자등록번호입니다.";
+    public static final String BUSINESS_VERIFY_LIMIT_EXCEEDED = "요청이 너무 많습니다. 잠시 후 다시 시도해주세요.";
+    public static final String BUSINESS_VERIFY_UNAVAILABLE    = "사업자 인증 서비스가 일시적으로 불안정합니다. 잠시 후 다시 시도해주세요.";
 
 }

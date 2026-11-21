@@ -1,8 +1,10 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.BusinessVerifyCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.EmailSendCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.EmailVerifyCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.NicknameCheckCommand;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.BusinessVerifyResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.EmailSendResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.EmailVerifyResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.NicknameCheckResult;
@@ -22,5 +24,8 @@ public interface SignupCommandUsecase {
 
     // 닉네임 중복 확인: 규칙을 검사하고 사용 가능한 닉네임인지 알려준다
     NicknameCheckResult checkNickname(NicknameCheckCommand command);
+
+    // 사업자 인증 : IP 제한과 중복 확인을 거쳐 국세청 진위확인을 하고, 통과하면 가입 요청에 쓸 사업자 확인 토큰을 발급한다
+    BusinessVerifyResult verifyBusiness(BusinessVerifyCommand command);
 
 }

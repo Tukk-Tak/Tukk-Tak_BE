@@ -23,5 +23,10 @@ public enum AuthFailure {
     EMAIL_CODE_MISMATCH,         // 인증번호가 틀림
     EMAIL_VERIFY_LOCKED,         // 인증번호를 여러 번 틀려서 잠김
     NICKNAME_INVALID,            // 닉네임 규칙(한글·영문·숫자 2~15자)에 맞지 않음
-    NICKNAME_CHECK_LIMIT_EXCEEDED // 같은 IP의 닉네임 확인 요청이 너무 많음
+    NICKNAME_CHECK_LIMIT_EXCEEDED,// 같은 IP의 닉네임 확인 요청이 너무 많음
+    BUSINESS_MISMATCH,                // 국세청 정보와 불일치 (400)
+    BUSINESS_CLOSED,                  // 폐업 사업자 (400)
+    BUSINESS_ALREADY_USED,            // 이미 다른 회원이 인증한 사업자번호 (409)
+    BUSINESS_VERIFY_LIMIT_EXCEEDED,   // IP당 요청 횟수 초과 (429)
+    BUSINESS_VERIFY_UNAVAILABLE,      // 국세청 장애, 타임아웃, 비정상 응답 (503)
 }
