@@ -1,7 +1,7 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.subscription.application.service;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.repository.BusinessVerificationRepository;
-import com.ohgiraffer.tukk_tak.tukk_tak.subscription.application.exception.PlanException;
+import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.exception.PlanException;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.application.policy.PlanLimits;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.application.result.AiUsageReceipt;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.application.usecase.PlanPolicyUsecase;

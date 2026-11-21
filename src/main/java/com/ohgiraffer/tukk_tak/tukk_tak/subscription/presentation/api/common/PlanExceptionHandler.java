@@ -1,8 +1,8 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.subscription.presentation.api.common;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiErrorResponse;
-import com.ohgiraffer.tukk_tak.tukk_tak.subscription.application.exception.PlanException;
-import com.ohgiraffer.tukk_tak.tukk_tak.subscription.application.exception.PlanFailure;
+import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.exception.PlanException;
+import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.exception.PlanFailure;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;

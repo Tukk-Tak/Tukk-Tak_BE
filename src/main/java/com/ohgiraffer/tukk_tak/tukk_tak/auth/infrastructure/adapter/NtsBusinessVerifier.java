@@ -7,9 +7,9 @@ import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.BusinessCheckRes
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.config.NtsProperties;
 import lombok.extern.slf4j.Slf4j;
-import org.flywaydb.core.internal.util.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
