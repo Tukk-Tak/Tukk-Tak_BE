@@ -99,3 +99,8 @@ cloud:
     cloudfront:
       domain: https://d2hgd0fvvrj50a.cloudfront.net
 
+  # ===== AI =====
+ai:
+  provider: gemini
+  api-key: ${AI_API_KEY}
+  model: gemini-3.5-flash-lite
