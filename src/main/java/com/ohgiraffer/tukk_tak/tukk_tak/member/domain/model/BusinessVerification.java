@@ -44,4 +44,10 @@ public class BusinessVerification {
                 VerifyMethod.AUTO, BusinessVerifyStatus.APPROVED, verifiedAt);
     }
 
+    // 예전에 인증했던 번호로 다시 인증했을 때: 같은 기록을 새 인증 정보로 갱신한다 (번호 UNIQUE라 새 행을 만들 수 없다)
+    public BusinessVerification renewed(LocalDate openDate, String ceoName, LocalDateTime verifiedAt) {
+        return new BusinessVerification(id, memberId, businessNumber, openDate, ceoName,
+                verifyMethod, status, verifiedAt);
+    }
+
 }

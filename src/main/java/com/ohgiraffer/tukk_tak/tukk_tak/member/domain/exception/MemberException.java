@@ -44,4 +44,7 @@ public class MemberException extends RuntimeException {
     // 사업자 인증 후 이름을 바꿈 (이름은 대표자명과 같아야 함)
     public static MemberException businessNameMismatch() {return new MemberException(MemberFailure.BUSINESS_NAME_MISMATCH);}
 
+    // 이미 내 현재 사업자로 인증되어 있는 번호로 다시 요청함
+    public static MemberException businessAlreadyVerified() {return new MemberException(MemberFailure.BUSINESS_ALREADY_VERIFIED);}
+
 }

@@ -46,4 +46,10 @@ public class BusinessVerificationRepositoryAdapter implements BusinessVerificati
                 .map(BusinessVerificationJpaEntity::toDomain);
     }
 
+    @Override
+    public Optional<BusinessVerification> findByMemberIdAndBusinessNumber(Long memberId, String businessNumber) {
+        return jpaRepository.findByMemberIdAndBusinessNumber(memberId, businessNumber)
+                .map(BusinessVerificationJpaEntity::toDomain);
+    }
+
 }

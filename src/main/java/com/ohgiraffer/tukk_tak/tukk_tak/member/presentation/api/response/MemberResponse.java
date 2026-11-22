@@ -42,5 +42,9 @@ public record MemberResponse (
             String ceoName,
             LocalDateTime verifiedAt
     ) {
+        // 서비스 결과를 응답 형식으로 바꾼다
+        public static BusinessResponse from(MemberInfoResult.BusinessInfo b) {
+            return new BusinessResponse(b.businessNumber(), b.openDate(), b.ceoName(), b.verifiedAt());
+        }
     }
 }

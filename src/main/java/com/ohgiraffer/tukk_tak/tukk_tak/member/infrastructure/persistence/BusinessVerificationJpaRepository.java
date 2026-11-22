@@ -15,5 +15,6 @@ public interface BusinessVerificationJpaRepository extends JpaRepository<Busines
     boolean existsByMemberIdAndBusinessNumber(Long memberId, String businessNumber);
     boolean existsByMemberId(Long memberId);
     Optional<BusinessVerificationJpaEntity> findFirstByMemberIdOrderByVerifiedAtDescIdDesc(Long memberId);
+    Optional<BusinessVerificationJpaEntity> findByMemberIdAndBusinessNumber(Long memberId, String businessNumber);
 
 }

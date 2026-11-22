@@ -53,6 +53,8 @@ public class MemberExceptionHandler {
                     MemberResponseCode.BUSINESS_TOKEN_INVALID, MemberResponseMessage.BUSINESS_TOKEN_INVALID);
             case BUSINESS_NAME_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
                     MemberResponseCode.BUSINESS_NAME_MISMATCH, MemberResponseMessage.BUSINESS_NAME_MISMATCH);
+            case BUSINESS_ALREADY_VERIFIED -> new Spec(HttpStatus.CONFLICT,
+                    MemberResponseCode.BUSINESS_ALREADY_VERIFIED, MemberResponseMessage.BUSINESS_ALREADY_VERIFIED);
         };
     }
 

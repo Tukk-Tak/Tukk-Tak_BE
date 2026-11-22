@@ -20,10 +20,13 @@ public interface BusinessVerificationRepository {
     // 회원이 인증을 마친 사업자가 있는지 (APPROVED만 저장하므로 존재 여부로 충분하다)
     boolean existsByMemberId(Long memberId);
 
-    // 인증 기록 저장 (지금은 새로 만드는 저장만 지원)
+    // 인증 기록 저장 (id가 없으면 새로 만들고, 있으면 갱신한다)
     BusinessVerification save(BusinessVerification businessVerification);
 
     // 회원의 현재 사업자 (가장 최근에 인증한 기록, 인증한 적이 없으면 비어 있다)
     Optional<BusinessVerification> findLatestByMemberId(Long memberId);
+
+    // 회원이 특정 사업자번호로 인증해 둔 기록 (예전 번호로 돌아갈 때 갱신하려고 찾는다)
+    Optional<BusinessVerification> findByMemberIdAndBusinessNumber(Long memberId, String businessNumber);
 
 }

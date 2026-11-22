@@ -3,9 +3,11 @@ package com.ohgiraffer.tukk_tak.tukk_tak.member.presentation.api.controller;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.user.CustomUserPrincipal;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.application.result.MemberInfoResult;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.application.usecase.MemberBusinessUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.application.usecase.MemberProfileUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.presentation.api.common.MemberResponseCode;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.presentation.api.common.MemberResponseMessage;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.presentation.api.request.MemberBusinessVerifyRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.presentation.api.request.MemberUpdateRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.presentation.api.response.MemberResponse;
 import jakarta.validation.Valid;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberProfileUsecase memberProfileUsecase;
+    private final MemberBusinessUsecase memberBusinessUsecase;
 
     /*
      * comment.
@@ -56,5 +59,21 @@ public class MemberController {
                 MemberResponseMessage.MY_INFO_UPDATED, MemberResponse.from(result)));
     }
 
+    /*
+     * comment.
+     *  사업자 인증 (최초 인증과 수정 겸용)
+     *  국세청 진위확인을 통과하면 현재 사업자로 바꾸고, 실패하면 기존 인증은 그대로 유지된다.
+     *  대표자명은 받지 않고 회원 이름으로 확인한다.
+     * */
+    @PostMapping("/business/verify")
+    public ResponseEntity<ApiResponse<MemberResponse.BusinessResponse>> verifyMyBusiness(
+            @RequestBody @Valid MemberBusinessVerifyRequest request,
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
+        MemberInfoResult.BusinessInfo result = memberBusinessUsecase.verifyMyBusiness(
+                request.toCommand(principal.getId()));
+
+        return ResponseEntity.ok(ApiResponse.success(MemberResponseCode.BUSINESS_VERIFIED,
+                MemberResponseMessage.BUSINESS_VERIFIED, MemberResponse.BusinessResponse.from(result)));
+    }
 
 }
