@@ -103,6 +103,12 @@ public class AuthExceptionHandler {
                     AuthResponseCode.PASSWORD_CHANGE_LOCKED, AuthResponseMessage.PASSWORD_CHANGE_LOCKED);
             case PASSWORD_CHANGE_SOCIAL_ACCOUNT -> new Spec(HttpStatus.BAD_REQUEST,
                     AuthResponseCode.PASSWORD_CHANGE_SOCIAL_ACCOUNT, AuthResponseMessage.PASSWORD_CHANGE_SOCIAL_ACCOUNT);
+            case WITHDRAWAL_LOCKED -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
+                    AuthResponseCode.WITHDRAWAL_LOCKED, AuthResponseMessage.WITHDRAWAL_LOCKED);
+            case WITHDRAWAL_CONFIRM_REQUIRED -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.WITHDRAWAL_CONFIRM_REQUIRED, AuthResponseMessage.WITHDRAWAL_CONFIRM_REQUIRED);
+            case WITHDRAWAL_GOOGLE_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.WITHDRAWAL_GOOGLE_MISMATCH, AuthResponseMessage.WITHDRAWAL_GOOGLE_MISMATCH);
         };
 
     }

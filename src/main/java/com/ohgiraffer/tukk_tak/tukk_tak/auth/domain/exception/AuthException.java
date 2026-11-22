@@ -116,4 +116,13 @@ public class AuthException extends RuntimeException {
     // 구글로 가입한 회원이 비밀번호 변경을 요청한 경우
     public static AuthException passwordChangeSocialAccount() {return new AuthException(AuthFailure.PASSWORD_CHANGE_SOCIAL_ACCOUNT);}
 
+    // 비밀번호를 여러 번 틀려서 탈퇴를 잠시 할 수 없음
+    public static AuthException withdrawalLocked() {return new AuthException(AuthFailure.WITHDRAWAL_LOCKED);}
+
+    // 탈퇴에 필요한 본인 확인 정보(비밀번호 또는 구글 토큰)를 보내지 않음
+    public static AuthException withdrawalConfirmRequired() {return new AuthException(AuthFailure.WITHDRAWAL_CONFIRM_REQUIRED);}
+
+    // 재인증한 구글 계정이 로그인한 계정과 다름
+    public static AuthException withdrawalGoogleMismatch() {return new AuthException(AuthFailure.WITHDRAWAL_GOOGLE_MISMATCH);}
+
 }

@@ -119,6 +119,15 @@ public class Member {
         this.password = encodedPassword;
     }
 
+    // 탈퇴 처리: 데이터는 지우지 않고 상태만 바꾼다 (같은 이메일로 다시 가입하면 restore로 되살린다)
+    public void withdraw() {
+        if (!isActive()) {
+            throw new IllegalStateException("활성 회원만 탈퇴할 수 있습니다.");
+        }
+        this.status = MemberStatus.WITHDRAWN;
+        this.withdrawnAt = LocalDateTime.now(SEOUL);
+    }
+
     // 마이페이지에서 바꿀 수 있는 정보를 반영한다 (이름과 이메일은 바꿀 수 없다. 바꾸지 않을 값은 현재 값을 그대로 넘긴다)
     public void updateProfile(String nickname, String phone, String businessPhone, String address) {
         this.nickname = nickname;
