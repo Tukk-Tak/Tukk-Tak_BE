@@ -1,6 +1,5 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model;
 
-import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.LocalDate;

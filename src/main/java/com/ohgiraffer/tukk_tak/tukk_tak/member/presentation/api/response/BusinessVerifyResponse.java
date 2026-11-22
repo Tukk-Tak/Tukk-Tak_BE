@@ -1,6 +1,6 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.presentation.api.response;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.BusinessVerifyResult;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.application.result.BusinessVerifyResult;
 
 /*
  * comment.

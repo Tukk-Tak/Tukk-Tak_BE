@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model;
 
 import java.time.LocalDate;
 

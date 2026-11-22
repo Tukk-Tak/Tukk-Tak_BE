@@ -1,8 +1,8 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.persistence;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.infrastructure.persistence;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessVerification;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessVerifyStatus;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.VerifyMethod;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.BusinessVerification;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.BusinessVerifyStatus;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.VerifyMethod;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

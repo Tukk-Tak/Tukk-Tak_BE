@@ -1,7 +1,7 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.infrastructure.adapter;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessVerifier;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.BusinessCheckResult;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.application.port.BusinessVerifier;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.application.result.BusinessCheckResult;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDate;

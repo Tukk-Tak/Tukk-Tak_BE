@@ -1,6 +1,6 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.application.port;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessTokenInfo;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.BusinessTokenInfo;
 
 import java.time.Duration;
 import java.util.Optional;

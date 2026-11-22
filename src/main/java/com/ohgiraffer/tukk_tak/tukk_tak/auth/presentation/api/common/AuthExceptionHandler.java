@@ -73,22 +73,8 @@ public class AuthExceptionHandler {
                     AuthResponseCode.NICKNAME_INVALID, AuthResponseMessage.NICKNAME_INVALID);
             case NICKNAME_CHECK_LIMIT_EXCEEDED -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
                     AuthResponseCode.NICKNAME_CHECK_LIMIT_EXCEEDED, AuthResponseMessage.NICKNAME_CHECK_LIMIT_EXCEEDED);
-            case BUSINESS_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
-                    AuthResponseCode.BUSINESS_MISMATCH, AuthResponseMessage.BUSINESS_MISMATCH);
-            case BUSINESS_CLOSED -> new Spec(HttpStatus.BAD_REQUEST,
-                    AuthResponseCode.BUSINESS_CLOSED, AuthResponseMessage.BUSINESS_CLOSED);
-            case BUSINESS_ALREADY_USED -> new Spec(HttpStatus.CONFLICT,
-                    AuthResponseCode.BUSINESS_ALREADY_USED, AuthResponseMessage.BUSINESS_ALREADY_USED);
-            case BUSINESS_VERIFY_LIMIT_EXCEEDED -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
-                    AuthResponseCode.BUSINESS_VERIFY_LIMIT_EXCEEDED, AuthResponseMessage.BUSINESS_VERIFY_LIMIT_EXCEEDED);
-            case BUSINESS_VERIFY_UNAVAILABLE -> new Spec(HttpStatus.SERVICE_UNAVAILABLE,
-                    AuthResponseCode.BUSINESS_VERIFY_UNAVAILABLE, AuthResponseMessage.BUSINESS_VERIFY_UNAVAILABLE);
             case EMAIL_TOKEN_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
                     AuthResponseCode.EMAIL_TOKEN_INVALID, AuthResponseMessage.EMAIL_TOKEN_INVALID);
-            case BUSINESS_TOKEN_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
-                    AuthResponseCode.BUSINESS_TOKEN_INVALID, AuthResponseMessage.BUSINESS_TOKEN_INVALID);
-            case BUSINESS_NAME_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
-                    AuthResponseCode.BUSINESS_NAME_MISMATCH, AuthResponseMessage.BUSINESS_NAME_MISMATCH);
             case NICKNAME_ALREADY_USED -> new Spec(HttpStatus.CONFLICT,
                     AuthResponseCode.NICKNAME_ALREADY_USED, AuthResponseMessage.NICKNAME_ALREADY_USED);
             case GOOGLE_TOKEN_INVALID -> new Spec(HttpStatus.UNAUTHORIZED,

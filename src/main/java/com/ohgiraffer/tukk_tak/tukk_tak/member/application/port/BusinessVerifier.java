@@ -1,6 +1,6 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.application.port;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.BusinessCheckResult;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.application.result.BusinessCheckResult;
 
 import java.time.LocalDate;
 

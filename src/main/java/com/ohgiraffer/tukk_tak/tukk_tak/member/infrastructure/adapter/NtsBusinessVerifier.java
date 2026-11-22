@@ -1,11 +1,11 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.infrastructure.adapter;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessVerifier;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.BusinessCheckResult;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.config.NtsProperties;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.application.port.BusinessVerifier;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.application.result.BusinessCheckResult;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.exception.MemberException;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.infrastructure.config.NtsProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
@@ -92,7 +92,7 @@ public class NtsBusinessVerifier implements BusinessVerifier {
             // 4. 일치(valid=01)인데 상태를 끝내 알 수 없으면, 폐업자가 통과하는 쪽보다 503이 안전하다
             if (!StringUtils.hasText(statusCode)) {
                 log.error("[nts] 일치인데 사업자 상태를 확인하지 못함");
-                throw AuthException.businessVerifyUnavailable();
+                throw MemberException.businessVerifyUnavailable();
             }
 
             // 5. 폐업(03)만 거절하고 휴업(02)은 허용한다
@@ -102,7 +102,7 @@ public class NtsBusinessVerifier implements BusinessVerifier {
             // 연결 실패, 타임아웃, 4xx, 5xx, 응답 변환 실패가 모두 여기로 온다
             // 인증키가 담긴 요청 주소는 로그에 남기지 않고 예외 종류만 남긴다
             log.error("[nts] 국세청 호출 실패 | type={}", e.getClass().getSimpleName());
-            throw AuthException.businessVerifyUnavailable();
+            throw MemberException.businessVerifyUnavailable();
         }
     }
 
@@ -136,7 +136,7 @@ public class NtsBusinessVerifier implements BusinessVerifier {
     private ValidateItem firstItem(ValidateResponse response) {
         if (response == null || response.data() == null || response.data().isEmpty()) {
             log.error("[nts] 비정상 응답: data 없음");
-            throw AuthException.businessVerifyUnavailable();
+            throw MemberException.businessVerifyUnavailable();
         }
         return response.data().get(0);
     }

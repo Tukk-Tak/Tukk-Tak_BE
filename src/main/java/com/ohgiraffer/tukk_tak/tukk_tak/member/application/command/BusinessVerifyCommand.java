@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.application.command;
 
 import java.time.LocalDate;
 

@@ -1,6 +1,6 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.presentation.api.request;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.BusinessVerifyCommand;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.application.command.BusinessVerifyCommand;
 import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;

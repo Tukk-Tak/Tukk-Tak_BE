@@ -39,6 +39,20 @@ public class MemberExceptionHandler {
         return switch (failure) {
             case NICKNAME_ALREADY_USED -> new Spec(HttpStatus.CONFLICT,
                     MemberResponseCode.NICKNAME_ALREADY_USED, MemberResponseMessage.NICKNAME_ALREADY_USED);
+            case BUSINESS_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
+                    MemberResponseCode.BUSINESS_MISMATCH, MemberResponseMessage.BUSINESS_MISMATCH);
+            case BUSINESS_CLOSED -> new Spec(HttpStatus.BAD_REQUEST,
+                    MemberResponseCode.BUSINESS_CLOSED, MemberResponseMessage.BUSINESS_CLOSED);
+            case BUSINESS_ALREADY_USED -> new Spec(HttpStatus.CONFLICT,
+                    MemberResponseCode.BUSINESS_ALREADY_USED, MemberResponseMessage.BUSINESS_ALREADY_USED);
+            case BUSINESS_VERIFY_LIMIT_EXCEEDED -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
+                    MemberResponseCode.BUSINESS_VERIFY_LIMIT_EXCEEDED, MemberResponseMessage.BUSINESS_VERIFY_LIMIT_EXCEEDED);
+            case BUSINESS_VERIFY_UNAVAILABLE -> new Spec(HttpStatus.SERVICE_UNAVAILABLE,
+                    MemberResponseCode.BUSINESS_VERIFY_UNAVAILABLE, MemberResponseMessage.BUSINESS_VERIFY_UNAVAILABLE);
+            case BUSINESS_TOKEN_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
+                    MemberResponseCode.BUSINESS_TOKEN_INVALID, MemberResponseMessage.BUSINESS_TOKEN_INVALID);
+            case BUSINESS_NAME_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
+                    MemberResponseCode.BUSINESS_NAME_MISMATCH, MemberResponseMessage.BUSINESS_NAME_MISMATCH);
         };
     }
 

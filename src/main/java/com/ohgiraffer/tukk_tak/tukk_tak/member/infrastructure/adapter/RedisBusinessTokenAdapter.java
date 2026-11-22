@@ -1,8 +1,8 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.infrastructure.adapter;
 
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessTokenPort;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessTokenInfo;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.application.port.BusinessTokenPort;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.BusinessTokenInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;

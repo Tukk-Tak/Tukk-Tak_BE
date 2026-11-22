@@ -38,15 +38,7 @@ public final class AuthResponseCode {
     public static final String EMAIL_VERIFY_LOCKED = "AUTH-EMAIL-VERIFY-LOCKED";
     public static final String NICKNAME_INVALID                = "AUTH-NICKNAME-INVALID";
     public static final String NICKNAME_CHECK_LIMIT_EXCEEDED   = "AUTH-NICKNAME-CHECK-LIMIT-EXCEEDED";
-    public static final String BUSINESS_VERIFIED              = "AUTH-BUSINESS-VERIFIED";
-    public static final String BUSINESS_MISMATCH              = "AUTH-BUSINESS-MISMATCH";
-    public static final String BUSINESS_CLOSED                = "AUTH-BUSINESS-CLOSED";
-    public static final String BUSINESS_ALREADY_USED          = "AUTH-BUSINESS-ALREADY-USED";
-    public static final String BUSINESS_VERIFY_LIMIT_EXCEEDED = "AUTH-BUSINESS-VERIFY-LIMIT-EXCEEDED";
-    public static final String BUSINESS_VERIFY_UNAVAILABLE    = "AUTH-BUSINESS-VERIFY-UNAVAILABLE";
     public static final String EMAIL_TOKEN_INVALID    = "AUTH-EMAIL-TOKEN-INVALID";
-    public static final String BUSINESS_TOKEN_INVALID = "AUTH-BUSINESS-TOKEN-INVALID";
-    public static final String BUSINESS_NAME_MISMATCH = "AUTH-BUSINESS-NAME-MISMATCH";
     public static final String NICKNAME_ALREADY_USED  = "AUTH-NICKNAME-ALREADY-USED";
     public static final String GOOGLE_TOKEN_INVALID     = "AUTH-GOOGLE-TOKEN-INVALID";
     public static final String GOOGLE_EMAIL_UNVERIFIED  = "AUTH-GOOGLE-EMAIL-UNVERIFIED";

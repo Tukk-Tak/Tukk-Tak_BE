@@ -1,6 +1,6 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.repository;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.domain.repository;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessVerification;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.BusinessVerification;
 
 import java.util.Optional;
 

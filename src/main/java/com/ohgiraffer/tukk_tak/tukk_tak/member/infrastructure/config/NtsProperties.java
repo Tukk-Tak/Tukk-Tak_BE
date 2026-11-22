@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.config;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.infrastructure.config;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;

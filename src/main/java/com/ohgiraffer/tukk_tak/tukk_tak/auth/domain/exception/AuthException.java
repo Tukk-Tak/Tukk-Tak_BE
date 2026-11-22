@@ -71,29 +71,8 @@ public class AuthException extends RuntimeException {
     // 같은 IP의 닉네임 확인 요청이 제한을 넘은 경우
     public static AuthException nicknameCheckLimitExceeded() { return new AuthException(AuthFailure.NICKNAME_CHECK_LIMIT_EXCEEDED); }
 
-    // 국세청 정보와 사업자번호, 개업일자, 대표자명이 일치하지 않음
-    public static AuthException businessMismatch() {return new AuthException(AuthFailure.BUSINESS_MISMATCH);}
-
-    // 일치하지만 폐업 상태 (휴업은 허용하므로 여기에 오지 않는다)
-    public static AuthException businessClosed() {return new AuthException(AuthFailure.BUSINESS_CLOSED);}
-
-    // 이미 다른 회원이 인증한 사업자번호
-    public static AuthException businessAlreadyUsed() {return new AuthException(AuthFailure.BUSINESS_ALREADY_USED);}
-
-    // IP당 요청 제한(10분 10회) 초과
-    public static AuthException businessVerifyLimitExceeded() {return new AuthException(AuthFailure.BUSINESS_VERIFY_LIMIT_EXCEEDED);}
-
-    // 국세청 호출 실패, 타임아웃, 5xx, 비정상 응답
-    public static AuthException businessVerifyUnavailable() {return new AuthException(AuthFailure.BUSINESS_VERIFY_UNAVAILABLE);}
-
     // 이메일 인증 토큰이 없거나 만료됨 (인증을 다시 해야 함)
     public static AuthException emailTokenInvalid() {return new AuthException(AuthFailure.EMAIL_TOKEN_INVALID);}
-
-    // 사업자 확인 토큰이 없거나 만료됨 (사업자 인증을 다시 해야 함)
-    public static AuthException businessTokenInvalid() {return new AuthException(AuthFailure.BUSINESS_TOKEN_INVALID);}
-
-    // 사업자 인증 후 이름을 바꿈 (이름은 대표자명과 같아야 함)
-    public static AuthException businessNameMismatch() {return new AuthException(AuthFailure.BUSINESS_NAME_MISMATCH);}
 
     // 이미 사용 중인 닉네임 (중복 확인 뒤 다른 사람이 먼저 가입한 경우 포함)
     public static AuthException nicknameAlreadyUsed() {return new AuthException(AuthFailure.NICKNAME_ALREADY_USED);}

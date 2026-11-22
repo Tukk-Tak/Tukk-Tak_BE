@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.persistence;
+package com.ohgiraffer.tukk_tak.tukk_tak.member.infrastructure.persistence;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
