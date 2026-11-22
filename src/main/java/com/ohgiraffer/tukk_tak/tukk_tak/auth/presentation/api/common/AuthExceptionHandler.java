@@ -111,6 +111,12 @@ public class AuthExceptionHandler {
                     AuthResponseCode.PASSWORD_RESET_TOKEN_INVALID, AuthResponseMessage.PASSWORD_RESET_TOKEN_INVALID);
             case PASSWORD_SAME_AS_CURRENT -> new Spec(HttpStatus.BAD_REQUEST,
                     AuthResponseCode.PASSWORD_SAME_AS_CURRENT, AuthResponseMessage.PASSWORD_SAME_AS_CURRENT);
+            case CURRENT_PASSWORD_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.CURRENT_PASSWORD_MISMATCH, AuthResponseMessage.CURRENT_PASSWORD_MISMATCH);
+            case PASSWORD_CHANGE_LOCKED -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
+                    AuthResponseCode.PASSWORD_CHANGE_LOCKED, AuthResponseMessage.PASSWORD_CHANGE_LOCKED);
+            case PASSWORD_CHANGE_SOCIAL_ACCOUNT -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.PASSWORD_CHANGE_SOCIAL_ACCOUNT, AuthResponseMessage.PASSWORD_CHANGE_SOCIAL_ACCOUNT);
         };
 
     }

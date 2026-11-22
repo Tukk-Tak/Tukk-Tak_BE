@@ -128,4 +128,13 @@ public class AuthException extends RuntimeException {
     // 새 비밀번호가 현재 비밀번호와 같은 경우
     public static AuthException passwordSameAsCurrent() {return new AuthException(AuthFailure.PASSWORD_SAME_AS_CURRENT);}
 
+    // 비밀번호를 바꿀 때 입력한 현재 비밀번호가 틀린 경우
+    public static AuthException currentPasswordMismatch() {return new AuthException(AuthFailure.CURRENT_PASSWORD_MISMATCH);}
+
+    // 현재 비밀번호를 여러 번 틀려서 비밀번호 변경이 잠긴 경우
+    public static AuthException passwordChangeLocked() {return new AuthException(AuthFailure.PASSWORD_CHANGE_LOCKED);}
+
+    // 구글로 가입한 회원이 비밀번호 변경을 요청한 경우
+    public static AuthException passwordChangeSocialAccount() {return new AuthException(AuthFailure.PASSWORD_CHANGE_SOCIAL_ACCOUNT);}
+
 }

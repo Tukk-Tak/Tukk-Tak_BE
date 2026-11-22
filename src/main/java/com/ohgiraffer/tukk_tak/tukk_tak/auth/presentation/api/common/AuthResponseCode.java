@@ -17,6 +17,7 @@ public final class AuthResponseCode {
     public static final String EMAIL_VERIFIED = "AUTH-EMAIL-VERIFIED";
     public static final String NICKNAME_CHECKED = "AUTH-NICKNAME-CHECKED";
     public static final String PASSWORD_RESET = "AUTH-PASSWORD-RESET";
+    public static final String PASSWORD_CHANGED = "AUTH-PASSWORD-CHANGED";
 
     // 실패
     public static final String LOGIN_FAILED               = "AUTH-LOGIN-FAILED";
@@ -60,5 +61,8 @@ public final class AuthResponseCode {
     public static final String PASSWORD_RESET_WITHDRAWN      = "AUTH-PASSWORD-RESET-WITHDRAWN";
     public static final String PASSWORD_RESET_TOKEN_INVALID  = "AUTH-PASSWORD-RESET-TOKEN-INVALID";
     public static final String PASSWORD_SAME_AS_CURRENT      = "AUTH-PASSWORD-SAME-AS-CURRENT";
+    public static final String CURRENT_PASSWORD_MISMATCH      = "AUTH-CURRENT-PASSWORD-MISMATCH";
+    public static final String PASSWORD_CHANGE_LOCKED         = "AUTH-PASSWORD-CHANGE-LOCKED";
+    public static final String PASSWORD_CHANGE_SOCIAL_ACCOUNT = "AUTH-PASSWORD-CHANGE-SOCIAL-ACCOUNT";
 
 }

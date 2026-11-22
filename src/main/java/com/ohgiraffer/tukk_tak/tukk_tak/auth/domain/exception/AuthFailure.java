@@ -43,4 +43,7 @@ public enum AuthFailure {
     PASSWORD_RESET_WITHDRAWN,      // 탈퇴한 회원은 재설정할 수 없음 (400)
     PASSWORD_RESET_TOKEN_INVALID,  // 재설정 토큰이 없거나 만료됐거나, 그 사이 회원 상태가 바뀜 (400)
     PASSWORD_SAME_AS_CURRENT,      // 새 비밀번호가 현재 비밀번호와 같음 (400)
+    CURRENT_PASSWORD_MISMATCH,         // 비밀번호 변경 때 현재 비밀번호가 틀림 (400)
+    PASSWORD_CHANGE_LOCKED,            // 현재 비밀번호를 여러 번 틀려서 변경이 잠김 (429)
+    PASSWORD_CHANGE_SOCIAL_ACCOUNT,    // 구글 회원은 비밀번호가 없어 변경할 수 없음 (400)
 }
