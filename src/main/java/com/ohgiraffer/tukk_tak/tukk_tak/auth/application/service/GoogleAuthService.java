@@ -153,11 +153,11 @@ public class GoogleAuthService implements GoogleAuthUsecase {
         try {
             if (restoring) {
                 existing.restore(null, command.nickname(), command.name(), phone,
-                        businessPhone, address, command.agreed(), command.agreed());
+                        businessPhone, address, command.privacyAgreed(), command.aiUsageAgreed());
                 saved = signupRegistrar.restore(existing, ownBusiness ? null : business);
             } else {
                 Member member = Member.google(email, command.nickname(), command.name(),
-                        phone, businessPhone, address, command.agreed(), command.agreed());
+                        phone, businessPhone, address, command.privacyAgreed(), command.aiUsageAgreed());
                 saved = signupRegistrar.register(member, business);
             }
         } catch (DataIntegrityViolationException e) {

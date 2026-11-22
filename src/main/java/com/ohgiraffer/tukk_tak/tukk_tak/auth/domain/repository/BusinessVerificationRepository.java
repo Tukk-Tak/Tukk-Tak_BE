@@ -1,7 +1,8 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.repository;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessVerification;
-import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
 
 /*
  * comment.
@@ -21,5 +22,8 @@ public interface BusinessVerificationRepository {
 
     // 인증 기록 저장 (지금은 새로 만드는 저장만 지원)
     BusinessVerification save(BusinessVerification businessVerification);
+
+    // 회원의 현재 사업자 (가장 최근에 인증한 기록, 인증한 적이 없으면 비어 있다)
+    Optional<BusinessVerification> findLatestByMemberId(Long memberId);
 
 }

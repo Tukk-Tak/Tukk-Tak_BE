@@ -5,6 +5,8 @@ import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.repository.BusinessVerificat
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /*
  * comment.
  *  BusinessVerificationRepository 포트의 구현체
@@ -36,6 +38,12 @@ public class BusinessVerificationRepositoryAdapter implements BusinessVerificati
     @Override
     public BusinessVerification save(BusinessVerification businessVerification) {
         return jpaRepository.save(BusinessVerificationJpaEntity.fromDomain(businessVerification)).toDomain();
+    }
+
+    @Override
+    public Optional<BusinessVerification> findLatestByMemberId(Long memberId) {
+        return jpaRepository.findFirstByMemberIdOrderByVerifiedAtDescIdDesc(memberId)
+                .map(BusinessVerificationJpaEntity::toDomain);
     }
 
 }

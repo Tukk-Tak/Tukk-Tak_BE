@@ -11,6 +11,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase.PasswordResetUs
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.EmailPurpose;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.FailureCountGuard;
+import com.ohgiraffer.tukk_tak.tukk_tak.global.security.token.AccessTokenRevoker;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.token.RefreshTokenService;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.EmailNormalizer;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.SecureCodes;
@@ -63,6 +64,7 @@ public class PasswordResetService implements PasswordResetUsecase {
     private final FailureCountGuard failureCountGuard;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
+    private final AccessTokenRevoker accessTokenRevoker;
 
     @Override
     public EmailSendResult sendResetCode(EmailSendCommand command) {
@@ -170,9 +172,10 @@ public class PasswordResetService implements PasswordResetUsecase {
         member.changePassword(passwordEncoder.encode(command.newPassword()));
         memberRepository.save(member);
 
-        // 5. 이 회원의 refresh token을 지워서, 다른 기기에서 access token을 재발급받지 못하게 한다
-        //    (비밀번호를 저장한 뒤에 지워야, 지운 직후 옛 비밀번호로 다시 로그인하는 틈이 생기지 않는다)
+        // 5. 이 회원의 refresh token을 지우고, 이미 발급된 access token도 모두 무효로 만든다
+        //    (비밀번호를 저장한 뒤에 처리해야, 그 직후 옛 비밀번호로 다시 로그인하는 틈이 생기지 않는다)
         refreshTokenService.delete(member.getId());
+        accessTokenRevoker.revokeAll(member.getId());
 
         // 6. 쓴 토큰을 지우고(재사용 방지), 로그인 잠금을 푼다 (메일로 본인 확인을 마쳤으니 잠겨 있어도 풀어준다)
         //    여기서 실패해도 비밀번호는 이미 바뀌었으므로, 가입처럼 경고만 남기고 성공으로 응답한다
@@ -185,6 +188,5 @@ public class PasswordResetService implements PasswordResetUsecase {
 
         log.info("[password-reset] 재설정 완료 | memberId={}", member.getId());
     }
-
 
 }

@@ -1,5 +1,6 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.global.security.jwt;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.global.security.token.AccessTokenRevoker;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.token.TokenBlacklistService;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.user.CustomUserDetailsService;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.user.CustomUserPrincipal;
@@ -32,6 +33,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomUserDetailsService userDetailsService;
     private final TokenBlacklistService tokenBlacklistService;
+    private final AccessTokenRevoker accessTokenRevoker;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -52,8 +54,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
         try {
-            CustomUserPrincipal principal =
-                    userDetailsService.loadByMemberId(jwtTokenProvider.extractMemberId(claims));
+            Long memberId = jwtTokenProvider.extractMemberId(claims);
+
+            // 비밀번호 변경·재설정 전에 발급된 토큰은 모든 기기에서 거절 (인증 없이 통과시키면 보호된 API는 401)
+            if (accessTokenRevoker.isRevoked(memberId, claims.getIssuedAt())) {
+                return;
+            }
+
+            CustomUserPrincipal principal = userDetailsService.loadByMemberId(memberId);
             if (principal.isEnabled()) {
                 var authentication = new UsernamePasswordAuthenticationToken(
                         principal, null, principal.getAuthorities());

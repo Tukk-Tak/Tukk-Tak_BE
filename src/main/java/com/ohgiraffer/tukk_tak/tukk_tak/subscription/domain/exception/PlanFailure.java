@@ -12,5 +12,6 @@ public enum PlanFailure {
     PUBLISH_LIMIT_EXCEEDED,     // 배포 가능한 사이트 수를 넘김
     PUBLISH_NOT_ALLOWED,        // 현재 플랜에서는 배포 불가 (FREE)
     EDIT_NOT_ALLOWED,           // 현재 플랜에서는 수정 불가
-    BUSINESS_NOT_VERIFIED       // 사업자 인증을 하지 않아 배포 불가
+    BUSINESS_NOT_VERIFIED,      // 사업자 인증을 하지 않아 배포 불가
+    AI_CONSENT_REQUIRED,        // AI 사용에 동의하지 않아 AI 기능을 쓸 수 없음 (400)
 }

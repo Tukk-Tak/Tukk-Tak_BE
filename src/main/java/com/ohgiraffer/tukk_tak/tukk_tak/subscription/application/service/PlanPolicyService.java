@@ -1,6 +1,8 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.subscription.application.service;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.repository.BusinessVerificationRepository;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.Member;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.repository.MemberRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.exception.PlanException;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.application.policy.PlanLimits;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.application.result.AiUsageReceipt;
@@ -31,17 +33,21 @@ public class PlanPolicyService implements PlanPolicyUsecase {
 
     private final SubscriptionRepository subscriptionRepository;
     private final BusinessVerificationRepository businessVerificationRepository;
+    private final MemberRepository memberRepository;
 
     @Override
     public void checkCanUseAi(Long memberId) {
 
-        // 1. 현재 구독과 이번 주기 계산
+        // 1. AI 사용에 동의했는지 (마이페이지에서 동의를 끄면 막힌다. 한도보다 먼저 본다)
+        requireAiConsent(memberId);
+
+        // 2. 현재 구독과 이번 주기 계산
         LocalDate today = LocalDate.now(SEOUL);
         Subscription current = currentSubscription(memberId, today);
         PlanLimits limits = PlanLimits.of(current.getPlanName());
         LocalDate cycleStart = aiCycleStart(current, limits, today);
 
-        // 2. 이번 주기에 쓴 횟수가 한도 이상이면 거절
+        // 3. 이번 주기에 쓴 횟수가 한도 이상이면 거절
         if (current.aiUsageIn(cycleStart) >= limits.aiUsageLimit()) {
             throw PlanException.aiLimitExceeded();
         }
@@ -50,13 +56,16 @@ public class PlanPolicyService implements PlanPolicyUsecase {
     @Override
     public AiUsageReceipt recordAiUsage(Long memberId) {
 
-        // 1. 현재 구독과 이번 주기 계산
+        // 1. AI 사용에 동의했는지 (사용 직전 확인과 실제 차감 사이에 동의를 껐을 수 있어서 여기서도 본다)
+        requireAiConsent(memberId);
+
+        // 2. 현재 구독과 이번 주기 계산
         LocalDate today = LocalDate.now(SEOUL);
         Subscription current = currentSubscription(memberId, today);
         PlanLimits limits = PlanLimits.of(current.getPlanName());
         LocalDate cycleStart = aiCycleStart(current, limits, today);
 
-        // 2. 한 번의 UPDATE로 "한도 미만일 때만 +1" (동시에 눌러도 한도를 넘지 않고, 주기가 바뀌었으면 0부터 센다)
+        // 3. 한 번의 UPDATE로 "한도 미만일 때만 +1" (동시에 눌러도 한도를 넘지 않고, 주기가 바뀌었으면 0부터 센다)
         if (!subscriptionRepository.increaseAiUsage(current.getId(), cycleStart, limits.aiUsageLimit())) {
             throw PlanException.aiLimitExceeded();
         }
@@ -100,6 +109,16 @@ public class PlanPolicyService implements PlanPolicyUsecase {
     public void checkCanEdit(Long memberId) {
         if (!currentLimits(memberId).canEdit()) {
             throw PlanException.editNotAllowed();
+        }
+    }
+
+    // AI 사용에 동의한 회원만 AI를 쓸 수 있다 (회원 정보를 못 찾으면 동의하지 않은 것으로 본다)
+    private void requireAiConsent(Long memberId) {
+        boolean agreed = memberRepository.findById(memberId)
+                .map(Member::isAiUsageAgreed)
+                .orElse(false);
+        if (!agreed) {
+            throw PlanException.aiConsentRequired();
         }
     }
 

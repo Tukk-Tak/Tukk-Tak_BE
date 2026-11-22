@@ -280,11 +280,11 @@ public class SignupCommandService implements SignupCommandUsecase {
         try {
             if (restoring) {
                 existing.restore(encodedPassword, command.nickname(), command.name(), phone,
-                        businessPhone, address, command.agreed(), command.agreed());
+                        businessPhone, address,command.privacyAgreed(), command.aiUsageAgreed());
                 signupRegistrar.restore(existing, ownBusiness ? null : business);
             } else {
                 Member member = Member.local(email, encodedPassword, command.nickname(), command.name(),
-                        phone, businessPhone, address, command.agreed(), command.agreed());
+                        phone, businessPhone, address, command.privacyAgreed(), command.aiUsageAgreed());
                 signupRegistrar.register(member, business);
             }
         } catch (DataIntegrityViolationException e) {
