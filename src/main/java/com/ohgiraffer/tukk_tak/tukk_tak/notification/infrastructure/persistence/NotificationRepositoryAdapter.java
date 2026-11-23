@@ -29,4 +29,9 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
                         e.getId(), e.getType(), e.getTargetId(), e.getMessage(), e.isRead(), e.getCreatedAt()))
                 .toList();
     }
+
+    @Override
+    public Boolean existsUnreadByMemberId(Long memberId) {
+        return springDataNotificationRepository.existsByMemberIdAndReadFalse(memberId);
+    }
 }

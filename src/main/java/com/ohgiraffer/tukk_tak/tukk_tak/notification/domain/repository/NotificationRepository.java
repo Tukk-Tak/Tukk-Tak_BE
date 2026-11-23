@@ -11,6 +11,8 @@ public interface NotificationRepository {
 
     List<NotificationInfo> findAllByMemberId(Long memberId);
 
+    Boolean existsUnreadByMemberId(Long memberId);
+
     record NotificationInfo(
             Long id,
             NotificationType type,

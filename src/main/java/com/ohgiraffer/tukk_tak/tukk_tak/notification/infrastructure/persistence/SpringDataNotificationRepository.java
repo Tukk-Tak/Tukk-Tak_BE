@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface SpringDataNotificationRepository extends JpaRepository<NotificationJpaEntity, Long> {
     List<NotificationJpaEntity> findByMemberIdOrderByCreatedAtDescIdDesc(Long memberId);
+
+    boolean existsByMemberIdAndReadFalse(Long memberId);
 }

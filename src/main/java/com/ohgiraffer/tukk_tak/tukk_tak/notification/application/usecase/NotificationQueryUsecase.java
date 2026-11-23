@@ -8,6 +8,8 @@ import java.util.List;
 public interface NotificationQueryUsecase {
     List<NotificationSearchResult> getNotificationList(Long memberId);
 
+    Boolean getIsUnreadNotificationExists(Long memberId);
+
     record NotificationSearchResult(
             Long id,
             NotificationType type,

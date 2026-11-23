@@ -23,4 +23,9 @@ public class NotificationQueryService implements NotificationQueryUsecase {
                         n.id(), n.type(), n.targetId(), n.message(), n.isRead(), n.createdAt()))
                 .toList();
     }
+
+    @Override
+    public Boolean getIsUnreadNotificationExists(Long memberId) {
+        return notificationRepository.existsUnreadByMemberId(memberId);
+    }
 }

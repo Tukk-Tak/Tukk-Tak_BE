@@ -43,7 +43,6 @@ public class NotificationController {
     public ResponseEntity<ApiResponse<List<GetNotificationList>>> getNotificationList(
             @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
     ){
-
         List<GetNotificationList> result = notificationQueryUsecase.getNotificationList(customUserPrincipal.getId()).stream()
                 .map(GetNotificationList::from)
                 .toList();
@@ -53,6 +52,18 @@ public class NotificationController {
                         NotificationResponseCode.ANSWER_FOUND,
                         NotificationResponseMessage.ANSWER_FOUND,
                         result
+                ));
+    }
+
+    @GetMapping("/exists")
+    public ResponseEntity<ApiResponse<Boolean>> isUnreadNotificationExists(
+        @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
+    ){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        NotificationResponseCode.ANSWER_FOUND,
+                        NotificationResponseMessage.ANSWER_FOUND,
+                        notificationQueryUsecase.getIsUnreadNotificationExists(customUserPrincipal.getId())
                 ));
     }
 }
