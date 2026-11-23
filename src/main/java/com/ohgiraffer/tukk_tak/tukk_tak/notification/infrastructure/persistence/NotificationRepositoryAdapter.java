@@ -41,4 +41,14 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
         return springDataNotificationRepository.findById(notificationId)
                 .map(NotificationJpaEntity::toDomain);
     }
+
+    @Override
+    public int deleteByIdsAndMemberId(List<Long> ids, Long memberId) {
+        return springDataNotificationRepository.deleteByIdsAndMemberId(ids, memberId);
+    }
+
+    @Override
+    public boolean existsAnyByIds(List<Long> notificationIds) {
+        return springDataNotificationRepository.existsByIdIn(notificationIds);
+    }
 }

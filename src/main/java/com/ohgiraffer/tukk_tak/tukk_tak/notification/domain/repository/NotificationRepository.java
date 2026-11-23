@@ -16,6 +16,10 @@ public interface NotificationRepository {
 
     Optional<Notification> findById(Long notificationId);
 
+    int deleteByIdsAndMemberId(List<Long> notificationIds, Long memberId);
+
+    boolean existsAnyByIds(List<Long> notificationIds);
+
     record NotificationInfo(
             Long id,
             NotificationType type,

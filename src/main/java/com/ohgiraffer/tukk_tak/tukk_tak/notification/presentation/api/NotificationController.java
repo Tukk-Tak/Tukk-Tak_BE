@@ -82,19 +82,18 @@ public class NotificationController {
     }
 
 
-//    @DeleteMapping("/delete")
-//    public ResponseEntity<ApiResponse<Void>> deleteNotification(
-//            @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
-//
-//    ){
-//
-//        notificationCommandUsecase.deleteNotification();
-//
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(ApiResponse.success(
-//                        NotificationResponseCode.DELETE_SUCCESS,
-//                        NotificationResponseMessage.DELETE_SUCCESS,
-//                        null
-//                ));
-//    }
+    @DeleteMapping
+    public ResponseEntity<ApiResponse<Void>> deleteNotifications(
+            @RequestParam List<Long> ids,
+            @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
+    ){
+        notificationCommandUsecase.deleteNotifications(ids, customUserPrincipal.getId());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        NotificationResponseCode.DELETE_SUCCESS,
+                        NotificationResponseMessage.DELETE_SUCCESS,
+                        null
+                ));
+    }
 }
