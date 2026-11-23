@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -33,5 +34,11 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
     @Override
     public Boolean existsUnreadByMemberId(Long memberId) {
         return springDataNotificationRepository.existsByMemberIdAndReadFalse(memberId);
+    }
+
+    @Override
+    public Optional<Notification> findById(Long notificationId) {
+        return springDataNotificationRepository.findById(notificationId)
+                .map(NotificationJpaEntity::toDomain);
     }
 }

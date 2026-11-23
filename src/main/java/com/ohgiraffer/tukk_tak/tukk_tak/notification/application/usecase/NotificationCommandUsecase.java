@@ -7,6 +7,8 @@ public interface NotificationCommandUsecase {
 
     Notification create(CreateNotificationCommand command);
 
+    void markAsRead(Long notificationId, Long memberId);
+
     record CreateNotificationCommand(
             Long memberId,
             NotificationType type,

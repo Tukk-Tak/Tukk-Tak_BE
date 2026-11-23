@@ -2,6 +2,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.notification.presentation.api;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.user.CustomUserPrincipal;
+import com.ohgiraffer.tukk_tak.tukk_tak.notification.application.usecase.NotificationCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.notification.application.usecase.NotificationConnectionUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.notification.application.usecase.NotificationQueryUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.notification.presentation.api.response.GetNotificationList;
@@ -11,9 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
@@ -25,7 +24,7 @@ public class NotificationController {
 
     private final NotificationConnectionUsecase notificationConnectionUsecase;
     private final NotificationQueryUsecase notificationQueryUsecase;
-
+    private final NotificationCommandUsecase notificationCommandUsecase;
 
     @GetMapping("/sse/connect")
     public ResponseEntity<SseEmitter> sseConnection(
@@ -66,4 +65,36 @@ public class NotificationController {
                         notificationQueryUsecase.getIsUnreadNotificationExists(customUserPrincipal.getId())
                 ));
     }
+
+    @PatchMapping("/{notificationId}/read")
+    public ResponseEntity<ApiResponse<Void>> notificationRead(
+            @PathVariable Long notificationId,
+            @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
+    ){
+        notificationCommandUsecase.markAsRead(notificationId,customUserPrincipal.getId() );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        NotificationResponseCode.NOTIFICATION_READ,
+                        NotificationResponseMessage.NOTIFICATION_READ,
+                        null
+                ));
+    }
+
+
+//    @DeleteMapping("/delete")
+//    public ResponseEntity<ApiResponse<Void>> deleteNotification(
+//            @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
+//
+//    ){
+//
+//        notificationCommandUsecase.deleteNotification();
+//
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(ApiResponse.success(
+//                        NotificationResponseCode.DELETE_SUCCESS,
+//                        NotificationResponseMessage.DELETE_SUCCESS,
+//                        null
+//                ));
+//    }
 }
