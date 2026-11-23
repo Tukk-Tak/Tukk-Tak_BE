@@ -1,5 +1,6 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.subscription.infrastructure.persistence;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.PlanName;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.SubscriptionStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -24,6 +25,15 @@ public interface SubscriptionJpaRepository extends JpaRepository<SubscriptionJpa
     List<SubscriptionJpaEntity> findInUse(@Param("memberId") Long memberId,
                                           @Param("status") SubscriptionStatus status,
                                           @Param("today") LocalDate today);
+
+    // 지정한 플랜들 중 아직 만료되지 않은 구독의 가장 늦은 만료일 (시작 전인 예약 구독 포함, 없으면 null)
+    @Query("select max(s.endDate) from SubscriptionJpaEntity s "
+            + "where s.memberId = :memberId and s.status = :status "
+            + "and s.planName in :planNames and s.endDate >= :today")
+    LocalDate findLatestEndDate(@Param("memberId") Long memberId,
+                                @Param("status") SubscriptionStatus status,
+                                @Param("planNames") List<PlanName> planNames,
+                                @Param("today") LocalDate today);
 
     // 주기가 바뀌었으면 0부터 다시 세어 +1, 한도 미만일 때만 반영 (영향받은 행이 0이면 한도 초과)
     // MySQL은 SET을 왼쪽부터 처리하므로 횟수 계산이 주기 갱신보다 앞에 있어야 한다 (순서를 바꾸지 말 것)
