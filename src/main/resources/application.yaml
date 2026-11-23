@@ -90,6 +90,10 @@ app:
     connect-timeout: 3s    # 연결 제한 시간
     read-timeout: 5s       # 응답 제한 시간
 
+  # ==== 구글 로그인 ====
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}
+
   # ===== AWS S3 (이미지) =====
 cloud:
   aws:

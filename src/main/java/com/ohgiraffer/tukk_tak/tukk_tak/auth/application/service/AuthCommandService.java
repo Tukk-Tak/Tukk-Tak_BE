@@ -5,12 +5,11 @@ import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.policy.LogoutPolicy;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.LoginResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.TokenResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase.AuthCommandUsecase;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.exception.AuthException;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.FailureCountGuard;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.jwt.JwtTokenProvider;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.token.RefreshTokenService;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.token.TokenBlacklistService;
-import com.ohgiraffer.tukk_tak.tukk_tak.global.security.user.PrincipalCache;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.Member;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.MemberStatus;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.repository.MemberRepository;
@@ -46,13 +45,21 @@ public class AuthCommandService implements AuthCommandUsecase {
     // 잠금 유지 시간
     private static final Duration LOGIN_LOCK_DURATION = Duration.ofMinutes(15);
 
+    // IP 단위 실패 횟수를 세는 Redis 키의 구분자 (이메일을 바꿔 가며 대입하는 공격 방지)
+    private static final String LOGIN_IP_SCOPE = "login-ip";
+    // 한 IP에서 이 횟수만큼 실패하면 잠금 (사무실처럼 같은 공인 IP를 쓰는 사용자를 고려해 넉넉히 둠)
+    private static final int LOGIN_IP_MAX_FAILURE_COUNT = 30;
+    // IP 실패 횟수를 세는 기간과 잠금 유지 시간
+    private static final Duration LOGIN_IP_FAILURE_WINDOW = Duration.ofMinutes(10);
+    private static final Duration LOGIN_IP_LOCK_DURATION = Duration.ofMinutes(15);
+
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
     private final TokenBlacklistService tokenBlacklistService;
     private final FailureCountGuard failureCountGuard;
-    private final PrincipalCache principalCache;
+    private final LoginTokenIssuer loginTokenIssuer;
     private final LogoutPolicy logoutPolicy;
 
     /*
@@ -83,8 +90,9 @@ public class AuthCommandService implements AuthCommandUsecase {
         String email = normalizeEmail(command.email());
         String clientIp = command.clientIp();
 
-        // 1. 잠긴 계정이면 비밀번호 검증 없이 바로 차단 (잠금 중에는 BCrypt 비용도 쓰지 않음)
-        if (failureCountGuard.isLocked(LOGIN_FAILURE_SCOPE, email)) {
+        // 1. 잠긴 계정이거나 잠긴 IP면 비밀번호 검증 없이 바로 차단 (잠금 중에는 BCrypt 비용도 쓰지 않음)
+        if (failureCountGuard.isLocked(LOGIN_FAILURE_SCOPE, email)
+                || failureCountGuard.isLocked(LOGIN_IP_SCOPE, clientIp)) {
             throw AuthException.accountLocked();
         }
 
@@ -117,23 +125,8 @@ public class AuthCommandService implements AuthCommandUsecase {
         // 6. 로그인 성공: 실패 카운터 초기화
         failureCountGuard.resetFailure(LOGIN_FAILURE_SCOPE, email);
 
-        // 7. 인증 필터가 매 요청마다 DB를 읽지 않도록 회원 정보를 Redis에 캐시
-        principalCache.put(member);
-
-        // 8. refresh token 유효기간 결정: 체크하면 14일, 체크 안 하면 1일
-        Duration refreshTtl = command.rememberMe()
-                ? jwtTokenProvider.getRefreshTokenValidity()
-                : jwtTokenProvider.getSessionRefreshTokenValidity();
-
-        // 9. 토큰 발급 (refresh token의 만료시각도 위에서 정한 기간과 같게 만든다)
-        String accessToken = jwtTokenProvider.createAccessToken(member.getId());
-        String refreshToken = jwtTokenProvider.createRefreshToken(member.getId(), refreshTtl);
-
-        // 10. refresh token을 Redis에 저장 (회원당 1개: 다른 기기에서 로그인하면 덮어써짐)
-        refreshTokenService.save(member.getId(), refreshToken, refreshTtl);
-
-        return new LoginResult(accessToken, refreshToken, refreshTtl,
-                command.rememberMe(), member.getRole(), member.getNickname());
+        // 7. 토큰 발급 (회원 캐시, refresh token 기간 결정, 발급, Redis 저장은 구글 로그인과 같이 쓰는 발급기가 처리)
+        return loginTokenIssuer.issue(member, command.rememberMe());
     }
 
     /*
@@ -210,6 +203,9 @@ public class AuthCommandService implements AuthCommandUsecase {
         log.warn("[login] 실패 | email={} | ip={} | reason={}", maskEmail(email), maskIp(clientIp), reason);
         failureCountGuard.recordFailure(LOGIN_FAILURE_SCOPE, email,
                 LOGIN_MAX_FAILURE_COUNT, LOGIN_FAILURE_WINDOW, LOGIN_LOCK_DURATION);
+        // 같은 IP의 실패도 함께 센다 (계정 단위 제한만으로는 이메일을 바꿔 가는 대입을 막지 못함)
+        failureCountGuard.recordFailure(LOGIN_IP_SCOPE, clientIp,
+                LOGIN_IP_MAX_FAILURE_COUNT, LOGIN_IP_FAILURE_WINDOW, LOGIN_IP_LOCK_DURATION);
         return exception;
     }
 
