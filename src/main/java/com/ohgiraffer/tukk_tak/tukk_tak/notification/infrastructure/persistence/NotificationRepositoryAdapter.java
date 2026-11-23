@@ -5,6 +5,8 @@ import com.ohgiraffer.tukk_tak.tukk_tak.notification.domain.repository.Notificat
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @RequiredArgsConstructor
 public class NotificationRepositoryAdapter implements NotificationRepository {
@@ -16,5 +18,15 @@ public class NotificationRepositoryAdapter implements NotificationRepository {
         return springDataNotificationRepository
                 .save(NotificationJpaEntity.fromDomain(notification))
                 .toDomain();
+    }
+
+    @Override
+    public List<NotificationInfo> findAllByMemberId(Long memberId) {
+        return springDataNotificationRepository
+                .findByMemberIdOrderByCreatedAtDescIdDesc(memberId)
+                .stream()
+                .map(e -> new NotificationInfo(
+                        e.getId(), e.getType(), e.getTargetId(), e.getMessage(), e.isRead(), e.getCreatedAt()))
+                .toList();
     }
 }
