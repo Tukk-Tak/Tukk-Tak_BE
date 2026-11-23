@@ -4,6 +4,8 @@ import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.user.CustomUserPrincipal;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.result.PreparePaymentResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.usecase.PaymentCommandUsecase;
+import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.common.PaymentResponseCode;
+import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.common.PaymentResponseMessage;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.request.PreparePaymentRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.response.PreparePaymentResponse;
 import jakarta.validation.Valid;
