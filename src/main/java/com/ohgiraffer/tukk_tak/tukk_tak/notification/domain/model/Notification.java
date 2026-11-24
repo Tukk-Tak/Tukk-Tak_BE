@@ -2,6 +2,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.notification.domain.model;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.global.notification.NotificationType;
 import com.ohgiraffer.tukk_tak.tukk_tak.notification.domain.exception.InvalidNotificationException;
+import com.ohgiraffer.tukk_tak.tukk_tak.notification.domain.exception.NotificationForbiddenException;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -15,7 +16,7 @@ public class Notification {
     private final NotificationType type;
     private final Long targetId;
     private final String message;
-    private final boolean read;
+    private boolean read;
     private final LocalDateTime createdAt;
 
     @Builder
@@ -49,5 +50,13 @@ public class Notification {
                 .message(message)
                 .createdAt(LocalDateTime.now())
                 .build();
+    }
+
+    // 본인 알림만 읽음 처리
+    public void markAsRead(Long requesterId) {
+        if (!memberId.equals(requesterId)) {
+            throw new NotificationForbiddenException("본인의 알림만 읽을 수 있어요.");
+        }
+        this.read = true;
     }
 }

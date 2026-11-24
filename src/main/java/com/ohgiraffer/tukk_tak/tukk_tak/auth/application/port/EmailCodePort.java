@@ -28,4 +28,10 @@ public interface EmailCodePort {
     // 인증 완료 토큰을 저장한다 (email:token:{token} = 이메일). 가입 요청 때 이 토큰으로 인증한 이메일을 알아낸다
     void saveToken(String token, String email, Duration ttl);
 
+    // 인증 완료 토큰으로 인증된 이메일을 꺼낸다 (없거나 만료됐으면 null)
+    String findEmailByToken(String token);
+
+    // 인증 완료 토큰을 지운다 (가입에 성공한 토큰의 재사용을 막는다)
+    void deleteToken(String token);
+
 }
