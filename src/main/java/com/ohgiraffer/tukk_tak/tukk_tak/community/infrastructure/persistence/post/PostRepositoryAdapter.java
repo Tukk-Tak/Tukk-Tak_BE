@@ -2,7 +2,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.community.infrastructure.persistence.po
 
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Post;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Sort;
-import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.post.PostRepository;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
@@ -20,31 +20,42 @@ public class PostRepositoryAdapter implements PostRepository {
 
     @Override
     public List<PostInfo> findPostInfo(String keyword, Sort sort, int page, int size) {
-        String trimmed = (keyword == null) ? "" : keyword.trim();
-
-        // '#'으로 시작하면 태그만 검색 아니면 통합 검색
-        boolean tagOnly = trimmed.startsWith("#");
-        String searchKeyword = tagOnly ? trimmed.substring(1).trim() : trimmed;
-
-        // 비었거나 공백이면 전체 조회
-        if (searchKeyword.isEmpty()) {
-            searchKeyword = null;
-            tagOnly = false;
-        }
-
+        SearchCondition cond = toSearchCondition(keyword);
         int offset = (page - 1) * size;
 
         List<SpringDataPostRepository.PostInfoProjection> rows = (sort == Sort.POPULAR)
-                ? springDataPostRepository.findPostInfosPopular(searchKeyword, tagOnly, size, offset)
-                : springDataPostRepository.findPostInfosLatest(searchKeyword, tagOnly, size, offset);
+                ? springDataPostRepository.findPostInfosPopular(cond.keyword(), cond.tagOnly(), size, offset)
+                : springDataPostRepository.findPostInfosLatest(cond.keyword(), cond.tagOnly(), size, offset);
 
         return rows.stream()
                 .map(p -> new PostInfo(
-                        p.getId(), p.getTitle(), toImageUrl(p.getImageUrl()), p.getNickname(),
+                        p.getId(), p.getMemberId(), p.getTitle(), toImageUrl(p.getImageUrl()),
                         splitTags(p.getTags()),
                         p.getLikeCount(), p.getCommentCount()))
                 .toList();
     }
+
+    @Override
+    public long countPosts(String keyword) {
+        SearchCondition cond = toSearchCondition(keyword);
+        return springDataPostRepository.countPosts(cond.keyword(), cond.tagOnly());
+    }
+
+    // '#'으로 시작하면 태그만 검색 아니면 통합 검색 / 비었거나 공백이면 전체 조회
+    private SearchCondition toSearchCondition(String keyword) {
+        String trimmed = (keyword == null) ? "" : keyword.trim();
+
+        boolean tagOnly = trimmed.startsWith("#");
+        String searchKeyword = tagOnly ? trimmed.substring(1).trim() : trimmed;
+
+        if (searchKeyword.isEmpty()) {
+            return new SearchCondition(null, false);
+        }
+        return new SearchCondition(searchKeyword, tagOnly);
+    }
+
+
+    private record SearchCondition(String keyword, boolean tagOnly) {}
 
     @Override
     public Set<Long> findLikedPostIds(Long memberId, List<Long> postIds) {
@@ -65,6 +76,35 @@ public class PostRepositoryAdapter implements PostRepository {
     public Optional<Post> findById(Long postId) {
         return springDataPostRepository.findByIdAndDeletedFalse(postId)
                 .map(PostJpaEntity::toDomain);
+    }
+
+    @Override
+    public void minusLikeCount(Long postId) {
+        springDataPostRepository.minusLikeCount(postId);
+    }
+
+    @Override
+    public void plusLikeCount(Long postId) {
+        springDataPostRepository.plusLikeCount(postId);
+    }
+
+    @Override
+    public Optional<PostDetail> getPostDetail(Long postId) {
+        return springDataPostRepository.findByIdAndDeletedFalse(postId)
+                .map(post -> new PostDetail(
+                        post.getId(), post.getMemberId(), post.getTitle(), toImageUrl(post.getImageUrl()),
+                        post.getContent(), splitTags(post.getTags()), post.getCreatedAt(),
+                        post.getLikeCount(), post.getCommentCount()));
+    }
+
+    @Override
+    public void plusCommentCount(Long postId) {
+        springDataPostRepository.plusCommentCount(postId);
+    }
+
+    @Override
+    public void minusCommentCount(Long postId) {
+        springDataPostRepository.minusCommentCount(postId);
     }
 
     // CloudFront 도메인을 붙여 URL로

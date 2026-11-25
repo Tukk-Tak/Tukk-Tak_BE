@@ -5,7 +5,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.community.application.policy.PostCreateP
 import com.ohgiraffer.tukk_tak.tukk_tak.community.application.usecase.post.PostCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.exception.PostNotFoundException;
 import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.model.Post;
-import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.post.PostRepository;
+import com.ohgiraffer.tukk_tak.tukk_tak.community.domain.repository.PostRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.s3.S3FileStorage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -52,11 +52,11 @@ public class PostCommandService implements PostCommandUsecase {
     }
 
     @Override
-    public void deletePost(Long postId, Long memberId) {
+    public void deletePost(Long postId, Long memberId, boolean isAdmin) {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("게시글을 찾을 수 없어요."));
 
-        post.delete(memberId);
+        post.delete(memberId,isAdmin);
         postRepository.save(post);
 
     }
