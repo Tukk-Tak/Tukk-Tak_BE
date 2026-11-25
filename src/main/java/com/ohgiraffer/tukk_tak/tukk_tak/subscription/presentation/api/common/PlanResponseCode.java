@@ -13,6 +13,7 @@ public class PlanResponseCode {
     public static final String PUBLISH_NOT_ALLOWED = "PLAN-PUBLISH-NOT-ALLOWED";
     public static final String EDIT_NOT_ALLOWED = "PLAN-EDIT-NOT-ALLOWED";
     public static final String BUSINESS_NOT_VERIFIED = "PLAN-BUSINESS-NOT-VERIFIED";
+    public static final String AI_CONSENT_REQUIRED = "PLAN-AI-CONSENT-REQUIRED";
 
     private PlanResponseCode() {
     }

@@ -37,7 +37,7 @@ import java.util.Locale;
 public class AuthCommandService implements AuthCommandUsecase {
 
     // 로그인 실패 횟수를 세는 Redis 키의 구분자 (failure:login:{email}, lock:login:{email})
-    private static final String LOGIN_FAILURE_SCOPE = "login";
+    static final String LOGIN_FAILURE_SCOPE = "login";
     // 이 횟수만큼 틀리면 잠금
     private static final int LOGIN_MAX_FAILURE_COUNT = 5;
     // 실패 횟수를 세는 기간 (첫 실패 후 10분이 지나면 카운터 리셋)

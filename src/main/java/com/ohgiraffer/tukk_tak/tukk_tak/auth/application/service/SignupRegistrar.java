@@ -1,8 +1,8 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.application.service;
 
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessTokenInfo;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessVerification;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.repository.BusinessVerificationRepository;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.BusinessTokenInfo;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.BusinessVerification;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.repository.BusinessVerificationRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.Member;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.repository.MemberRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.Subscription;

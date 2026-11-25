@@ -48,6 +48,8 @@ public class PlanExceptionHandler {
                     PlanResponseCode.EDIT_NOT_ALLOWED, PlanResponseMessage.EDIT_NOT_ALLOWED);
             case BUSINESS_NOT_VERIFIED -> new Spec(HttpStatus.BAD_REQUEST,
                     PlanResponseCode.BUSINESS_NOT_VERIFIED, PlanResponseMessage.BUSINESS_NOT_VERIFIED);
+            case AI_CONSENT_REQUIRED -> new Spec(HttpStatus.BAD_REQUEST,
+                    PlanResponseCode.AI_CONSENT_REQUIRED, PlanResponseMessage.AI_CONSENT_REQUIRED);
         };
     }
 

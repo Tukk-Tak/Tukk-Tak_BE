@@ -38,4 +38,7 @@ public class PlanException extends RuntimeException {
     // 사업자 인증을 하지 않은 회원이 배포하려는 경우
     public static PlanException businessNotVerified() { return new PlanException(PlanFailure.BUSINESS_NOT_VERIFIED); }
 
+    // AI 사용에 동의하지 않은 회원이 AI 기능을 쓰려는 경우
+    public static PlanException aiConsentRequired() { return new PlanException(PlanFailure.AI_CONSENT_REQUIRED); }
+
 }

@@ -66,6 +66,12 @@ public class MemberJpaEntity extends BaseTimeEntity {
     @Column(name = "ai_usage_agreed", nullable = false)
     private boolean aiUsageAgreed;
 
+    @Column(name = "privacy_agreed_at")
+    private LocalDateTime privacyAgreedAt;
+
+    @Column(name = "ai_usage_agreed_at")
+    private LocalDateTime aiUsageAgreedAt;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private MemberStatus status;
@@ -87,6 +93,8 @@ public class MemberJpaEntity extends BaseTimeEntity {
         this.emailVerified = m.isEmailVerified();
         this.privacyAgreed = m.isPrivacyAgreed();
         this.aiUsageAgreed = m.isAiUsageAgreed();
+        this.privacyAgreedAt = m.getPrivacyAgreedAt();
+        this.aiUsageAgreedAt = m.getAiUsageAgreedAt();
         this.status = m.getStatus();
         this.withdrawnAt = m.getWithdrawnAt();
     }
@@ -96,7 +104,7 @@ public class MemberJpaEntity extends BaseTimeEntity {
     public Member toDomain() {
         return new Member(id, email, password, loginType, nickname, name, phone,
                 businessPhone, address, role, emailVerified, privacyAgreed,
-                aiUsageAgreed, status, withdrawnAt);
+                aiUsageAgreed, privacyAgreedAt, aiUsageAgreedAt, status, withdrawnAt);
     }
 
     /** 수정 가능한 필드만 반영 (email, loginType, role 등은 불변. name과 동의 값은 복구 가입 때만 바뀜) */
@@ -109,6 +117,8 @@ public class MemberJpaEntity extends BaseTimeEntity {
         this.address = m.getAddress();
         this.privacyAgreed = m.isPrivacyAgreed();
         this.aiUsageAgreed = m.isAiUsageAgreed();
+        this.privacyAgreedAt = m.getPrivacyAgreedAt();
+        this.aiUsageAgreedAt = m.getAiUsageAgreedAt();
         this.status = m.getStatus();
         this.withdrawnAt = m.getWithdrawnAt();
     }
