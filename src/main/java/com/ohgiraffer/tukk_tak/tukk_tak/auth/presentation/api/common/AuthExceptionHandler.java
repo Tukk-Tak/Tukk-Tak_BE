@@ -73,22 +73,8 @@ public class AuthExceptionHandler {
                     AuthResponseCode.NICKNAME_INVALID, AuthResponseMessage.NICKNAME_INVALID);
             case NICKNAME_CHECK_LIMIT_EXCEEDED -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
                     AuthResponseCode.NICKNAME_CHECK_LIMIT_EXCEEDED, AuthResponseMessage.NICKNAME_CHECK_LIMIT_EXCEEDED);
-            case BUSINESS_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
-                    AuthResponseCode.BUSINESS_MISMATCH, AuthResponseMessage.BUSINESS_MISMATCH);
-            case BUSINESS_CLOSED -> new Spec(HttpStatus.BAD_REQUEST,
-                    AuthResponseCode.BUSINESS_CLOSED, AuthResponseMessage.BUSINESS_CLOSED);
-            case BUSINESS_ALREADY_USED -> new Spec(HttpStatus.CONFLICT,
-                    AuthResponseCode.BUSINESS_ALREADY_USED, AuthResponseMessage.BUSINESS_ALREADY_USED);
-            case BUSINESS_VERIFY_LIMIT_EXCEEDED -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
-                    AuthResponseCode.BUSINESS_VERIFY_LIMIT_EXCEEDED, AuthResponseMessage.BUSINESS_VERIFY_LIMIT_EXCEEDED);
-            case BUSINESS_VERIFY_UNAVAILABLE -> new Spec(HttpStatus.SERVICE_UNAVAILABLE,
-                    AuthResponseCode.BUSINESS_VERIFY_UNAVAILABLE, AuthResponseMessage.BUSINESS_VERIFY_UNAVAILABLE);
             case EMAIL_TOKEN_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
                     AuthResponseCode.EMAIL_TOKEN_INVALID, AuthResponseMessage.EMAIL_TOKEN_INVALID);
-            case BUSINESS_TOKEN_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
-                    AuthResponseCode.BUSINESS_TOKEN_INVALID, AuthResponseMessage.BUSINESS_TOKEN_INVALID);
-            case BUSINESS_NAME_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
-                    AuthResponseCode.BUSINESS_NAME_MISMATCH, AuthResponseMessage.BUSINESS_NAME_MISMATCH);
             case NICKNAME_ALREADY_USED -> new Spec(HttpStatus.CONFLICT,
                     AuthResponseCode.NICKNAME_ALREADY_USED, AuthResponseMessage.NICKNAME_ALREADY_USED);
             case GOOGLE_TOKEN_INVALID -> new Spec(HttpStatus.UNAUTHORIZED,
@@ -101,6 +87,28 @@ public class AuthExceptionHandler {
                     AuthResponseCode.GOOGLE_TOO_MANY_ATTEMPTS, AuthResponseMessage.GOOGLE_TOO_MANY_ATTEMPTS);
             case GOOGLE_TICKET_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
                     AuthResponseCode.GOOGLE_TICKET_INVALID, AuthResponseMessage.GOOGLE_TICKET_INVALID);
+            case EMAIL_NOT_REGISTERED -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.EMAIL_NOT_REGISTERED, AuthResponseMessage.EMAIL_NOT_REGISTERED);
+            case PASSWORD_RESET_SOCIAL_ACCOUNT -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.PASSWORD_RESET_SOCIAL_ACCOUNT, AuthResponseMessage.PASSWORD_RESET_SOCIAL_ACCOUNT);
+            case PASSWORD_RESET_WITHDRAWN -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.PASSWORD_RESET_WITHDRAWN, AuthResponseMessage.PASSWORD_RESET_WITHDRAWN);
+            case PASSWORD_RESET_TOKEN_INVALID -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.PASSWORD_RESET_TOKEN_INVALID, AuthResponseMessage.PASSWORD_RESET_TOKEN_INVALID);
+            case PASSWORD_SAME_AS_CURRENT -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.PASSWORD_SAME_AS_CURRENT, AuthResponseMessage.PASSWORD_SAME_AS_CURRENT);
+            case CURRENT_PASSWORD_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.CURRENT_PASSWORD_MISMATCH, AuthResponseMessage.CURRENT_PASSWORD_MISMATCH);
+            case PASSWORD_CHANGE_LOCKED -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
+                    AuthResponseCode.PASSWORD_CHANGE_LOCKED, AuthResponseMessage.PASSWORD_CHANGE_LOCKED);
+            case PASSWORD_CHANGE_SOCIAL_ACCOUNT -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.PASSWORD_CHANGE_SOCIAL_ACCOUNT, AuthResponseMessage.PASSWORD_CHANGE_SOCIAL_ACCOUNT);
+            case WITHDRAWAL_LOCKED -> new Spec(HttpStatus.TOO_MANY_REQUESTS,
+                    AuthResponseCode.WITHDRAWAL_LOCKED, AuthResponseMessage.WITHDRAWAL_LOCKED);
+            case WITHDRAWAL_CONFIRM_REQUIRED -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.WITHDRAWAL_CONFIRM_REQUIRED, AuthResponseMessage.WITHDRAWAL_CONFIRM_REQUIRED);
+            case WITHDRAWAL_GOOGLE_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
+                    AuthResponseCode.WITHDRAWAL_GOOGLE_MISMATCH, AuthResponseMessage.WITHDRAWAL_GOOGLE_MISMATCH);
         };
 
     }

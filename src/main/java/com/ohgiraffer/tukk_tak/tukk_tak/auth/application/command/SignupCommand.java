@@ -12,7 +12,8 @@ public record SignupCommand(
         String name,              // 이름 (사업자 인증을 했다면 대표자명과 같아야 함)
         String nickname,
         String phone,             // 개인 전화번호
-        boolean agreed,           // 개인정보 이용 + AI 사용 동의 (체크박스 하나, 둘 다 필수)
+        boolean privacyAgreed,    // 개인정보 수집·이용 동의 (필수)
+        boolean aiUsageAgreed,    // AI 사용 동의 (선택, 마이페이지에서 바꿀 수 있음)
         String businessToken,     // 사업자 확인 토큰 (선택)
         String businessPhone,     // 업장 전화번호 (선택)
         String address            // 업장 주소 (선택)

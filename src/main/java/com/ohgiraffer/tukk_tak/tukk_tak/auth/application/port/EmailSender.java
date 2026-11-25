@@ -11,4 +11,7 @@ public interface EmailSender {
     // 인증번호 메일을 보낸다 (발송에 실패하면 AuthException.emailSendFailed()를 던진다)
     void sendVerificationCode(String toEmail, String code);
 
+    // 비밀번호 재설정 인증번호 메일을 보낸다 (발송에 실패하면 AuthException.emailSendFailed()를 던진다)
+    void sendPasswordResetCode(String toEmail, String code);
+
 }

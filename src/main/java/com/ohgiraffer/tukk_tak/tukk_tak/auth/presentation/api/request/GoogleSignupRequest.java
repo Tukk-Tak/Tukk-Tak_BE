@@ -31,9 +31,12 @@ public record GoogleSignupRequest(
         @Pattern(regexp = "^01\\d-?\\d{3,4}-?\\d{4}$", message = "전화번호 형식이 올바르지 않습니다.")
         String phone,
 
-        // 개인정보 수집·이용과 AI 사용 동의는 체크박스 하나이고, 반드시 true여야 한다
-        @AssertTrue(message = "개인정보 수집·이용 및 AI 사용에 동의해주세요.")
-        boolean agreed,
+        // 개인정보 수집·이용 동의는 필수
+        @AssertTrue(message = "개인정보 수집·이용에 동의해주세요.")
+        boolean privacyAgreed,
+
+        // AI 사용 동의는 선택 (보내지 않으면 false, 마이페이지에서 바꿀 수 있음)
+        boolean aiUsageAgreed,
 
         // 아래 세 개는 선택 항목 (사업자 인증을 했을 때만 businessToken을 보낸다)
         String businessToken,
@@ -47,7 +50,7 @@ public record GoogleSignupRequest(
     // 요청 DTO -> 명령 객체 (이름과 닉네임은 앞뒤 공백을 제거)
     public GoogleSignupCommand toCommand() {
         return new GoogleSignupCommand(signupTicket, name.trim(), nickname.trim(), phone,
-                agreed, businessToken, businessPhone, address);
+                privacyAgreed, aiUsageAgreed, businessToken, businessPhone, address);
     }
 
 }

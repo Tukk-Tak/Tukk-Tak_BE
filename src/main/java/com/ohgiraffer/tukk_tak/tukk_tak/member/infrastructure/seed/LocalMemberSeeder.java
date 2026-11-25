@@ -53,7 +53,8 @@ public class LocalMemberSeeder implements ApplicationRunner {
         // 4) 구글 가입자 테스트용 (비밀번호 null → 비밀번호 로그인 시 SOCIAL_ACCOUNT_NO_PASSWORD)
         seed(new Member(null, "google-user@test.local", null, LoginType.GOOGLE,
                 "더미구글", "더미구글", "01000000004", null, null,
-                Role.BUSINESS, true, true, true, MemberStatus.ACTIVE, null));
+                Role.BUSINESS, true, true, true, LocalDateTime.now(),
+                LocalDateTime.now(), MemberStatus.ACTIVE, null));
     }
 
     /** 이메일이 이미 있으면 건너뛰고, 없으면 저장한다 (멱등) */
@@ -68,7 +69,8 @@ public class LocalMemberSeeder implements ApplicationRunner {
                          MemberStatus status, LocalDateTime withdrawnAt) {
         return new Member(null, email, encodedPassword, LoginType.LOCAL,
                 nickname, nickname, phone, null, null,
-                Role.BUSINESS, true, true, true, status, withdrawnAt);
+                Role.BUSINESS, true, true, true, LocalDateTime.now(),
+                LocalDateTime.now(), status, withdrawnAt);
     }
 
 }

@@ -2,15 +2,16 @@ package com.ohgiraffer.tukk_tak.tukk_tak.auth.application.service;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.GoogleLoginCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.GoogleSignupCommand;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.BusinessTokenPort;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.application.port.BusinessTokenPort;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.GoogleSignupTicketPort;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.GoogleTokenVerifier;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.GoogleLoginResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.LoginResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase.GoogleAuthUsecase;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.BusinessTokenInfo;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.exception.MemberException;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.BusinessTokenInfo;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.GoogleIdentity;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.repository.BusinessVerificationRepository;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.repository.BusinessVerificationRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.exception.AuthException;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.FailureCountGuard;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.util.PhoneNumberNormalizer;
@@ -115,9 +116,9 @@ public class GoogleAuthService implements GoogleAuthUsecase {
         BusinessTokenInfo business = null;
         if (StringUtils.hasText(command.businessToken())) {
             business = businessTokenPort.findToken(command.businessToken())
-                    .orElseThrow(AuthException::businessTokenInvalid);
+                    .orElseThrow(MemberException::businessTokenInvalid);
             if (!business.ceoName().equals(command.name())) {
-                throw AuthException.businessNameMismatch();
+                throw MemberException.businessNameMismatch();
             }
         }
 
@@ -139,7 +140,7 @@ public class GoogleAuthService implements GoogleAuthUsecase {
                 .existsByMemberIdAndBusinessNumber(existing.getId(), business.businessNumber());
         if (business != null && !ownBusiness
                 && businessVerificationRepository.existsByBusinessNumber(business.businessNumber())) {
-            throw AuthException.businessAlreadyUsed();
+            throw MemberException.businessAlreadyUsed();
         }
 
         // 5. 저장할 값 준비: 구글 가입자는 비밀번호가 없고, 전화번호는 숫자만 남긴다
@@ -153,11 +154,11 @@ public class GoogleAuthService implements GoogleAuthUsecase {
         try {
             if (restoring) {
                 existing.restore(null, command.nickname(), command.name(), phone,
-                        businessPhone, address, command.agreed(), command.agreed());
+                        businessPhone, address, command.privacyAgreed(), command.aiUsageAgreed());
                 saved = signupRegistrar.restore(existing, ownBusiness ? null : business);
             } else {
                 Member member = Member.google(email, command.nickname(), command.name(),
-                        phone, businessPhone, address, command.agreed(), command.agreed());
+                        phone, businessPhone, address, command.privacyAgreed(), command.aiUsageAgreed());
                 saved = signupRegistrar.register(member, business);
             }
         } catch (DataIntegrityViolationException e) {
@@ -194,7 +195,7 @@ public class GoogleAuthService implements GoogleAuthUsecase {
             return AuthException.nicknameAlreadyUsed();
         }
         if (business != null && businessVerificationRepository.existsByBusinessNumber(business.businessNumber())) {
-            return AuthException.businessAlreadyUsed();
+            return MemberException.businessAlreadyUsed();
         }
         return e;
     }

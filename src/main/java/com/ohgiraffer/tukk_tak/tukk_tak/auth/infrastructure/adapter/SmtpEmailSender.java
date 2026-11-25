@@ -26,12 +26,22 @@ public class SmtpEmailSender implements EmailSender {
 
     @Override
     public void sendVerificationCode(String toEmail, String code) {
+        send(toEmail, "[뚝딱] 이메일 인증번호 안내", "아래 인증번호를 입력해주세요.", code);
+    }
+
+    @Override
+    public void sendPasswordResetCode(String toEmail, String code) {
+        send(toEmail, "[뚝딱] 비밀번호 재설정 인증번호 안내", "비밀번호 재설정을 위해 아래 인증번호를 입력해주세요.", code);
+    }
+
+    // 제목과 안내 문구만 다르고 보내는 방식은 같다
+    private void send(String toEmail, String subject, String guide, String code) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
             helper.setTo(toEmail);
-            helper.setSubject("[뚝딱] 이메일 인증번호 안내");
-            helper.setText(buildTemplate(code), true);   // true = HTML
+            helper.setSubject(subject);
+            helper.setText(buildTemplate(guide, code), true);   // true = HTML
             mailSender.send(message);
         } catch (Exception e) {
             // 원인은 서버 로그에만 남기고, 사용자에게는 일반 문구만 보여준다
@@ -41,7 +51,7 @@ public class SmtpEmailSender implements EmailSender {
     }
 
     // HTML 본문 (인증번호 6자리를 크게 보여준다)
-    private String buildTemplate(String code) {
+    private String buildTemplate(String guide,String code) {
         return """
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background-color: #f9f9f9;">
                 <div style="background-color: #ffffff; border-radius: 8px; padding: 40px;">

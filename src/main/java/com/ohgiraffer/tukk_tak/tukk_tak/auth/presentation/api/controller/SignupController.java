@@ -1,16 +1,13 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.controller;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.command.NicknameCheckCommand;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.BusinessVerifyResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.EmailSendResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.EmailVerifyResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.result.NicknameCheckResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.usecase.SignupCommandUsecase;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request.BusinessVerifyRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request.EmailSendRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request.EmailVerifyRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.request.SignupRequest;
-import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.BusinessVerifyResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.EmailSendResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.EmailVerifyResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.presentation.api.response.NicknameCheckResponse;
@@ -80,22 +77,6 @@ public class SignupController {
 
         return ResponseEntity.ok(ApiResponse.success(AuthResponseCode.NICKNAME_CHECKED,
                 AuthResponseMessage.NICKNAME_CHECKED, NicknameCheckResponse.from(result)));
-    }
-
-    /*
-     * comment.
-     *  사업자 인증
-     *  국세청 진위확인이 통과하면 가입 요청에 넣을 businessToken을 내려준다. (유효 30분, 가입 성공 시 1회용으로 소멸)
-     *  IP 제한을 위해 클라이언트 IP를 같이 넘긴다.
-     * */
-    @PostMapping("/business/verify")
-    public ResponseEntity<ApiResponse<BusinessVerifyResponse>> verifyBusiness(@RequestBody @Valid BusinessVerifyRequest request,
-                                                                              HttpServletRequest httpRequest) {
-        BusinessVerifyResult result = signupCommandUsecase.verifyBusiness(
-                request.toCommand(ClientIpResolver.resolve(httpRequest)));
-
-        return ResponseEntity.ok(ApiResponse.success(AuthResponseCode.BUSINESS_VERIFIED,
-                AuthResponseMessage.BUSINESS_VERIFIED, BusinessVerifyResponse.from(result)));
     }
 
     /*

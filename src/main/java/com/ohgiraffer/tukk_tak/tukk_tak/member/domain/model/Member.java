@@ -3,6 +3,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /*
  * comment.
@@ -13,6 +14,9 @@ import java.time.LocalDateTime;
 
 @Getter
 public class Member {
+
+    // 동의 시각은 서버 시간대와 상관없이 한국 시간으로 기록한다
+    private static final ZoneId SEOUL = ZoneId.of("Asia/Seoul");
 
     private final Long id;
     private final String email;
@@ -27,13 +31,16 @@ public class Member {
     private final boolean emailVerified;
     private boolean privacyAgreed;      // 복구 가입 때 다시 동의받아 갱신
     private boolean aiUsageAgreed;      // 복구 가입 때 다시 동의받아 갱신
+    private LocalDateTime privacyAgreedAt;   // 개인정보 이용 동의 시각 (복구 가입 때 다시 동의하면 갱신)
+    private LocalDateTime aiUsageAgreedAt;   // AI 사용 동의 시각 (동의가 바뀔 때만 갱신, 동의하지 않은 상태면 null)
     private MemberStatus status;
     private LocalDateTime withdrawnAt;
 
     public Member(Long id, String email, String password, LoginType loginType,
                   String nickname, String name, String phone, String businessPhone,
                   String address, Role role, boolean emailVerified, boolean privacyAgreed,
-                  boolean aiUsageAgreed, MemberStatus status, LocalDateTime withdrawnAt) {
+                  boolean aiUsageAgreed, LocalDateTime privacyAgreedAt, LocalDateTime aiUsageAgreedAt,
+                  MemberStatus status, LocalDateTime withdrawnAt) {
         this.id = id;
         this.email = email;
         this.password = password;
@@ -47,6 +54,8 @@ public class Member {
         this.emailVerified = emailVerified;
         this.privacyAgreed = privacyAgreed;
         this.aiUsageAgreed = aiUsageAgreed;
+        this.privacyAgreedAt = privacyAgreedAt;
+        this.aiUsageAgreedAt = aiUsageAgreedAt;
         this.status = status;
         this.withdrawnAt = withdrawnAt;
     }
@@ -55,7 +64,8 @@ public class Member {
     public static Member admin(String email, String encodedPassword) {
         return new Member(null, email, encodedPassword, LoginType.LOCAL,
                 "관리자", "관리자", "00000000000", null, null,
-                Role.ADMIN, true, true, true, MemberStatus.ACTIVE, null);
+                Role.ADMIN, true, true, true, LocalDateTime.now(SEOUL),
+                LocalDateTime.now(SEOUL), MemberStatus.ACTIVE, null);
     }
 
     /** 자체 가입 회원. 가입 경로 LOCAL, 권한 BUSINESS, 이메일은 인증을 마친 상태. password는 암호화된 값 */
@@ -64,7 +74,7 @@ public class Member {
                                boolean privacyAgreed, boolean aiUsageAgreed) {
         return new Member(null, email, encodedPassword, LoginType.LOCAL, nickname, name, phone,
                 businessPhone, address, Role.BUSINESS, true, privacyAgreed, aiUsageAgreed,
-                MemberStatus.ACTIVE, null);
+                LocalDateTime.now(SEOUL),agreedAt(aiUsageAgreed), MemberStatus.ACTIVE, null);
     }
 
     /** 구글 가입 회원. 가입 경로 GOOGLE, 권한 BUSINESS, 비밀번호 없음, 이메일은 구글이 인증한 상태 */
@@ -73,7 +83,7 @@ public class Member {
                                 boolean privacyAgreed, boolean aiUsageAgreed) {
         return new Member(null, email, null, LoginType.GOOGLE, nickname, name, phone,
                 businessPhone, address, Role.BUSINESS, true, privacyAgreed, aiUsageAgreed,
-                MemberStatus.ACTIVE, null);
+                LocalDateTime.now(SEOUL), LocalDateTime.now(SEOUL), MemberStatus.ACTIVE, null);
     }
 
     public boolean hasPassword() { return password != null && !password.isBlank(); }
@@ -95,8 +105,47 @@ public class Member {
         this.address = address;
         this.privacyAgreed = privacyAgreed;
         this.aiUsageAgreed = aiUsageAgreed;
+        this.privacyAgreedAt = agreedAt(privacyAgreed);   // 다시 동의받은 시각으로 갱신
+        this.aiUsageAgreedAt = agreedAt(aiUsageAgreed);   // 다시 동의받은 시각으로 갱신
         this.status = MemberStatus.ACTIVE;
         this.withdrawnAt = null;
+    }
+
+    // 비밀번호를 바꾼다 (encodedPassword는 암호화된 값, 비밀번호가 없는 구글 회원에게는 쓸 수 없다)
+    public void changePassword(String encodedPassword) {
+        if (!hasPassword()) {
+            throw new IllegalStateException("비밀번호가 없는 회원은 비밀번호를 바꿀 수 없습니다.");
+        }
+        this.password = encodedPassword;
+    }
+
+    // 탈퇴 처리: 데이터는 지우지 않고 상태만 바꾼다 (같은 이메일로 다시 가입하면 restore로 되살린다)
+    public void withdraw() {
+        if (!isActive()) {
+            throw new IllegalStateException("활성 회원만 탈퇴할 수 있습니다.");
+        }
+        this.status = MemberStatus.WITHDRAWN;
+        this.withdrawnAt = LocalDateTime.now(SEOUL);
+    }
+
+    // 마이페이지에서 바꿀 수 있는 정보를 반영한다 (이름과 이메일은 바꿀 수 없다. 바꾸지 않을 값은 현재 값을 그대로 넘긴다)
+    public void updateProfile(String nickname, String phone, String businessPhone, String address) {
+        this.nickname = nickname;
+        this.phone = phone;
+        this.businessPhone = businessPhone;
+        this.address = address;
+    }
+
+    // AI 사용 동의 여부를 바꾼다 (끄면 AI 기능을 쓸 수 없다. 값이 실제로 바뀔 때만 동의 시각을 갱신한다)
+    public void changeAiUsageAgreed(boolean agreed) {
+        if (this.aiUsageAgreed == agreed) return;
+        this.aiUsageAgreed = agreed;
+        this.aiUsageAgreedAt = agreedAt(agreed);
+    }
+
+    // 동의했을 때만 지금 시각(한국 시간)을 기록한다
+    private static LocalDateTime agreedAt(boolean agreed) {
+        return agreed ? LocalDateTime.now(SEOUL) : null;
     }
 
 }

@@ -1,12 +1,14 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.auth.infrastructure.adapter;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.auth.application.port.EmailCodePort;
+import com.ohgiraffer.tukk_tak.tukk_tak.auth.domain.model.EmailPurpose;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Locale;
 
 /*
  * comment.
@@ -26,45 +28,50 @@ public class RedisEmailCodeAdapter implements EmailCodePort {
     private final StringRedisTemplate redisTemplate;
 
     @Override
-    public boolean acquireCooldown(String email, Duration cooldown) {
+    public boolean acquireCooldown(EmailPurpose purpose, String email, Duration cooldown) {
         // setIfAbsent = SET NX EX : 키가 없을 때만 저장한다 (이미 있으면 false)
-        Boolean acquired = redisTemplate.opsForValue().setIfAbsent(COOLDOWN_KEY + email, "1", cooldown);
+        Boolean acquired = redisTemplate.opsForValue().setIfAbsent(key(COOLDOWN_KEY, purpose, email), "1", cooldown);
         return Boolean.TRUE.equals(acquired);
     }
 
     @Override
-    public void saveCode(String email, String code, Duration ttl) {
-        redisTemplate.opsForValue().set(CODE_KEY + email, code, ttl);
+    public void saveCode(EmailPurpose purpose, String email, String code, Duration ttl) {
+        redisTemplate.opsForValue().set(key(CODE_KEY, purpose, email), code, ttl);
     }
 
     @Override
-    public void clear(String email) {
-        redisTemplate.delete(List.of(CODE_KEY + email, COOLDOWN_KEY + email));
+    public void clear(EmailPurpose purpose, String email) {
+        redisTemplate.delete(List.of(key(CODE_KEY, purpose, email), key(COOLDOWN_KEY, purpose, email)));
     }
 
     @Override
-    public String findCode(String email) {
-        return redisTemplate.opsForValue().get(CODE_KEY + email);   // 없으면 null
+    public String findCode(EmailPurpose purpose, String email) {
+        return redisTemplate.opsForValue().get(key(CODE_KEY, purpose, email));   // 없으면 null
     }
 
     @Override
-    public void deleteCode(String email) {
-        redisTemplate.delete(CODE_KEY + email);
+    public void deleteCode(EmailPurpose purpose, String email) {
+        redisTemplate.delete(key(CODE_KEY, purpose, email));
     }
 
     @Override
-    public void saveToken(String token, String email, Duration ttl) {
-        redisTemplate.opsForValue().set(TOKEN_KEY + token, email, ttl);
+    public void saveToken(EmailPurpose purpose, String token, String email, Duration ttl) {
+        redisTemplate.opsForValue().set(key(TOKEN_KEY, purpose, token), email, ttl);
     }
 
     @Override
-    public String findEmailByToken(String token) {
-        return redisTemplate.opsForValue().get(TOKEN_KEY + token);
+    public String findEmailByToken(EmailPurpose purpose, String token) {
+        return redisTemplate.opsForValue().get(key(TOKEN_KEY, purpose, token));
     }
 
     @Override
-    public void deleteToken(String token) {
-        redisTemplate.delete(TOKEN_KEY + token);
+    public void deleteToken(EmailPurpose purpose, String token) {
+        redisTemplate.delete(key(TOKEN_KEY, purpose, token));
+    }
+
+    // 접두어 + 용도 + 값: email:code:password_reset:abc@x.com
+    private String key(String prefix, EmailPurpose purpose, String value) {
+        return prefix + purpose.name().toLowerCase(Locale.ROOT) + ":" + value;
     }
 
 }
