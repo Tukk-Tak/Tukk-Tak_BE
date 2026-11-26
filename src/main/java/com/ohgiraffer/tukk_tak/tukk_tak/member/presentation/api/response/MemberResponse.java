@@ -2,6 +2,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.member.presentation.api.response;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.member.application.result.MemberInfoResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.LoginType;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.Role;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 public record MemberResponse (
         String email,
         LoginType loginType,              // GOOGLE이면 프론트가 비밀번호 변경 메뉴를 숨긴다
+        Role role,                        // 권한 (BUSINESS: 사업자 회원, ADMIN: 관리자)
         String name,
         String nickname,
         String phone,                     // 숫자만 (하이픈은 프론트가 붙인다)
@@ -30,7 +32,7 @@ public record MemberResponse (
         BusinessResponse business = b == null ? null
                 : new BusinessResponse(b.businessNumber(), b.openDate(), b.ceoName(), b.verifiedAt());
 
-        return new MemberResponse(result.email(), result.loginType(), result.name(), result.nickname(),
+        return new MemberResponse(result.email(), result.loginType(), result.role(), result.name(), result.nickname(),
                 result.phone(), result.businessPhone(), result.address(), result.privacyAgreed(),
                  result.aiUsageAgreed(), result.aiUsageAgreedAt(), business);
     }

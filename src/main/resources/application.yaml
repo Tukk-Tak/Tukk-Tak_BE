@@ -108,3 +108,16 @@ ai:
   provider: gemini
   api-key: ${AI_API_KEY}
   model: gemini-3.5-flash-lite
+  
+  # ==== 결제 ====
+payment:
+  max-months: 24             # 한 번에 살 수 있는 최대 개월 수 (안전장치)
+  pending-ttl-minutes: 15    # 결제 준비 임시 주문 유지 시간(분)
+  kakao:
+    secret-key: ${KAKAOPAY_SECRET_KEY}    # 카카오 Secret key(dev), 환경변수로 주입
+    cid: TC0ONETIME                       # 테스트 단건결제 CID (키 환경과 맞춰야 함)
+    approval-url: ${KAKAOPAY_APPROVAL_URL}   # 프론트 주소 (pg_token이 붙어서 옴)
+    cancel-url: ${KAKAOPAY_CANCEL_URL}
+    fail-url: ${KAKAOPAY_FAIL_URL}
+  toss:
+    secret-key: ${TOSS_SECRET_KEY}
