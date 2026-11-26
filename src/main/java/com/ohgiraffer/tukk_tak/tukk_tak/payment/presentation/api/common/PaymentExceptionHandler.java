@@ -43,8 +43,19 @@ public class PaymentExceptionHandler {
                     PaymentResponseCode.MONTHS_INVALID, PaymentResponseMessage.MONTHS_INVALID);
             case GATEWAY_UNAVAILABLE -> new Spec(HttpStatus.SERVICE_UNAVAILABLE,
                     PaymentResponseCode.GATEWAY_UNAVAILABLE, PaymentResponseMessage.GATEWAY_UNAVAILABLE);
+            case PENDING_NOT_FOUND -> new Spec(HttpStatus.BAD_REQUEST,
+                    PaymentResponseCode.PAYMENT_PENDING_NOT_FOUND, PaymentResponseMessage.PAYMENT_PENDING_NOT_FOUND);
+            case ORDER_MISMATCH -> new Spec(HttpStatus.BAD_REQUEST,
+                    PaymentResponseCode.PAYMENT_ORDER_MISMATCH, PaymentResponseMessage.PAYMENT_ORDER_MISMATCH);
+            case GATEWAY_REJECTED -> new Spec(HttpStatus.BAD_REQUEST,
+                    PaymentResponseCode.PAYMENT_GATEWAY_REJECTED, PaymentResponseMessage.PAYMENT_GATEWAY_REJECTED);
+            case IN_PROGRESS -> new Spec(HttpStatus.CONFLICT,
+                    PaymentResponseCode.PAYMENT_IN_PROGRESS, PaymentResponseMessage.PAYMENT_IN_PROGRESS);
+            case ALREADY_PROCESSED -> new Spec(HttpStatus.CONFLICT,
+                    PaymentResponseCode.PAYMENT_ALREADY_PROCESSED, PaymentResponseMessage.PAYMENT_ALREADY_PROCESSED);
+            case ACTIVATION_FAILED -> new Spec(HttpStatus.INTERNAL_SERVER_ERROR,
+                    PaymentResponseCode.PAYMENT_ACTIVATION_FAILED, PaymentResponseMessage.PAYMENT_ACTIVATION_FAILED);
         };
     }
-
 
 }

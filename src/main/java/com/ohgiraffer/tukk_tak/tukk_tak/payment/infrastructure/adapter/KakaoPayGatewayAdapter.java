@@ -67,9 +67,10 @@ public class KakaoPayGatewayAdapter implements PaymentGatewayPort {
         body.put("quantity", 1);
         body.put("total_amount", amount);
         body.put("tax_free_amount", 0);
-        body.put("approval_url", approvalUrl);
-        body.put("cancel_url", cancelUrl);
-        body.put("fail_url", failUrl);
+        // 돌아올 주소 끝에 주문번호를 붙인다 (결제창에서 돌아온 프론트가 어떤 주문인지 알 수 있게, 카카오는 성공 주소 뒤에 pg_token을 이어 붙인다)
+        body.put("approval_url", approvalUrl + "?orderId=" + orderId);
+        body.put("cancel_url", cancelUrl + "?orderId=" + orderId);
+        body.put("fail_url", failUrl + "?orderId=" + orderId);
 
         try {
             KakaoReadyResponse response = restClient.post()
@@ -100,6 +101,5 @@ public class KakaoPayGatewayAdapter implements PaymentGatewayPort {
             @JsonProperty("next_redirect_pc_url") String pcUrl,
             @JsonProperty("next_redirect_mobile_url") String mobileUrl
     ) {}
-
 
 }

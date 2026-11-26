@@ -52,5 +52,17 @@ public interface SubscriptionJpaRepository extends JpaRepository<SubscriptionJpa
             + "where s.id = :id and s.usageCycleStart = :cycleStart and s.aiUsageCount > 0")
     int decreaseAiUsage(@Param("id") Long id, @Param("cycleStart") LocalDate cycleStart);
 
+    // 낮은 플랜의 기간을 새 이용 기간만큼 한 번의 UPDATE로 민다
+    // 이미 시작한 구독은 종료일만, 아직 시작 전인 구독은 시작일과 종료일을 같이 민다 (남은 일수가 그대로 보존된다)
+    // MySQL은 SET을 왼쪽부터 처리하지만 두 식이 서로를 참조하지 않아 순서와 무관하다
+    @Modifying(clearAutomatically = true)
+    @Query(value = "update subscription "
+            + "set start_date = case when start_date >= :fromDate "
+            + "then date_add(start_date, interval :days day) else start_date end, "
+            + "end_date = date_add(end_date, interval :days day) "
+            + "where member_id = :memberId and status = 'ACTIVE' "
+            + "and plan_name in (:planNames) and end_date >= :fromDate", nativeQuery = true)
+    int pauseLowerPlans(@Param("memberId") Long memberId, @Param("planNames") List<String> planNames,
+                        @Param("fromDate") LocalDate fromDate, @Param("days") int days);
 
 }

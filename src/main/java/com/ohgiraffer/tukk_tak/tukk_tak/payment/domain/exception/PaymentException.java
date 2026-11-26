@@ -29,4 +29,22 @@ public class PaymentException extends RuntimeException {
     // PG 호출 실패, 타임아웃, 비정상 응답
     public static PaymentException gatewayUnavailable() { return new PaymentException(PaymentFailure.GATEWAY_UNAVAILABLE); }
 
+    // 진행 중인 주문이 없거나 만료된 경우
+    public static PaymentException pendingNotFound() { return new PaymentException(PaymentFailure.PENDING_NOT_FOUND); }
+
+    // 요청이 서버가 저장한 주문과 다른 경우
+    public static PaymentException orderMismatch() { return new PaymentException(PaymentFailure.ORDER_MISMATCH); }
+
+    // PG가 승인을 거절한 경우
+    public static PaymentException gatewayRejected() { return new PaymentException(PaymentFailure.GATEWAY_REJECTED); }
+
+    // 같은 회원의 결제가 이미 처리 중인 경우
+    public static PaymentException inProgress() { return new PaymentException(PaymentFailure.IN_PROGRESS); }
+
+    // 이미 처리된 주문을 다시 승인하려는 경우
+    public static PaymentException alreadyProcessed() { return new PaymentException(PaymentFailure.ALREADY_PROCESSED); }
+
+    // 승인 뒤 이용권 적용에 실패한 경우
+    public static PaymentException activationFailed() { return new PaymentException(PaymentFailure.ACTIVATION_FAILED); }
+
 }

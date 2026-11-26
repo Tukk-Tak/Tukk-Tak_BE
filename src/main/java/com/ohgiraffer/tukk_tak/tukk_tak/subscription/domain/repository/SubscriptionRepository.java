@@ -23,6 +23,9 @@ public interface SubscriptionRepository {
     // 지정한 플랜들 중 가장 늦은 만료일 (ACTIVE이고 아직 만료되지 않은 구독, 시작 전인 예약 구독 포함. 없으면 empty)
     Optional<LocalDate> findLatestEndDate(Long memberId, List<PlanName> planNames, LocalDate today);
 
+    // 낮은 플랜의 남은 기간을 days일만큼 뒤로 민다 (fromDate 이후에 끝나는 ACTIVE 구독만, 아직 시작 안 한 구독은 시작일도 함께 민다)
+    void pauseLowerPlans(Long memberId, List<PlanName> lowerPlans, LocalDate fromDate, int days);
+
     // AI 사용 횟수를 원자적으로 1 올린다. 한도에 걸려 못 올리면 false (주기가 바뀌었으면 0부터 다시 센다)
     boolean increaseAiUsage(Long subscriptionId, LocalDate cycleStart, int limit);
 

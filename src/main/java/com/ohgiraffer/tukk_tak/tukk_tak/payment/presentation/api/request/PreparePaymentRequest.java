@@ -3,6 +3,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.request;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.command.PreparePaymentCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.domain.model.PaymentMethod;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.PlanName;
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -22,7 +23,10 @@ public record PreparePaymentRequest(
 
         @NotNull(message = "개월 수를 입력해주세요.")
         @Min(value = 1, message = "개월 수는 1 이상이어야 합니다.")
-        Integer months           // 구매할 개월 수
+        Integer months,          // 구매할 개월 수
+
+        @AssertTrue(message = "결제 약관에 동의해 주세요.")
+        boolean termsAgreed             // 결제 약관 동의 (검증만 하고 저장하지 않는다)
 ) {
     // 요청 DTO -> 명령 객체 (회원 번호는 body가 아니라 토큰에서 꺼낸 값을 쓴다)
     public PreparePaymentCommand toCommand(Long memberId) {

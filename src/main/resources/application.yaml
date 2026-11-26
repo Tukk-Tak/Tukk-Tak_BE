@@ -105,7 +105,7 @@ cloud:
 
   # ==== 결제 ====
 payment:
-  max-months: 120            # 한 번에 살 수 있는 최대 개월 수 (안전장치)
+  max-months: 24             # 한 번에 살 수 있는 최대 개월 수 (안전장치)
   pending-ttl-minutes: 15    # 결제 준비 임시 주문 유지 시간(분)
   kakao:
     secret-key: ${KAKAOPAY_SECRET_KEY}    # 카카오 Secret key(dev), 환경변수로 주입
@@ -113,3 +113,5 @@ payment:
     approval-url: http://localhost:3000/payments/kakao/success   # 프론트 주소로 변경 (pg_token이 붙어서 옴)
     cancel-url: http://localhost:3000/payments/kakao/cancel
     fail-url: http://localhost:3000/payments/kakao/fail
+  toss:
+    secret-key: ${TOSS_SECRET_KEY}

@@ -46,7 +46,7 @@ public class PaymentCommandService implements PaymentCommandUsecase {
     private final PendingPaymentPort pendingPaymentPort;
 
     // 한 번에 살 수 있는 최대 개월 수 (제한은 없지만 터무니없는 값은 막는 안전장치)
-    @Value("${payment.max-months:120}") private int maxMonths;
+    @Value("${payment.max-months:24}") private int maxMonths;
     // 임시 주문 유지 시간(분). 토스는 승인 API를 successUrl 이동 후 10분 안에 호출해야 해서 그보다 길게 둔다
     @Value("${payment.pending-ttl-minutes:15}") private long pendingTtlMinutes;
 

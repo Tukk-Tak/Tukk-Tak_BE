@@ -9,13 +9,12 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
+import java.util.Optional;
 
 /*
  * comment.
- *  결제 임시 주문 저장소의 Redis 구현
- *  키: payment:pending:{memberId}, 값: 임시 주문 JSON
- *  키에 접두어를 붙여서 다른 키와 섞이지 않게 하고, 모든 키에 TTL을 걸어서 지우지 않아도 사라지게 한다.
- *  회원 번호를 키로 써서 회원당 1개만 남고, 다시 저장하면 이전 주문을 덮어쓴다.
+ *  진행 중인 결제 주문 저장소의 Redis 구현
+ *  키: payment:pending:{memberId}, 값: 주문 JSON (회원당 1개라서 새 주문이 오면 덮어쓴다)
  *  값과 TTL을 한 번에 저장(SET EX)해서, 저장 도중에 멈춰도 TTL 없는 키가 남지 않는다.
  * */
 
@@ -38,6 +37,25 @@ public class RedisPendingPaymentAdapter implements PendingPaymentPort {
             // 단순한 record라 사실상 일어나지 않는다. 일어나면 코드 문제이므로 그대로 올려 보낸다
             throw new IllegalStateException("결제 임시 주문 직렬화 실패", e);
         }
+    }
+
+    @Override
+    public Optional<PendingPayment> find(Long memberId) {
+        String json = redisTemplate.opsForValue().get(PENDING_KEY + memberId);
+        if (json == null) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(objectMapper.readValue(json, PendingPayment.class));
+        } catch (JacksonException e) {
+            // 우리가 저장한 값이라 사실상 일어나지 않는다 (깨진 값은 주문이 없는 것으로 본다)
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public void delete(Long memberId) {
+        redisTemplate.delete(PENDING_KEY + memberId);
     }
 
 }

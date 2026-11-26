@@ -56,4 +56,10 @@ public class SubscriptionRepositoryAdapter implements SubscriptionRepository {
         jpaRepository.decreaseAiUsage(subscriptionId, cycleStart);
     }
 
+    @Override
+    @Transactional
+    public void pauseLowerPlans(Long memberId, List<PlanName> lowerPlans, LocalDate fromDate, int days) {
+        jpaRepository.pauseLowerPlans(memberId, lowerPlans.stream().map(Enum::name).toList(), fromDate, days);
+    }
+
 }
