@@ -55,10 +55,11 @@ public class CommunityController {
         GetPostList result = GetPostList.from(
                 postQueryUsecase.getPosts(userId, keyword, sort, page, size));
 
-        return ResponseEntity.ok(ApiResponse.success(
-                CommunityResponseCode.ANSWER_FOUND,
-                CommunityResponseMessage.ANSWER_FOUND,
-                result
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                    CommunityResponseCode.ANSWER_FOUND,
+                    CommunityResponseMessage.ANSWER_FOUND,
+                    result
         ));
     }
 
