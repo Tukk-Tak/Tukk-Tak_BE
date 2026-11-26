@@ -4,11 +4,13 @@ import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.port.PendingPaymentP
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.domain.model.PendingPayment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Component;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 
 /*
@@ -53,9 +55,17 @@ public class RedisPendingPaymentAdapter implements PendingPaymentPort {
         }
     }
 
+    // 값의 orderId가 같을 때만 지운다 (조회와 삭제를 Lua 한 번으로 해서 사이에 덮어써져도 안전)
+    private static final DefaultRedisScript<Long> DELETE_IF_SAME_ORDER = new DefaultRedisScript<>(
+            "local v = redis.call('GET', KEYS[1]) "
+                    + "if not v then return 0 end "
+                    + "if cjson.decode(v)['orderId'] == ARGV[1] then return redis.call('DEL', KEYS[1]) end "
+                    + "return 0",
+            Long.class);
+
     @Override
-    public void delete(Long memberId) {
-        redisTemplate.delete(PENDING_KEY + memberId);
+    public void delete(Long memberId, String orderId) {
+        redisTemplate.execute(DELETE_IF_SAME_ORDER, List.of(PENDING_KEY + memberId), orderId);
     }
 
 }

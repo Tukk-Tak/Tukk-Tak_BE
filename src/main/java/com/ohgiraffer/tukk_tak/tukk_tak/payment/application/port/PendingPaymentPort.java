@@ -19,7 +19,7 @@ public interface PendingPaymentPort {
     // 회원의 진행 중 주문을 꺼낸다 (없거나 만료됐으면 빈 값)
     Optional<PendingPayment> find(Long memberId);
 
-    // 회원의 진행 중 주문을 지운다
-    void delete(Long memberId);
+    // 이 주문(orderId)이 아직 저장돼 있을 때만 삭제한다 (다른 주문으로 덮어써졌으면 지우지 않는다)
+    void delete(Long memberId, String orderId);
 
 }

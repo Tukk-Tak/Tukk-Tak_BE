@@ -14,6 +14,9 @@ public interface PaymentLockPort {
     // 락을 잡는다. 잡으면 해제할 때 쓸 토큰을, 이미 잡혀 있으면 빈 값을 돌려준다
     Optional<String> tryLock(Long memberId, Duration ttl);
 
+    // 내 토큰일 때만 락의 유효 시간을 다시 채운다. ttl이 지나 락을 잃었으면 false (PG 호출 직전에 주인인지 확인하는 용도)
+    boolean renew(Long memberId, String token, Duration ttl);
+
     // 내 토큰일 때만 락을 푼다 (ttl이 지나 다른 요청이 잡은 락을 지우지 않기 위해)
     void unlock(Long memberId, String token);
 

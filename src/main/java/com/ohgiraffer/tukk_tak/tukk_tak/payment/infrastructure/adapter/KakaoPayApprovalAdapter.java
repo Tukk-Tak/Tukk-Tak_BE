@@ -18,6 +18,7 @@ import org.springframework.web.client.RestClientException;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -25,6 +26,8 @@ public class KakaoPayApprovalAdapter implements PaymentApprovalPort {
 
     private static final String APPROVE_URL = "https://open-api.kakaopay.com/online/v1/payment/approve";
     private static final String CANCEL_URL = "https://open-api.kakaopay.com/online/v1/payment/cancel";
+    private static final String ORDER_URL = "https://open-api.kakaopay.com/online/v1/payment/order";
+    private static final String SUCCESS_PAYMENT = "SUCCESS_PAYMENT";
 
     private final RestClient restClient;
     private final String authorization;
@@ -76,6 +79,31 @@ public class KakaoPayApprovalAdapter implements PaymentApprovalPort {
     }
 
     @Override
+    public Optional<PgApproval> findApproved(PgApproveCommand command) {
+        try {
+            KakaoOrderResponse response = restClient.post()
+                    .uri(ORDER_URL)
+                    .header(HttpHeaders.AUTHORIZATION, authorization)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(Map.of("cid", cid, "tid", command.kakaoTid()))
+                    .retrieve()
+                    .body(KakaoOrderResponse.class);
+
+            if (response != null && SUCCESS_PAYMENT.equals(response.status()) && response.amount() != null) {
+                return Optional.of(new PgApproval(command.kakaoTid(), response.amount().total()));
+            }
+            return Optional.empty();
+        } catch (HttpClientErrorException e) {
+            // 카카오에 승인된 결제가 없거나 결제 전 상태다 = 승인되지 않았다
+            return Optional.empty();
+        } catch (RestClientException e) {
+            // 조회마저 통신 실패면 승인 여부를 알 수 없다. 서비스가 원래 예외를 올리고 대조용 로그를 남긴다
+            log.warn("[KAKAO-ORDER-UNAVAILABLE] orderId={}", command.orderId(), e);
+            throw PaymentException.gatewayUnavailable();
+        }
+    }
+
+    @Override
     public void cancel(String paymentKey, int amount, String reason) {
         restClient.post()
                 .uri(CANCEL_URL)
@@ -89,6 +117,10 @@ public class KakaoPayApprovalAdapter implements PaymentApprovalPort {
 
     // 카카오 승인 응답에서 쓰는 값만 받는다 (나머지는 무시)
     private record KakaoApproveResponse(String tid, Amount amount) {
+    }
+
+    // 카카오 주문 조회 응답에서 쓰는 값만 받는다 (status로 승인 여부를 판단한다)
+    private record KakaoOrderResponse(String status, Amount amount) {
     }
 
     private record Amount(@JsonProperty("total") int total) {

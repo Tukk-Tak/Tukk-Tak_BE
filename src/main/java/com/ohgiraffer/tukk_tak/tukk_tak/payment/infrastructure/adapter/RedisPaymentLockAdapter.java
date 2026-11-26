@@ -15,7 +15,7 @@ import java.util.UUID;
  * comment.
  *  회원 단위 결제 락의 Redis 구현
  *  키: payment:lock:{memberId}, 값: 락을 잡은 요청의 토큰 (SET NX EX로 잡는다)
- *  해제는 "값이 내 토큰일 때만 삭제"를 Lua 스크립트 한 번으로 해서, 비교와 삭제 사이에 끼어들 틈이 없게 한다.
+ *  연장과 해제는 "값이 내 토큰일 때만"을 Lua 스크립트 한 번으로 해서, 비교와 실행 사이에 끼어들 틈이 없게 한다.
  * */
 
 @Component
@@ -26,6 +26,9 @@ public class RedisPaymentLockAdapter implements PaymentLockPort {
     private static final DefaultRedisScript<Long> UNLOCK_SCRIPT = new DefaultRedisScript<>(
             "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
             Long.class);
+    private static final DefaultRedisScript<Long> RENEW_SCRIPT = new DefaultRedisScript<>(
+            "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('pexpire', KEYS[1], ARGV[2]) else return 0 end",
+            Long.class);
 
     private final StringRedisTemplate redisTemplate;
 
@@ -34,6 +37,13 @@ public class RedisPaymentLockAdapter implements PaymentLockPort {
         String token = UUID.randomUUID().toString();
         Boolean locked = redisTemplate.opsForValue().setIfAbsent(LOCK_KEY + memberId, token, ttl);
         return Boolean.TRUE.equals(locked) ? Optional.of(token) : Optional.empty();
+    }
+
+    @Override
+    public boolean renew(Long memberId, String token, Duration ttl) {
+        Long renewed = redisTemplate.execute(RENEW_SCRIPT, List.of(LOCK_KEY + memberId),
+                token, String.valueOf(ttl.toMillis()));
+        return Long.valueOf(1L).equals(renewed);
     }
 
     @Override

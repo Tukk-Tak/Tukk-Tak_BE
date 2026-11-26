@@ -110,8 +110,8 @@ payment:
   kakao:
     secret-key: ${KAKAOPAY_SECRET_KEY}    # 카카오 Secret key(dev), 환경변수로 주입
     cid: TC0ONETIME                       # 테스트 단건결제 CID (키 환경과 맞춰야 함)
-    approval-url: http://localhost:3000/payments/kakao/success   # 프론트 주소로 변경 (pg_token이 붙어서 옴)
-    cancel-url: http://localhost:3000/payments/kakao/cancel
-    fail-url: http://localhost:3000/payments/kakao/fail
+    approval-url: ${KAKAOPAY_APPROVAL_URL}   # 프론트 주소 (pg_token이 붙어서 옴)
+    cancel-url: ${KAKAOPAY_CANCEL_URL}
+    fail-url: ${KAKAOPAY_FAIL_URL}
   toss:
     secret-key: ${TOSS_SECRET_KEY}
