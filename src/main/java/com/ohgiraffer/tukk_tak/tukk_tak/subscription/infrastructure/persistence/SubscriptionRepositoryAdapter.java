@@ -1,5 +1,6 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.subscription.infrastructure.persistence;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.PlanName;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.Subscription;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.SubscriptionStatus;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.repository.SubscriptionRepository;
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 /*
  * comment.
@@ -36,6 +38,13 @@ public class SubscriptionRepositoryAdapter implements SubscriptionRepository {
     }
 
     @Override
+    public Optional<LocalDate> findLatestEndDate(Long memberId, List<PlanName> planNames, LocalDate today) {
+        // max()는 일치하는 행이 없으면 null이라 Optional로 감싼다
+        return Optional.ofNullable(
+                jpaRepository.findLatestEndDate(memberId, SubscriptionStatus.ACTIVE, planNames, today));
+    }
+
+    @Override
     @Transactional
     public boolean increaseAiUsage(Long subscriptionId, LocalDate cycleStart, int limit) {
         return jpaRepository.increaseAiUsage(subscriptionId, cycleStart, limit) > 0;
@@ -45,6 +54,19 @@ public class SubscriptionRepositoryAdapter implements SubscriptionRepository {
     @Transactional
     public void decreaseAiUsage(Long subscriptionId, LocalDate cycleStart) {
         jpaRepository.decreaseAiUsage(subscriptionId, cycleStart);
+    }
+
+    @Override
+    @Transactional
+    public void pauseLowerPlans(Long memberId, List<PlanName> lowerPlans, LocalDate fromDate, int days) {
+        jpaRepository.pauseLowerPlans(memberId, lowerPlans.stream().map(Enum::name).toList(), fromDate, days);
+    }
+
+    @Override
+    public List<Subscription> findUnexpired(Long memberId, LocalDate today) {
+        return jpaRepository.findUnexpired(memberId, SubscriptionStatus.ACTIVE, today).stream()
+                .map(SubscriptionJpaEntity::toDomain)
+                .toList();
     }
 
 }
