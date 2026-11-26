@@ -89,4 +89,20 @@ public class SiteController {
                         result
                 ));
     }
+
+    @GetMapping("/{siteId}")
+    public ResponseEntity<ApiResponse<GetSiteDetail>> getSite(
+            @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal,
+            @PathVariable Long siteId
+    ) {
+        GetSiteDetail result = GetSiteDetail.from(
+                siteQueryUsecase.getSite(siteId, customUserPrincipal.getId()));
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        SiteResponseCode.GET_SUCCESS,
+                        SiteResponseMessage.GET_SUCCESS,
+                        result
+                ));
+    }
 }

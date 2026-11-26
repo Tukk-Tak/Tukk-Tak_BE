@@ -4,6 +4,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.site.application.port.GetDeploymentPort;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.port.GetDeploymentPort.DeploymentSummary;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.port.GetMemberPlanPort;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.usecase.SiteQueryUsecase;
+import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.exception.SiteNotFoundException;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.model.Site;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.model.SiteStatus;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.repository.SiteContentRepository;
@@ -32,12 +33,12 @@ public class SiteQueryService implements SiteQueryUsecase {
 
         // 저장한 사이트의 목록
         List<Site> sites = siteRepository.findAllByMemberId(memberId);
-        // 구독 플랜에 따라 저장가능한 사이트 수
+        // 구독 플랜에 따라 저장/배포가능한 사이트 수
         PlanLimit limit = PlanLimit.of(getMemberPlanPort.getPlan(memberId));
 
-        // 배포된 사이트 목록
+        // 사이트 전체 id 목록
         List<Long> siteIds = sites.stream().map(Site::getId).toList();
-        // 구독 플랜에 따라 배포 가능한 사이트 수
+        // 배포된 사이트 목록
         List<Long> publishedIds = sites.stream()
                 .filter(site -> site.getStatus() == SiteStatus.PUBLISHED)
                 .map(Site::getId)
@@ -73,6 +74,28 @@ public class SiteQueryService implements SiteQueryUsecase {
                 publishedIds.size(),
                 limit.publishLimit(),
                 siteInfos
+        );
+    }
+
+    @Override
+    public SiteDetailResult getSite(Long siteId, Long memberId) {
+
+        Site site = siteRepository.findById(siteId)
+                .orElseThrow(() -> new SiteNotFoundException("존재하지 않는 사이트예요."));
+
+        site.validateOwner(memberId);   // 본인 사이트가 아니면 403
+
+        // 몽고에 문서가 없으면 빈 테마/빈 rows
+        SiteContent content = siteContentRepository.findBySiteId(siteId)
+                .orElse(new SiteContentRepository.SiteContent(Map.of(), List.of()));
+
+        return new SiteDetailResult(
+                site.getId(),
+                site.getTitle(),
+                site.getStatus(),
+                content.theme(),
+                content.rows(),
+                site.getLastSavedAt()
         );
     }
 }

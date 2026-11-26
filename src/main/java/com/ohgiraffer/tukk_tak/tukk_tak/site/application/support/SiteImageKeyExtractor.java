@@ -1,4 +1,4 @@
-package com.ohgiraffer.tukk_tak.tukk_tak.site.support;
+package com.ohgiraffer.tukk_tak.tukk_tak.site.application.support;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

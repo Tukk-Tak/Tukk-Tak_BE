@@ -6,7 +6,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.repository.SiteContentReposi
 import com.ohgiraffer.tukk_tak.tukk_tak.site.infrastructure.persistence.SiteJpaEntity;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.infrastructure.persistence.SpringDataSiteContentRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.infrastructure.persistence.SpringDataSiteRepository;
-import com.ohgiraffer.tukk_tak.tukk_tak.site.support.SiteImageKeyExtractor;
+import com.ohgiraffer.tukk_tak.tukk_tak.site.application.support.SiteImageKeyExtractor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;

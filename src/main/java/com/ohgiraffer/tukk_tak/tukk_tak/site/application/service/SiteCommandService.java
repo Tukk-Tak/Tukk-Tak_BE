@@ -13,7 +13,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.model.Site;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.model.SiteStatus;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.repository.SiteContentRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.repository.SiteRepository;
-import com.ohgiraffer.tukk_tak.tukk_tak.site.support.SiteImageKeyExtractor;
+import com.ohgiraffer.tukk_tak.tukk_tak.site.application.support.SiteImageKeyExtractor;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.PlanName;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

@@ -11,6 +11,17 @@ public interface SiteQueryUsecase {
 
     SiteListResult getSiteList(Long memberId);
 
+    SiteDetailResult getSite(Long siteId, Long memberId);
+
+    record SiteDetailResult(
+            Long siteId,
+            String title,
+            SiteStatus siteStatus,
+            Map<String, Object> theme,
+            List<Map<String, Object>> rows,
+            LocalDateTime lastSavedAt
+    ) {}
+
     record SiteListResult(
             int savedCount,
             int savedLimit,
