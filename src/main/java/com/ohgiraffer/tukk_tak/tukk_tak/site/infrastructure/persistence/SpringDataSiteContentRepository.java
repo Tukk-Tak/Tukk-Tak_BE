@@ -14,4 +14,7 @@ public interface SpringDataSiteContentRepository extends MongoRepository<SiteCon
     void deleteBySiteId(Long siteId);
 
     List<SiteContentDocument> findAllBySiteIdIn(List<Long> siteIds);
+
+    @Query(value = "{ 'siteId': { $in: ?0 } }", delete = true)
+    void deleteBySiteIdIn(List<Long> siteIds);
 }
