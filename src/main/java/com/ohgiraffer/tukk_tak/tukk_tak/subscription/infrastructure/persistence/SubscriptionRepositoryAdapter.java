@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -67,6 +68,13 @@ public class SubscriptionRepositoryAdapter implements SubscriptionRepository {
         return jpaRepository.findUnexpired(memberId, SubscriptionStatus.ACTIVE, today).stream()
                 .map(SubscriptionJpaEntity::toDomain)
                 .toList();
+    }
+
+    @Override
+    @Transactional
+    public boolean cancel(Long subscriptionId, LocalDateTime canceledAt) {
+        return jpaRepository.cancel(subscriptionId, SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELED,
+                canceledAt) > 0;
     }
 
 }

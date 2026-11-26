@@ -2,7 +2,9 @@ package com.ohgiraffer.tukk_tak.tukk_tak.payment.infrastructure.adapter;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.command.PgApproveCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.port.PaymentApprovalPort;
+import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.port.PaymentInquiryPort;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.result.PgApproval;
+import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.result.PgPaymentInfo;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.domain.exception.PaymentException;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.domain.model.PaymentMethod;
 import lombok.extern.slf4j.Slf4j;
@@ -19,20 +21,24 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
 
 /*
  * comment.
- *  토스페이먼츠 승인/취소 어댑터
+ *  토스페이먼츠 승인/취소/조회 어댑터
  *  시크릿 키를 Basic 인증으로 보내고, 승인 요청에는 주문번호를 Idempotency-Key로 붙인다.
  *  응답이 오기 전에 타임아웃이 나도 같은 주문으로 다시 승인하면 토스가 처음 결과를 돌려준다.
+ *  그래서 승인 여부 조회(findApproved)는 따로 구현하지 않고 포트의 기본 구현(조회 없음)을 쓴다.
+ *  결제 조회(inquire)는 웹훅을 믿지 않고 토스에 직접 상태를 확인할 때 쓴다.
  * */
 
 @Slf4j
 @Component
-public class TossPaymentsApprovalAdapter implements PaymentApprovalPort {
+public class TossPaymentsApprovalAdapter implements PaymentApprovalPort, PaymentInquiryPort {
 
     private static final String CONFIRM_URL = "https://api.tosspayments.com/v1/payments/confirm";
     private static final String CANCEL_URL = "https://api.tosspayments.com/v1/payments/%s/cancel";
+    private static final String PAYMENT_URL = "https://api.tosspayments.com/v1/payments/{paymentKey}";
     private static final String DONE = "DONE";
 
     private final RestClient restClient;
@@ -94,8 +100,40 @@ public class TossPaymentsApprovalAdapter implements PaymentApprovalPort {
                 .toBodilessEntity();
     }
 
+    @Override
+    public Optional<PgPaymentInfo> inquire(String paymentKey) {
+        try {
+            // 결제키는 웹훅 본문에서 온 믿을 수 없는 값이라, 문자열을 이어 붙이지 않고 URI 변수로 넘겨서 인코딩되게 한다
+            TossPaymentResponse response = restClient.get()
+                    .uri(PAYMENT_URL, paymentKey)
+                    .header(HttpHeaders.AUTHORIZATION, authorization)
+                    .retrieve()
+                    .body(TossPaymentResponse.class);
+
+            if (response == null) {
+                return Optional.empty();
+            }
+            return Optional.of(new PgPaymentInfo(response.paymentKey(), response.orderId(),
+                    response.status(), response.totalAmount()));
+        } catch (HttpClientErrorException.NotFound e) {
+            // 토스에 없는 결제키 (가짜 웹훅이거나 다른 상점의 결제)
+            return Optional.empty();
+        } catch (HttpClientErrorException e) {
+            // 인증 오류 등 우리 설정 문제일 수 있어서 ERROR로 남기고, 응답이 200이 아니게 해서 나중에 다시 받는다
+            log.error("[TOSS-INQUIRE-REJECTED] body={}", e.getResponseBodyAsString());
+            throw PaymentException.gatewayUnavailable();
+        } catch (RestClientException e) {
+            log.warn("[TOSS-INQUIRE-UNAVAILABLE]", e);
+            throw PaymentException.gatewayUnavailable();
+        }
+    }
+
     // 토스 승인 응답에서 쓰는 값만 받는다 (나머지는 무시)
     private record TossConfirmResponse(String paymentKey, String status, int totalAmount) {
+    }
+
+    // 토스 결제 조회 응답에서 쓰는 값만 받는다 (나머지는 무시)
+    private record TossPaymentResponse(String paymentKey, String orderId, String status, int totalAmount) {
     }
 
 }

@@ -17,6 +17,7 @@ public record PaymentHistory(
         PlanName planName,
         int months,
         int amount,
+        PaymentStatus status,       // 결제 완료(PAID) 또는 취소됨(CANCELED)
         LocalDate startDate,        // 이용 시작일
         LocalDate endDate,          // 이용 종료일 (상위 플랜 구매로 밀렸으면 밀린 날짜)
         LocalDateTime paidAt

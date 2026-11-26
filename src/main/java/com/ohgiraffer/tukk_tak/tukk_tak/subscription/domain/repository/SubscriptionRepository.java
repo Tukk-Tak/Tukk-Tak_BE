@@ -4,6 +4,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.PlanName;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.Subscription;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,5 +35,8 @@ public interface SubscriptionRepository {
 
     // 아직 끝나지 않은 ACTIVE 구독을 시작일 순으로 (이용 중 + 대기 중. 구독 조회 화면이 한 번에 나눠 쓴다)
     List<Subscription> findUnexpired(Long memberId, LocalDate today);
+
+    // 이용 중(ACTIVE)인 구독을 취소 상태로 바꾼다. 이미 취소됐거나 만료됐으면 false (결제 취소 웹훅 반영용)
+    boolean cancel(Long subscriptionId, LocalDateTime canceledAt);
 
 }
