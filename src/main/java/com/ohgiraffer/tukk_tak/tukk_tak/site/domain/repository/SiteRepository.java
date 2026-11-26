@@ -8,4 +8,6 @@ public interface SiteRepository {
     Site save(Site site);
 
     Optional<Site> findById(Long siteId);
+
+    void deleteById(Long siteId);
 }

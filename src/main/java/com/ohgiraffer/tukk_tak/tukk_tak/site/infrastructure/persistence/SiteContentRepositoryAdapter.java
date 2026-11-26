@@ -24,4 +24,9 @@ public class SiteContentRepositoryAdapter implements SiteContentRepository {
 
         springDataSiteContentRepository.save(document);
     }
+
+    @Override
+    public void deleteBySiteId(Long siteId) {
+        springDataSiteContentRepository.deleteBySiteId(siteId);
+    }
 }

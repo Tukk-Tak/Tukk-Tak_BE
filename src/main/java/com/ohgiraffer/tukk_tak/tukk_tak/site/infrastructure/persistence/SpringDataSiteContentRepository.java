@@ -1,5 +1,6 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.site.infrastructure.persistence;
 
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;
@@ -8,4 +9,6 @@ public interface SpringDataSiteContentRepository extends MongoRepository<SiteCon
 
     Optional<SiteContentDocument> findBySiteId(Long siteId);
 
+    @Query(value = "{ 'siteId': ?0 }", delete = true)
+    void deleteBySiteId(Long siteId);
 }

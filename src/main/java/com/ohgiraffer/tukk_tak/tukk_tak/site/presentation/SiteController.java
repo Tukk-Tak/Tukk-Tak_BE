@@ -14,10 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Validated
 @RestController
@@ -43,6 +40,20 @@ public class SiteController {
                         SiteResponseCode.SAVE_SUCCESS,
                         SiteResponseMessage.SAVE_SUCCESS,
                         result
+                ));
+    }
+
+    @DeleteMapping("/{siteId}")
+    public ResponseEntity<ApiResponse<Void>> delete(
+            @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal,
+            @PathVariable Long siteId
+    ){
+        siteCommandUsecase.deleteSite(siteId, customUserPrincipal.getId());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        SiteResponseCode.DELETE_SUCCESS,
+                        SiteResponseMessage.DELETE_SUCCESS
                 ));
     }
 }

@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 public interface SiteCommandUsecase {
     SaveSiteResult saveSite(SaveSiteCommand saveSiteCommand);
 
+    void deleteSite(Long siteId, Long memberId);
+
     record SaveSiteResult(
             Long siteId,
             LocalDateTime lastSavedAt

@@ -56,7 +56,7 @@ public class Site {
 
     public void validateOwner(Long requesterId) {
         if (!memberId.equals(requesterId)) {
-            throw new SiteForbiddenException("본인의 사이트만 수정할 수 있어요.");
+            throw new SiteForbiddenException("본인의 사이트만 이용할 수 있어요.");
         }
     }
 
