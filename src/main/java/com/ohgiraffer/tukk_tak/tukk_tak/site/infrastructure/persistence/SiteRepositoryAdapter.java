@@ -5,6 +5,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.repository.SiteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -35,5 +36,12 @@ public class SiteRepositoryAdapter implements SiteRepository {
     @Override
     public int countByMemberId(Long memberId) {
         return springDataSiteRepository.countByMemberId(memberId);
+    }
+
+    @Override
+    public List<Site> findAllByMemberId(Long memberId) {
+        return springDataSiteRepository.findAllByMemberIdOrderByLastSavedAtDesc(memberId).stream()
+                .map(SiteJpaEntity::toDomain)
+                .toList();
     }
 }

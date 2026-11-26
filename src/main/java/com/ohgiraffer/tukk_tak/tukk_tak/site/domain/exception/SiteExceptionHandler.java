@@ -29,6 +29,12 @@ public class SiteExceptionHandler {
         return build(HttpStatus.FORBIDDEN, "SITE_LIMIT_EXCEEDED", e.getMessage());
     }
 
+    // AI 초안 생성 횟수 한도 초과
+    @ExceptionHandler(AiDraftLimitExceededException.class)
+    public ResponseEntity<ApiErrorResponse> handleAiDraftLimitExceeded(AiDraftLimitExceededException e) {
+        return build(HttpStatus.FORBIDDEN, "AI_DRAFT_LIMIT_EXCEEDED", e.getMessage());
+    }
+
     private ResponseEntity<ApiErrorResponse> build(HttpStatus status, String code, String message) {
         return ResponseEntity.status(status)
                 .body(ApiErrorResponse.of(status.value(), code, message));

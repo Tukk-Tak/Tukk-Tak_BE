@@ -9,4 +9,11 @@ public interface SiteContentRepository {
     void save(Long siteId, Map<String, Object> theme, List<Map<String, Object>> rows);
 
     void deleteBySiteId(Long siteId);
+
+    Map<Long, SiteContent> findAllBySiteIdIn(List<Long> siteIds);
+
+    record SiteContent(
+            Map<String, Object> theme,
+            List<Map<String, Object>> rows
+    ) {}
 }

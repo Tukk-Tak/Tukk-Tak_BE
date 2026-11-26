@@ -4,7 +4,9 @@ import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.user.CustomUserPrincipal;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.command.SaveSiteCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.usecase.SiteCommandUsecase;
+import com.ohgiraffer.tukk_tak.tukk_tak.site.application.usecase.SiteQueryUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.presentation.request.SaveSiteRequest;
+import com.ohgiraffer.tukk_tak.tukk_tak.site.presentation.response.GetSiteList;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.presentation.response.SiteResponseCode;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.presentation.response.SiteResponseMessage;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.presentation.response.SaveSiteResponse;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class SiteController {
 
     private final SiteCommandUsecase siteCommandUsecase;
+    private final SiteQueryUsecase siteQueryUsecase;
 
     @PutMapping("/save")
     public ResponseEntity<ApiResponse<SaveSiteResponse>> saveSite(
@@ -54,6 +57,21 @@ public class SiteController {
                 .body(ApiResponse.success(
                         SiteResponseCode.DELETE_SUCCESS,
                         SiteResponseMessage.DELETE_SUCCESS
+                ));
+    }
+
+    @GetMapping("/list")
+    public ResponseEntity<ApiResponse<GetSiteList>> getSites(
+            @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal
+    ) {
+        GetSiteList result = GetSiteList.from(
+                siteQueryUsecase.getSiteList(customUserPrincipal.getId()));
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        SiteResponseCode.GET_SUCCESS,
+                        SiteResponseMessage.GET_SUCCESS,
+                        result
                 ));
     }
 }

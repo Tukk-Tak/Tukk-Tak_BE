@@ -2,6 +2,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.site.domain.repository;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.model.Site;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface SiteRepository {
@@ -12,4 +13,6 @@ public interface SiteRepository {
     void deleteById(Long siteId);
 
     int countByMemberId(Long memberId);
+
+    List<Site> findAllByMemberId(Long memberId);
 }
