@@ -62,4 +62,11 @@ public class SubscriptionRepositoryAdapter implements SubscriptionRepository {
         jpaRepository.pauseLowerPlans(memberId, lowerPlans.stream().map(Enum::name).toList(), fromDate, days);
     }
 
+    @Override
+    public List<Subscription> findUnexpired(Long memberId, LocalDate today) {
+        return jpaRepository.findUnexpired(memberId, SubscriptionStatus.ACTIVE, today).stream()
+                .map(SubscriptionJpaEntity::toDomain)
+                .toList();
+    }
+
 }

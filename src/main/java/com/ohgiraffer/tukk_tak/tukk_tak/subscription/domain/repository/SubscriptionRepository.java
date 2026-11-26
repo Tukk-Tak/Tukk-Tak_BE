@@ -32,4 +32,7 @@ public interface SubscriptionRepository {
     // AI 사용 횟수를 1 되돌린다 (AI 호출이 실패했을 때). 주기가 이미 바뀌었으면 건드리지 않는다
     void decreaseAiUsage(Long subscriptionId, LocalDate cycleStart);
 
+    // 아직 끝나지 않은 ACTIVE 구독을 시작일 순으로 (이용 중 + 대기 중. 구독 조회 화면이 한 번에 나눠 쓴다)
+    List<Subscription> findUnexpired(Long memberId, LocalDate today);
+
 }

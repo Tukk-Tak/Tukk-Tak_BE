@@ -65,4 +65,12 @@ public interface SubscriptionJpaRepository extends JpaRepository<SubscriptionJpa
     int pauseLowerPlans(@Param("memberId") Long memberId, @Param("planNames") List<String> planNames,
                         @Param("fromDate") LocalDate fromDate, @Param("days") int days);
 
+    // 끝나지 않은 ACTIVE 구독 전부 (회원당 몇 행 안 되므로 한 번에 읽고, 나누는 건 서비스가 한다)
+    @Query("select s from SubscriptionJpaEntity s "
+            + "where s.memberId = :memberId and s.status = :status and s.endDate >= :today "
+            + "order by s.startDate asc")
+    List<SubscriptionJpaEntity> findUnexpired(@Param("memberId") Long memberId,
+                                              @Param("status") SubscriptionStatus status,
+                                              @Param("today") LocalDate today);
+
 }
