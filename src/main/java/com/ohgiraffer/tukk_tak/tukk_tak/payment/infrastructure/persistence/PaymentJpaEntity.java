@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
  * comment.
  *  payment 테이블과 매핑되는 JPA 엔티티
  *  이 테이블에는 created_at, updated_at이 없어서 BaseTimeEntity를 상속하지 않는다. (결제 시각은 paid_at)
+ *  canceled_at은 취소 UPDATE 쿼리에서만 쓰므로 도메인(Payment)에는 올리지 않는다.
  * */
 
 @Entity
@@ -53,6 +54,9 @@ public class PaymentJpaEntity {
 
     @Column(name = "paid_at", nullable = false)
     private LocalDateTime paidAt;
+
+    @Column(name = "canceled_at")
+    private LocalDateTime canceledAt;
 
     private PaymentJpaEntity(Payment p) {
         this.id = p.getId();

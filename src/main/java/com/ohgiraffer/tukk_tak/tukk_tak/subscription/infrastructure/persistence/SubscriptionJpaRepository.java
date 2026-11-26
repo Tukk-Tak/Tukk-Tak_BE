@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 /*
@@ -72,5 +73,13 @@ public interface SubscriptionJpaRepository extends JpaRepository<SubscriptionJpa
     List<SubscriptionJpaEntity> findUnexpired(@Param("memberId") Long memberId,
                                               @Param("status") SubscriptionStatus status,
                                               @Param("today") LocalDate today);
+
+    // ACTIVE인 구독만 한 번의 UPDATE로 취소 상태로 바꾼다 (영향받은 행이 0이면 이미 취소됐거나 만료됨)
+    // 취소된 구독은 모든 조회(status = ACTIVE 조건)에서 자동으로 빠진다
+    @Modifying(clearAutomatically = true)
+    @Query("update SubscriptionJpaEntity s set s.status = :canceled, s.canceledAt = :canceledAt "
+            + "where s.id = :id and s.status = :active")
+    int cancel(@Param("id") Long id, @Param("active") SubscriptionStatus active,
+               @Param("canceled") SubscriptionStatus canceled, @Param("canceledAt") LocalDateTime canceledAt);
 
 }

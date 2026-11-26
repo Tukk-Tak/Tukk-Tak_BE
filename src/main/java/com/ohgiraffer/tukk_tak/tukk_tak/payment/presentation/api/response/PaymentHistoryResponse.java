@@ -3,6 +3,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.response;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.result.PaymentHistoryResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.domain.model.PaymentHistory;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.domain.model.PaymentMethod;
+import com.ohgiraffer.tukk_tak.tukk_tak.payment.domain.model.PaymentStatus;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.PlanName;
 
 import java.time.LocalDate;
@@ -29,6 +30,7 @@ public record PaymentHistoryResponse(
             PlanName planName,
             int months,
             int amount,
+            PaymentStatus status,       // PAID: 결제 완료, CANCELED: 취소됨
             LocalDate startDate,        // 이용 시작일
             LocalDate endDate,          // 이용 종료일
             LocalDateTime paidAt
@@ -36,8 +38,8 @@ public record PaymentHistoryResponse(
 
         public static PaymentHistoryItem from(PaymentHistory history) {
             return new PaymentHistoryItem(history.orderId(), history.method(), history.planName(),
-                    history.months(), history.amount(), history.startDate(), history.endDate(),
-                    history.paidAt());
+                    history.months(), history.amount(), history.status(), history.startDate(),
+                    history.endDate(), history.paidAt());
         }
 
     }
