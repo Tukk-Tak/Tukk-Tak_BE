@@ -1,0 +1,28 @@
+package com.ohgiraffer.tukk_tak.tukk_tak.subscription.infrastructure.adapter;
+
+import com.ohgiraffer.tukk_tak.tukk_tak.site.application.port.GetMemberPlanPort;
+import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.PlanName;
+import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.SubscriptionStatus;
+import com.ohgiraffer.tukk_tak.tukk_tak.subscription.infrastructure.persistence.SubscriptionJpaEntity;
+import com.ohgiraffer.tukk_tak.tukk_tak.subscription.infrastructure.persistence.SubscriptionJpaRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.time.LocalDate;
+
+@Component
+@RequiredArgsConstructor
+public class GetMemberPlanAdapter implements GetMemberPlanPort {
+
+    private final SubscriptionJpaRepository subscriptionJpaRepository;
+
+    @Override
+    public PlanName getPlan(Long memberId) {
+        return subscriptionJpaRepository
+                .findInUse(memberId, SubscriptionStatus.ACTIVE, LocalDate.now())
+                .stream()
+                .findFirst()
+                .map(SubscriptionJpaEntity::getPlanName)
+                .orElseThrow(() -> new IllegalStateException("이용 중인 구독이 없어요. memberId=" + memberId));
+    }
+}

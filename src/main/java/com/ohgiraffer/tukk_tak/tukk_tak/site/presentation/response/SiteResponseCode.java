@@ -4,6 +4,6 @@ public final class SiteResponseCode {
 
     public static final String SAVE_SUCCESS = "SAVE_SUCCESS";
     public static final String DELETE_SUCCESS = "DELETE_SUCCESS";
-
+    public static final String GET_SUCCESS = "GET_SUCCESS";
 
 }

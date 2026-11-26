@@ -23,6 +23,12 @@ public class SiteExceptionHandler {
         return build(HttpStatus.FORBIDDEN, "SITE_FORBIDDEN", e.getMessage());
     }
 
+    // 플랜의 저장 개수 한도를 넘은 경우
+    @ExceptionHandler(SiteLimitExceededException.class)
+    public ResponseEntity<ApiErrorResponse> handleSiteLimitExceeded(SiteLimitExceededException e) {
+        return build(HttpStatus.FORBIDDEN, "SITE_LIMIT_EXCEEDED", e.getMessage());
+    }
+
     private ResponseEntity<ApiErrorResponse> build(HttpStatus status, String code, String message) {
         return ResponseEntity.status(status)
                 .body(ApiErrorResponse.of(status.value(), code, message));

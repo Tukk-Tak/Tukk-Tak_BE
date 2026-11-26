@@ -1,6 +1,8 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.site.application.service;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.command.SaveSiteCommand;
+import com.ohgiraffer.tukk_tak.tukk_tak.site.application.policy.SaveSitePolicy;
+import com.ohgiraffer.tukk_tak.tukk_tak.site.application.port.GetMemberPlanPort;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.usecase.SiteCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.event.SiteDeletedEvent;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.exception.SiteNotFoundException;
@@ -8,6 +10,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.model.Site;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.model.SiteStatus;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.repository.SiteContentRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.repository.SiteRepository;
+import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.PlanName;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -21,9 +24,17 @@ public class SiteCommandService implements SiteCommandUsecase {
     private final SiteRepository siteRepository;
     private final SiteContentRepository siteContentRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final GetMemberPlanPort getMemberPlanPort;
+    private final SaveSitePolicy saveSitePolicy;
 
     @Override
     public SaveSiteResult saveSite(SaveSiteCommand command) {
+
+        if (command.siteId() == null) {
+            long savedCount = siteRepository.countByMemberId(command.memberId());
+            PlanName plan = getMemberPlanPort.getPlan(command.memberId());
+            saveSitePolicy.validateSaveLimit(savedCount, plan);
+        }
 
         // siteId가
         // 널이면 -> 최조 저장 : mysql에 저장 후 생성된 siteId로 몽고 db에 저장

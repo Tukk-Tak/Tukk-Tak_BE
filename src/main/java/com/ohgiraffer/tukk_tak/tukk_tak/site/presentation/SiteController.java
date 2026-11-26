@@ -25,7 +25,7 @@ public class SiteController {
     private final SiteCommandUsecase siteCommandUsecase;
 
     @PutMapping("/save")
-    public ResponseEntity<ApiResponse<SaveSiteResponse>> save(
+    public ResponseEntity<ApiResponse<SaveSiteResponse>> saveSite(
             @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal,
             @RequestBody @Valid SaveSiteRequest request
     ){
@@ -44,7 +44,7 @@ public class SiteController {
     }
 
     @DeleteMapping("/{siteId}")
-    public ResponseEntity<ApiResponse<Void>> delete(
+    public ResponseEntity<ApiResponse<Void>> deleteSite(
             @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal,
             @PathVariable Long siteId
     ){

@@ -10,4 +10,6 @@ public interface SiteRepository {
     Optional<Site> findById(Long siteId);
 
     void deleteById(Long siteId);
+
+    int countByMemberId(Long memberId);
 }

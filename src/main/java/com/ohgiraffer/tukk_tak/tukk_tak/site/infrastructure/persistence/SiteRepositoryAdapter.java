@@ -31,4 +31,9 @@ public class SiteRepositoryAdapter implements SiteRepository {
         // 몽고는 Jpa에 묶여있지 않아서 바로 삭제되니까
         // 몽고 삭제보다 먼저 DELETE가 실행되게 즉시 반영
     }
+
+    @Override
+    public int countByMemberId(Long memberId) {
+        return springDataSiteRepository.countByMemberId(memberId);
+    }
 }
