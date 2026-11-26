@@ -14,6 +14,7 @@ public class PlanResponseMessage {
     public static final String EDIT_NOT_ALLOWED = "현재 플랜에서는 사이트를 수정할 수 없습니다.";
     public static final String BUSINESS_NOT_VERIFIED = "사업자 인증을 완료해야 배포할 수 있습니다.";
     public static final String AI_CONSENT_REQUIRED = "AI 기능을 사용하려면 AI 사용 동의가 필요합니다. 마이페이지에서 동의해주세요.";
+    public static final String SUBSCRIPTION_FETCHED = "내 구독 정보를 조회했습니다.";
 
     private PlanResponseMessage() {
     }

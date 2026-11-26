@@ -1,6 +1,7 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.member.application.result;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.LoginType;
+import com.ohgiraffer.tukk_tak.tukk_tak.member.domain.model.Role;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 public record MemberInfoResult(
         String email,
         LoginType loginType,              // 화면에서 비밀번호 변경 메뉴를 보일지 정하는 데 쓴다 (GOOGLE이면 숨김)
+        Role role,                        // 권한 (BUSINESS: 사업자 회원, ADMIN: 관리자)
         String name,
         String nickname,
         String phone,                     // 숫자만 (하이픈은 프론트가 붙인다)

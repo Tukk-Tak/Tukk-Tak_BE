@@ -93,7 +93,7 @@ public class MemberProfileService implements MemberProfileUsecase {
                         b.getBusinessNumber(), b.getOpenDate(), b.getCeoName(), b.getVerifiedAt()))
                 .orElse(null);
 
-        return new MemberInfoResult(member.getEmail(), member.getLoginType(), member.getName(),
+        return new MemberInfoResult(member.getEmail(), member.getLoginType(), member.getRole(), member.getName(),
                 member.getNickname(), member.getPhone(), member.getBusinessPhone(), member.getAddress(),
                 member.isPrivacyAgreed(), member.isAiUsageAgreed(), member.getAiUsageAgreedAt(), business);
     }

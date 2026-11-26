@@ -49,6 +49,12 @@ public class Subscription {
                 SubscriptionStatus.ACTIVE, startDate, NO_EXPIRATION, null);
     }
 
+    // 결제로 새로 만드는 유료 구독 (AI 사용 0회, ACTIVE)
+    public static Subscription paid(Long memberId, PlanName planName, LocalDate startDate, LocalDate endDate) {
+        return new Subscription(null, memberId, planName, 0, null,
+                SubscriptionStatus.ACTIVE, startDate, endDate, null);
+    }
+
     // 오늘이 속한 월 주기의 시작일: 시작일에서 plusMonths로 계산해서 월말(31일 등)에도 날짜가 밀리지 않는다
     public LocalDate cycleStartOf(LocalDate today) {
         long months = ChronoUnit.MONTHS.between(startDate, today);
