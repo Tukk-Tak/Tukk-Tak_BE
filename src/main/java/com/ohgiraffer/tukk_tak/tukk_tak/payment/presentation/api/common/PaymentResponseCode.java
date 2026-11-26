@@ -13,6 +13,7 @@ public final class PaymentResponseCode {
     public static final String PAYMENT_PREPARED  = "PAYMENT-PREPARED";
     public static final String PAYMENT_QUOTED    = "PAYMENT-QUOTED";
     public static final String PAYMENT_CONFIRMED = "PAYMENT-CONFIRMED";
+    public static final String PAYMENT_HISTORY_FETCHED = "PAYMENT-HISTORY-FETCHED";
 
     // 실패
     public static final String PLAN_NOT_PURCHASABLE      = "PAYMENT-PLAN-NOT-PURCHASABLE";

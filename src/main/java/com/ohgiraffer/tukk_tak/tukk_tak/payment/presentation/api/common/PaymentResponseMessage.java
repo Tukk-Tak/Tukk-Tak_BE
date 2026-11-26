@@ -12,6 +12,7 @@ public final class PaymentResponseMessage {
     public static final String PAYMENT_PREPARED  = "결제 준비가 완료되었어요.";
     public static final String PAYMENT_QUOTED    = "결제 예상 금액과 이용 기간을 조회했습니다.";
     public static final String PAYMENT_CONFIRMED = "결제가 완료되었습니다.";
+    public static final String PAYMENT_HISTORY_FETCHED = "결제 내역을 조회했습니다.";
 
     public static final String PLAN_NOT_PURCHASABLE      = "구매할 수 없는 플랜입니다.";
     public static final String MONTHS_INVALID            = "구매할 수 없는 개월 수입니다.";

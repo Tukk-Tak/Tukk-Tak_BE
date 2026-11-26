@@ -1,9 +1,12 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.payment.application.service;
 
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.command.QuotePaymentCommand;
+import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.result.PaymentHistoryResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.result.QuotePaymentResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.usecase.PaymentQueryUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.domain.exception.PaymentException;
+import com.ohgiraffer.tukk_tak.tukk_tak.payment.domain.model.PaymentHistoryPage;
+import com.ohgiraffer.tukk_tak.tukk_tak.payment.domain.repository.PaymentRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.application.policy.PlanPrice;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.PlanName;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.repository.SubscriptionRepository;
@@ -31,6 +34,7 @@ public class PaymentQueryService implements PaymentQueryUsecase {
     private static final ZoneId SEOUL = ZoneId.of("Asia/Seoul");
 
     private final SubscriptionRepository subscriptionRepository;
+    private final PaymentRepository paymentRepository;
 
     // 한 번에 살 수 있는 최대 개월 수 (피그마 기준 24개월)
     @Value("${payment.max-months:24}")
@@ -67,6 +71,18 @@ public class PaymentQueryService implements PaymentQueryUsecase {
 
         return new QuotePaymentResult(command.planName(), command.months(), monthlyPrice, amount,
                 startDate, endDate);
+    }
+
+    @Override
+    public PaymentHistoryResult getPaymentHistory(Long memberId, int page, int size) {
+        // 1. 결제 내역을 최신순으로 한 페이지 가져온다 (결제와 구독을 한 번의 조인으로 읽는다)
+        PaymentHistoryPage historyPage = paymentRepository.findHistory(memberId, page, size);
+
+        // 2. 전체 페이지 수를 계산한다 (나머지가 있으면 한 페이지 더)
+        int totalPages = (int) ((historyPage.totalElements() + size - 1) / size);
+
+        return new PaymentHistoryResult(historyPage.content(), page, size,
+                historyPage.totalElements(), totalPages);
     }
 
 }

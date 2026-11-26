@@ -3,6 +3,7 @@ package com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.controller;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.global.security.user.CustomUserPrincipal;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.result.ConfirmPaymentResult;
+import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.result.PaymentHistoryResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.result.PreparePaymentResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.result.QuotePaymentResult;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.usecase.PaymentCommandUsecase;
@@ -11,9 +12,11 @@ import com.ohgiraffer.tukk_tak.tukk_tak.payment.application.usecase.PaymentQuery
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.common.PaymentResponseCode;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.common.PaymentResponseMessage;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.request.ConfirmPaymentRequest;
+import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.request.PaymentHistoryRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.request.PreparePaymentRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.request.QuotePaymentRequest;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.response.ConfirmPaymentResponse;
+import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.response.PaymentHistoryResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.response.PreparePaymentResponse;
 import com.ohgiraffer.tukk_tak.tukk_tak.payment.presentation.api.response.QuotePaymentResponse;
 import jakarta.validation.Valid;
@@ -85,6 +88,23 @@ public class PaymentController {
 
         return ResponseEntity.ok(ApiResponse.success(PaymentResponseCode.PAYMENT_CONFIRMED,
                 PaymentResponseMessage.PAYMENT_CONFIRMED, ConfirmPaymentResponse.from(result)));
+    }
+
+    /*
+     * comment.
+     *  결제 내역 조회 API
+     *  내 결제 내역을 최신순으로 한 페이지씩 보여준다. (page는 0부터, size는 기본 10건)
+     * */
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<PaymentHistoryResponse>> getPaymentHistory(
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            @Valid PaymentHistoryRequest request) {
+        PaymentHistoryResult result = paymentQueryUsecase.getPaymentHistory(
+                principal.getId(), request.page(), request.size());
+
+        return ResponseEntity.ok(ApiResponse.success(PaymentResponseCode.PAYMENT_HISTORY_FETCHED,
+                PaymentResponseMessage.PAYMENT_HISTORY_FETCHED, PaymentHistoryResponse.from(result)));
     }
 
 }
