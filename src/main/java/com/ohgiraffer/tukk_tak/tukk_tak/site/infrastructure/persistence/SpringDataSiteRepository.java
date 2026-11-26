@@ -25,4 +25,7 @@ public interface SpringDataSiteRepository extends JpaRepository<SiteJpaEntity,Lo
     @Modifying
     @Query("delete from SiteJpaEntity s where s.id in :ids")
     int deleteAllByIdIn(@Param("ids") List<Long> ids);
+
+    List<SiteJpaEntity> findByStatusAndCreatedAtBeforeOrderById(
+            SiteStatus status, LocalDateTime threshold, Pageable pageable);
 }
