@@ -35,6 +35,16 @@ public class SiteExceptionHandler {
         return build(HttpStatus.FORBIDDEN, "AI_DRAFT_LIMIT_EXCEEDED", e.getMessage());
     }
 
+    @ExceptionHandler(MissingSiteImageException.class)
+    public ResponseEntity<ApiErrorResponse> handleMissingSiteImage(MissingSiteImageException e) {
+        return build(HttpStatus.BAD_REQUEST, "MISSING_SITE_IMAGE", e.getMessage());
+    }
+
+    @ExceptionHandler(InvalidSiteImageException.class)
+    public ResponseEntity<ApiErrorResponse> handleInvalidSiteImage(InvalidSiteImageException e) {
+        return build(HttpStatus.BAD_REQUEST, "INVALID_SITE_IMAGE", e.getMessage());
+    }
+
     private ResponseEntity<ApiErrorResponse> build(HttpStatus status, String code, String message) {
         return ResponseEntity.status(status)
                 .body(ApiErrorResponse.of(status.value(), code, message));

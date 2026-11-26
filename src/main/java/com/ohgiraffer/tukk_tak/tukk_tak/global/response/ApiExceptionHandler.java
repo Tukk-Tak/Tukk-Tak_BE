@@ -18,6 +18,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -116,6 +117,12 @@ public class ApiExceptionHandler {
     @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
     public ResponseEntity<ApiErrorResponse> handleMediaTypeNotSupported(HttpMediaTypeNotSupportedException exception) {
         return build(HttpStatus.UNSUPPORTED_MEDIA_TYPE, ApiResponseCode.VALIDATION_ERROR, "지원하지 않는 요청 형식입니다.");
+    }
+
+    // 필수 multipart 파트가 없는 경우 (예: image 파트 누락)
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<ApiErrorResponse> handleMissingPart(MissingServletRequestPartException e) {
+        return build(HttpStatus.BAD_REQUEST, "COMMON-VALIDATION-ERROR", "필수 요청 항목이 누락되었습니다.");
     }
 
     // === 6. 예상치 못한 오류 (500, 마지막 안전망) ===

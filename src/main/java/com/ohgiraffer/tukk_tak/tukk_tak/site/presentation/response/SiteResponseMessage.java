@@ -5,5 +5,6 @@ public final class SiteResponseMessage {
     public static final String SAVE_SUCCESS = "초안 저장 성공";
     public static final String DELETE_SUCCESS = "삭제 성공";
     public static final String GET_SUCCESS = "조회 성공";
+    public static final String IMAGE_UPLOAD_SUCCESS = "이미지 업로드 성공";
 
 }

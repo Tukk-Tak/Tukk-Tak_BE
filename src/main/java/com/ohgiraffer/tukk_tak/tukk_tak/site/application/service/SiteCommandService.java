@@ -1,7 +1,9 @@
 package com.ohgiraffer.tukk_tak.tukk_tak.site.application.service;
 
+import com.ohgiraffer.tukk_tak.tukk_tak.global.s3.S3FileStorage;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.command.SaveSiteCommand;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.policy.SaveSitePolicy;
+import com.ohgiraffer.tukk_tak.tukk_tak.site.application.policy.SiteImagePolicy;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.port.GetMemberPlanPort;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.usecase.SiteCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.event.SiteDeletedEvent;
@@ -12,9 +14,11 @@ import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.repository.SiteContentReposi
 import com.ohgiraffer.tukk_tak.tukk_tak.site.domain.repository.SiteRepository;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.PlanName;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,11 @@ public class SiteCommandService implements SiteCommandUsecase {
     private final ApplicationEventPublisher eventPublisher;
     private final GetMemberPlanPort getMemberPlanPort;
     private final SaveSitePolicy saveSitePolicy;
+    private final SiteImagePolicy siteImagePolicy;
+    private final S3FileStorage s3FileStorage;
+
+    @Value("${cloud.aws.cloudfront.domain}")
+    private String cloudFrontDomain;
 
     @Override
     public SaveSiteResult saveSite(SaveSiteCommand command) {
@@ -70,6 +79,15 @@ public class SiteCommandService implements SiteCommandUsecase {
         if (site.getStatus() == SiteStatus.PUBLISHED) {
             eventPublisher.publishEvent(new SiteDeletedEvent(siteId, site.getSlug()));
         }
+    }
+
+    @Override
+    public UploadImageResult uploadImage(Long memberId, MultipartFile image) {
+        siteImagePolicy.validate(image);
+
+        String key = s3FileStorage.upload(image, "site/" + memberId);
+
+        return new UploadImageResult(cloudFrontDomain + "/" + key);
     }
 
     private Site updateSite(SaveSiteCommand command) {

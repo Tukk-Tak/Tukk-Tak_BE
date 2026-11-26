@@ -6,17 +6,16 @@ import com.ohgiraffer.tukk_tak.tukk_tak.site.application.command.SaveSiteCommand
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.usecase.SiteCommandUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.application.usecase.SiteQueryUsecase;
 import com.ohgiraffer.tukk_tak.tukk_tak.site.presentation.request.SaveSiteRequest;
-import com.ohgiraffer.tukk_tak.tukk_tak.site.presentation.response.GetSiteList;
-import com.ohgiraffer.tukk_tak.tukk_tak.site.presentation.response.SiteResponseCode;
-import com.ohgiraffer.tukk_tak.tukk_tak.site.presentation.response.SiteResponseMessage;
-import com.ohgiraffer.tukk_tak.tukk_tak.site.presentation.response.SaveSiteResponse;
+import com.ohgiraffer.tukk_tak.tukk_tak.site.presentation.response.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Validated
 @RestController
@@ -71,6 +70,22 @@ public class SiteController {
                 .body(ApiResponse.success(
                         SiteResponseCode.GET_SUCCESS,
                         SiteResponseMessage.GET_SUCCESS,
+                        result
+                ));
+    }
+
+    @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<UploadSiteImage>> uploadImage(
+            @AuthenticationPrincipal CustomUserPrincipal customUserPrincipal,
+            @RequestPart("image") MultipartFile image
+    ){
+        UploadSiteImage result = UploadSiteImage.from(
+                siteCommandUsecase.uploadImage(customUserPrincipal.getId(), image));
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        SiteResponseCode.IMAGE_UPLOAD_SUCCESS,
+                        SiteResponseMessage.IMAGE_UPLOAD_SUCCESS,
                         result
                 ));
     }
