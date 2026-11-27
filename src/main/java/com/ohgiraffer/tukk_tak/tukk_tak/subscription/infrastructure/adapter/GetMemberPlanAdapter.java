@@ -6,10 +6,12 @@ import com.ohgiraffer.tukk_tak.tukk_tak.subscription.domain.model.SubscriptionSt
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.infrastructure.persistence.SubscriptionJpaEntity;
 import com.ohgiraffer.tukk_tak.tukk_tak.subscription.infrastructure.persistence.SubscriptionJpaRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class GetMemberPlanAdapter implements GetMemberPlanPort {
@@ -23,6 +25,8 @@ public class GetMemberPlanAdapter implements GetMemberPlanPort {
                 .stream()
                 .findFirst()
                 .map(SubscriptionJpaEntity::getPlanName)
-                .orElseThrow(() -> new IllegalStateException("이용 중인 구독이 없어요. memberId=" + memberId));
-    }
+                .orElseGet(() -> {
+                    log.warn("[get-member-plan] 이용 중인 구독 없음, FREE로 대체 | memberId={}", memberId);
+                    return PlanName.FREE;
+                });    }
 }

@@ -39,6 +39,17 @@ public class SiteCommandService implements SiteCommandUsecase {
     private final S3FileStorage s3FileStorage;
     private final SiteImageKeyExtractor siteImageKeyExtractor;
 
+    /**
+     * mysql은 JPA에 영향을 받아서 트랜잭셔널로 되돌려지지만
+     * 몽고Db는 그렇지 않음
+     * 그래서 일부러 mysql 먼저 저장하고 몽고 db를 저장하고
+     * 몽고가 실패하면 mysql도 실패하도록 했는데
+     * 몽고에 저장이 됐는데 mysql커밋이 실패한다면
+     * 나중에 커밋하고 나서 목고를 쓰던가
+     * 재시도나 조정장치를 나중에 만들던가 해야하는데
+     * 그거는 발생 가능성이 낮아서 정합성 문제가 생기면 그때 수정하기로 함
+     * */
+
     @Value("${cloud.aws.cloudfront.domain}")
     private String cloudFrontDomain;
 
