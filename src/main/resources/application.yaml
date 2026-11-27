@@ -103,6 +103,12 @@ cloud:
     cloudfront:
       domain: https://d2hgd0fvvrj50a.cloudfront.net
 
+  # ===== AI =====
+ai:
+  provider: gemini
+  api-key: ${AI_API_KEY}
+  model: gemini-3.5-flash-lite
+
   # ==== 결제 ====
 payment:
   max-months: 24             # 한 번에 살 수 있는 최대 개월 수 (안전장치)
