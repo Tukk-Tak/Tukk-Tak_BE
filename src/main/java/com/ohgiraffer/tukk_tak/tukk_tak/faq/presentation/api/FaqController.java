@@ -7,6 +7,7 @@ import com.ohgiraffer.tukk_tak.tukk_tak.faq.presentation.api.response.FaqRespons
 import com.ohgiraffer.tukk_tak.tukk_tak.global.response.ApiResponse;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,10 +23,11 @@ public class FaqController {
             @RequestParam @NotBlank String question
             ){
 
-        return ResponseEntity.ok(ApiResponse.success(
-                FaqResponseCode.ANSWER_FOUND,
-                FaqResponseMessage.ANSWER_FOUND,
-                new AnswerFaq(faqUsecase.getFaqAnswer(question))
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        FaqResponseCode.ANSWER_FOUND,
+                        FaqResponseMessage.ANSWER_FOUND,
+                        new AnswerFaq(faqUsecase.getFaqAnswer(question))
         ));
     }
 }
